@@ -8,7 +8,9 @@ import { SxParserState,
          SxSymbol,
          SxDottedPair,
          SxDottedFragment,
-         SxToken          } from './types';
+         SxToken,
+         SxScope,
+         isSymbol } from './types';
 
 
 
@@ -23,10 +25,17 @@ export function resolveMacro(state: SxParserState, x: SxSymbol): ((list: SxToken
 
 
 export function resolveFunctionSymbol(state: SxParserState, x: SxSymbol) {
+    if (typeof x === 'function') {
+        return x;
+    }
     const funcInfo = state.funcMap.get(x.symbol);
     if (funcInfo) {
         return funcInfo.fn(state, x.symbol);
     } else {
+        const v = resolveValueSymbol(state, x);
+        if (typeof v === 'function') {
+            return v;
+        }
         if (state.config.funcSymbolResolverFallback) {
             return state.config.funcSymbolResolverFallback(state, x.symbol);
         }
@@ -38,9 +47,27 @@ export function resolveFunctionSymbol(state: SxParserState, x: SxSymbol) {
 }
 
 
+export function resolveValueSymbolScope(state: SxParserState, x: SxSymbol, nullIfNotDefined: boolean) {
+    for (let i = state.scopes.length - 1; i > 0; i--) {
+        const localScope: SxScope = state.scopes[i];
+        if (localScope && Object.prototype.hasOwnProperty.call(localScope.scope, x.symbol)) {
+            return localScope.scope;
+        }
+        if (! localScope.isBlockLocal) {
+            break;
+        }
+    }
+    const globalScope = getGlobalScope(state);
+    if (Object.prototype.hasOwnProperty.call(globalScope.scope, x.symbol)) {
+        return globalScope.scope;
+    }
+    return nullIfNotDefined ? null : getScope(state).scope;
+}
+
+
 export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
-    const scope = getScope(state);
-    if (scope && Object.prototype.hasOwnProperty.call(scope, x.symbol)) {
+    const scope = resolveValueSymbolScope(state, x, true);
+    if (scope) {
         return scope[x.symbol];
     }
     const symInfo = state.symbolMap.get(x.symbol);
@@ -58,16 +85,68 @@ export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
 }
 
 
-export function installScope(state: SxParserState, scope: any): any {
-    state.scopes.push(scope);
+export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean): any {
+    state.scopes.push({isBlockLocal, scope});
 }
 
+
 export function uninstallScope(state: SxParserState): any {
+    if (state.scopes.length < 2) {
+        throw new Error(`[SX] uninstallScope: Unable to pop stack.`);
+    }
     return state.scopes.pop();
 }
 
-export function getScope(state: SxParserState): any {
+
+export function getScope(state: SxParserState) {
     return state.scopes[state.scopes.length - 1];
+}
+
+
+export function getGlobalScope(state: SxParserState) {
+    return state.scopes[0];
+}
+
+
+export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], fnBody: SxToken[]) {
+    // S expression: ($__lambda '(sym1 ... symN) 'expr1 ... 'exprN)
+    //    formalArgs: 'sym1 ... 'symN
+    //        fnBody: 'expr1 ... 'exprN
+    if (Array.isArray(fnBody[fnBody.length - 1])) {
+        const front = fnBody.slice(0, fnBody.length - 1);
+        const tail = fnBody[fnBody.length - 1];
+        if (tail && tail[0].symbol === state.config.reservedNames.if) {
+            // S expression: ($if cond t-expr f-expr)
+            if (tail[3][0].symbol === state.config.reservedNames.self) {
+                // S expression (recursive):
+                //     (   ;; fnBody
+                //         expr1 ... exprN-1             ;; front
+                //         ($if cond                     ;; tail[0] [1]
+                //             t-expr                    ;;     [2]
+                //             ($self                    ;;     [3]
+                //                 rArgs1 ... rArgsN) )  ;; tail
+                //     )
+                //
+                //  -> S exp (tail call optimization):
+                //     (   ;; fnBody
+                //         ($do-until cond
+                //             expr1 ... exprN-1
+                //             ($let sym1 rArgs1) ... ($let symN rArgsN) )
+                //         t-expr
+                //     )
+
+                return [
+                    [{symbol: state.config.reservedNames.until}, tail[1],
+                        ...front,
+                        ...((tail[3].slice(1) as any[]).map((x: any, idx) =>
+                            [{symbol: state.config.reservedNames.let}, formalArgs[idx], x])),
+                    ],
+                    tail[2],
+                ];
+            }
+        }
+    }
+    return fnBody;
 }
 
 
@@ -82,8 +161,9 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
             if (r.length === 0) {
                 return r;
             }
-            if (Object.prototype.hasOwnProperty.call(r[0], 'symbol')) {
-                const m = resolveMacro(state, r[0] as SxSymbol);
+            const sym = isSymbol(r[0]);
+            if (sym) {
+                const m = resolveMacro(state, sym);
 
                 if (m) {
                     r = m(r);
@@ -101,8 +181,8 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
     if (Array.isArray(r)) {
         r = r.slice(0);
         if (0 < r.length) {
-            const sym = r[0] as SxSymbol;
-            if (Object.prototype.hasOwnProperty.call(sym, 'symbol')) {
+            const sym = isSymbol(r[0]);
+            if (sym) {
                 if (sym.symbol === state.config.reservedNames.quote) {
                     return r.slice(1, 2)[0];
                 }
@@ -115,7 +195,15 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
                 r[i] = evalute(state, r[i]);
             }
 
-            const fn = resolveFunctionSymbol(state, sym) as any;
+            let fn: any;
+            if (typeof r[0] === 'function') {
+                fn = r[0];
+            } else if (sym) {
+                fn = resolveFunctionSymbol(state, sym);
+            } else {
+                fn = evalute(state, r[0]);
+            }
+
             if (typeof fn === 'function') {
                 r = (fn as any)(...(r.slice(1)));
             } else {
@@ -127,10 +215,16 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
     } else if (Object.prototype.hasOwnProperty.call(r, 'symbol')) {
         r = resolveValueSymbol(state, r as SxSymbol);
     } else if (Object.prototype.hasOwnProperty.call(r, 'car')) {
-        r = [
-            evalute(state, (r as SxDottedPair).car),
-            evalute(state, (r as SxDottedPair).cdr),
-        ];
+        if (Array.isArray((r as SxDottedPair).cdr)) {
+            const a = ((r as SxDottedPair).cdr as any[]).slice(0);
+            a.unshift((r as SxDottedPair).car);
+            r = evalute(state, a);
+        } else {
+            r = {
+                car: evalute(state, (r as SxDottedPair).car),
+                cdr: evalute(state, (r as SxDottedPair).cdr),
+            };
+        }
     } else if (Object.prototype.hasOwnProperty.call(r, 'dotted')) {
         r = [
             evalute(state, (r as SxDottedFragment).dotted),

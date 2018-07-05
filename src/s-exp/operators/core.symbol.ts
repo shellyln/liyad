@@ -4,17 +4,29 @@
 
 
 import { SxParserState,
-         SxSymbolInfo  } from './types';
+         SxSymbolInfo } from '../types';
 
 
 
 export const symbols: SxSymbolInfo[] = [
     {name: 'nil', fn: (state: SxParserState, name: string) => []},
     {name: 'null', fn: (state: SxParserState, name: string) => null},
+
     {name: 'undefined', fn: (state: SxParserState, name: string) => void 0},
+
     {name: 'true', fn: (state: SxParserState, name: string) => true},
+    {name: '#true', fn: (state: SxParserState, name: string) => true},
+    {name: '#t', fn: (state: SxParserState, name: string) => true},
+
     {name: 'false', fn: (state: SxParserState, name: string) => false},
+    {name: '#false', fn: (state: SxParserState, name: string) => false},
+    {name: '#f', fn: (state: SxParserState, name: string) => false},
+
     {name: '+Infinity', fn: (state: SxParserState, name: string) => +Infinity},
     {name: '-Infinity', fn: (state: SxParserState, name: string) => -Infinity},
+
     {name: 'NaN', fn: (state: SxParserState, name: string) => NaN},
 ];
+
+
+export default symbols;

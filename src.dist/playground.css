@@ -1,0 +1,12 @@
+
+
+body {
+    font-family: 'Ubuntu Mono', monospace;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}

@@ -6,28 +6,86 @@
 import { SxMacroInfo,
          SxFuncInfo,
          SxSymbolInfo,
+         SxReservedNames,
          SxParserConfig,
          SxParserState,
-         SxToken }      from './types';
-import { parse }        from './parser';
-import { evalute }      from './evalute';
-import { macros }       from './macros';
-import { funcs, $jsxStandardTag }        from './operators';
-import { symbols }      from './symbols';
+         SxToken,
+         LsxConfig }        from './types';
+import { parse }            from './parser';
+import { evalute }          from './evalute';
+import installCore          from './operators/core';
+import installArithmetic    from './operators/arithmetic';
+import installSequence      from './operators/sequence';
+import installJsx           from './operators/jsx';
+import { $jsxStandardTag }  from './operators/jsx.fn';
+
+
+
+export const defaultReservedNames: SxReservedNames = {
+    eval: '$eval',
+    quote: '$quote',
+
+    car: '$car',
+    cdr: '$cdr',
+    cons: '$cons',
+    atom: '$atom',
+    eq: '$eq',
+    list: '$list',
+
+    let: '$clisp-let',
+    lambda: '$lambda',
+    self: '$self',
+    defun: '$defun',
+
+    if: '$if',
+    cond: '$cond',
+
+    while: '$while',
+    doWhile: '$do-while',
+    until: '$until',
+    doUntil: '$do-until',
+
+    get: '$get',
+    defvar: '$clisp-defvar',
+    setq: '$clisp-setq',
+    set: '$set',
+
+    not: '$not',
+    and: '$and',
+    or: '$or',
+
+    Template: 'Template',
+};
+
+export const defaultConfig: SxParserConfig = {
+    raiseOnUnresolvedSymbol: false,
+    enableEvalute: true,
+    enableHereDoc: true,
+    enableTailCallOptimization: true,
+    stripComments: false,
+    strippedCommentValue: [],
+    wrapExternalValue: true,
+    returnMultipleRoot: false,
+
+    reservedNames: defaultReservedNames,
+    symbols: [],
+    macros: [],
+    funcs: [],
+};
 
 
 
 export function SExpression(config: SxParserConfig): (strings: TemplateStringsArray, ...values: any[]) => SxToken {
     return (strings: TemplateStringsArray, ...values: any[]) => {
         const state: SxParserState = {
-            strings,
-            values,
+            strings: typeof strings === 'string' ? [strings] : strings,
+            values: values || [],
 
             index: 0,
             pos: 0,
             line: 0,
 
-            scopes: [{}],
+            scopes: [{isBlockLocal: false, scope: {}}],
 
             macroMap: new Map<string, SxMacroInfo>(config.macros.map(x => [x.name, x] as [string, SxMacroInfo])),
             funcMap: new Map<string, SxFuncInfo>(config.funcs.map(x => [x.name, x] as [string, SxFuncInfo])),
@@ -44,59 +102,67 @@ export function SExpression(config: SxParserConfig): (strings: TemplateStringsAr
             }
         }
 
-        return s.length === 1 ? s[0] : s;
+        if (config.returnMultipleRoot) {
+            return s.length === 1 ? s[0] : s;
+        } else {
+            return s[s.length - 1];
+        }
     };
 }
 
 
 
-export const S = SExpression({
-    raiseOnUnresolvedSymbol: false,
-    enableEvalute: false,
-    enableHereDoc: true,
-    stripComments: false,
-    strippedCommentValue: ' ',
-    wrapExternalValue: true,
+export const S = (() => {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
 
-    reservedNames: {
-        quote: '$quote',
-        eval: '$eval',
-        list: '$list',
-        Template: '$list',
-    },
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
 
-    macros,
-    funcs,
-    symbols,
-});
+    config.enableEvalute = false;
+    config.returnMultipleRoot = true;
+
+    return SExpression(config);
+})();
 
 
 
-export const SS = SExpression({
-    raiseOnUnresolvedSymbol: false,
-    enableEvalute: true,
-    enableHereDoc: true,
-    stripComments: false,
-    strippedCommentValue: ' ',
-    wrapExternalValue: true,
+export const L = (() => {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
 
-    reservedNames: {
-        quote: '$quote',
-        eval: '$eval',
-        list: '$list',
-        Template: '$list',
-    },
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
 
-    macros,
-    funcs: funcs.concat({name: 'DIV', fn: $jsxStandardTag}),
-    symbols,
+    return SExpression(config);
+})();
 
-    jsx: (comp, props, ...children) => {
-        return {
-            JSX: 'Debug handler',
-            comp,
-            props,
-            children,
-        };
-    }
-});
+export const LS = L;
+export const lisp = L;
+
+
+
+export const LM = (() => {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
+
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
+
+    config.returnMultipleRoot = true;
+
+    return SExpression(config);
+})();
+
+
+
+export function LSX<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsArray, ...values: any[]) => R {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
+
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
+    config = installJsx(config, lsxConf);
+
+    return SExpression(config) as any;
+}

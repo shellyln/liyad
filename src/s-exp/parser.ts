@@ -9,7 +9,8 @@ import { SxParserState,
          SxSymbol,
          SxComment,
          SxToken,
-         SxChar          } from './types';
+         SxChar,
+         quote } from './types';
 
 
 
@@ -28,6 +29,11 @@ function isNumberFirstChar(ch: SxChar): boolean {
 }
 
 
+function isNumberAfterSignChar(ch: SxChar): boolean {
+    return typeof ch === 'string' && /^[0-9]$/.test(ch);
+}
+
+
 function isSymbolFirstChar(ch: SxChar): boolean {
     return typeof ch === 'string' &&
         !isSpace(ch) &&
@@ -37,9 +43,9 @@ function isSymbolFirstChar(ch: SxChar): boolean {
 
 
 function lookCurrentLineHint(state: SxParserState): string {
-    return `${state.line}:${state.index}:${state.pos}:${
+    return `line: ${state.line} / strings: ${state.index} / pos: ${state.pos} :${
         state.strings.length > state.index ?
-            state.strings[state.index].slice(state.pos, state.pos + 10) : ''}`;
+            state.strings[state.index].slice(state.pos, state.pos + 20) : ''}`;
 }
 
 
@@ -64,6 +70,7 @@ function getChar(state: SxParserState, virtualEof?: string[]): SxChar {
             const ch = state.strings[state.index].slice(state.pos, state.pos + v.length);
             if (ch === v) {
                 state.pos += v.length;
+                state.line += ch.split('\n').length - 1;
                 return { eof: false , eofSeq: v };
             }
         }
@@ -71,6 +78,10 @@ function getChar(state: SxParserState, virtualEof?: string[]): SxChar {
     {
         let ch = state.strings[state.index].slice(state.pos, state.pos + 1);
         state.pos++;
+
+        if (ch === '\n') {
+            state.line++;
+        }
 
         if (ch === '\\') {
             if (state.strings[state.index].length <= state.pos) {
@@ -140,6 +151,7 @@ function getChar(state: SxParserState, virtualEof?: string[]): SxChar {
 function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxChar[] {
     const index = state.index;
     const pos = state.pos;
+    const line = state.line;
     const chs: SxChar[] = [];
 
     try {
@@ -149,6 +161,7 @@ function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxC
     } finally {
         state.index = index;
         state.pos = pos;
+        state.line = line;
     }
 
     return chs;
@@ -158,6 +171,7 @@ function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxC
 function lookAhead(state: SxParserState, virtualEof?: string[]): SxChar {
     const index = state.index;
     const pos = state.pos;
+    const line = state.line;
     let ch: SxChar;
 
     try {
@@ -165,6 +179,7 @@ function lookAhead(state: SxParserState, virtualEof?: string[]): SxChar {
     } finally {
         state.index = index;
         state.pos = pos;
+        state.line = line;
     }
 
     return ch;
@@ -291,7 +306,7 @@ function parseStringOrComment(
 
 
 function parseString(state: SxParserState): string {
-    return parseStringOrComment(state, ['"', '\r', '\n'], null, ')').strings[0];
+    return parseStringOrComment(state, ['"'], null, ')').strings[0];
 }
 
 
@@ -328,7 +343,6 @@ function parseMultiLineComment(state: SxParserState): SxComment | ' ' {
 }
 
 
-
 function parseOneToken(state: SxParserState): SxToken {
     skipWhitespaces(state);
     let ch = lookAhead(state);
@@ -346,7 +360,7 @@ function parseOneToken(state: SxParserState): SxToken {
             {
                 getChar(state);
                 skipWhitespaces(state);
-                return parseQuotedOneToken(state, {symbol: state.config.reservedNames.quote});
+                return quote(state, parseOneToken(state));
             }
 
         case ".":
@@ -357,12 +371,17 @@ function parseOneToken(state: SxParserState): SxToken {
         case '"':
             {
                 getChar(state);
-                const aheads = lookAheads(state, 3);
+                const aheads = lookAheads(state, 4);
                 if (state.config.enableHereDoc && aheads[0] === '"' && aheads[1] === '"') {
                     let isHereDoc = true;
                     if (isEOF(aheads[2]) || isSpace(aheads[2])) {
                         // here doc
                     } else if (isNumberFirstChar(aheads[2])) { // TODO: single +/- char is a symbol.
+                        if (aheads[2] === '+' || aheads[2] === '-') {
+                            if (! isNumberAfterSignChar(aheads[3])) {
+                                isHereDoc = false;
+                            }
+                        }
                         // here doc
                     } else if (isSymbolFirstChar(aheads[2])) {
                         isHereDoc = false;
@@ -428,6 +447,12 @@ function parseOneToken(state: SxParserState): SxToken {
             } else if (isSpace(ch)) {
                 break;
             } else if (isNumberFirstChar(ch)) { // TODO: single +/- char is a symbol.
+                if (ch === '+' || ch === '-') {
+                    const aheads = lookAheads(state, 2);
+                    if (! isNumberAfterSignChar(aheads[1])) {
+                        return parseSymbol(state);
+                    }
+                }
                 return parseNumber(state);
             } else if (isSymbolFirstChar(ch)) {
                 return parseSymbol(state);
@@ -442,14 +467,6 @@ function parseOneToken(state: SxParserState): SxToken {
 
     throw new Error(`[SX] parseOneToken: Unexpected termination of script.`);
 }
-
-
-function parseQuotedOneToken(state: SxParserState, symbol: SxSymbol): SxToken[] {
-    const q: SxToken = [symbol];
-    q.push(parseOneToken(state));
-    return q;
-}
-
 
 
 function parseList(state: SxParserState, listStopChar: string, initialList: SxToken[]) {
@@ -510,7 +527,7 @@ export function parse(state: SxParserState) {
             {
                 getChar(state);
                 skipWhitespaces(state);
-                r.push(parseQuotedOneToken(state, {symbol: state.config.reservedNames.quote}));
+                r.push(quote(state, parseOneToken(state)));
                 break;
             }
 

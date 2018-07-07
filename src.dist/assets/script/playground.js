@@ -111,7 +111,7 @@ class ExampleLoader extends React.Component {
 }
 
 
-class EvaluteButtons extends React.Component {
+class EvaluateButtons extends React.Component {
     constructor(props, context) {
         super(props, context);
 
@@ -124,15 +124,15 @@ class EvaluteButtons extends React.Component {
             document.getElementById(this.props.outputId));
     };
 
-    handleEvaluteAsLispClick(evt) {
+    handleEvaluateAsLispClick(evt) {
         const editor = AppState.AceEditor[this.props.editorId];
-        this.props.evaluteLisp(editor.getValue(),
+        this.props.evaluateLisp(editor.getValue(),
             document.getElementById(this.props.outputId));
     };
 
-    handleEvaluteAsLsxClick(evt) {
+    handleEvaluateAsLsxClick(evt) {
         const editor = AppState.AceEditor[this.props.editorId];
-        this.props.evaluteLsx(editor.getValue(),
+        this.props.evaluateLsx(editor.getValue(),
             document.getElementById(this.props.lsxRootId),
             document.getElementById(this.props.outputId));
     };
@@ -146,11 +146,11 @@ class EvaluteButtons extends React.Component {
             " "
             (button (@ (style (textTransform "none"))
                        (className "waves-effect waves-light red lighten-1 btn")
-                       (onClick ${(e) => this.handleEvaluteAsLispClick(e)}) ) "Evalute as Lisp")
+                       (onClick ${(e) => this.handleEvaluateAsLispClick(e)}) ) "Evaluate as Lisp")
             " "
             (button (@ (style (textTransform "none"))
                        (className "waves-effect waves-light red lighten-1 btn")
-                       (onClick ${(e) => this.handleEvaluteAsLsxClick(e)}) ) "Evalute as Lsx")
+                       (onClick ${(e) => this.handleEvaluateAsLsxClick(e)}) ) "Evaluate as Lsx")
         )`);
     }
 }
@@ -188,11 +188,11 @@ class App extends React.Component {
         outputElement.appendChild(x);
     }
 
-    evaluteLisp(code, outputElement) {
+    evaluateLisp(code, outputElement) {
         let r = '';
 
         try {
-            r = liyad.lisp(code);
+            r = JSON.stringify(liyad.lisp(code));
         } catch (e) {
             r = e.toString();
         }
@@ -207,7 +207,7 @@ class App extends React.Component {
         outputElement.appendChild(x);
     }
 
-    evaluteLsx(code, lsxRootElement, outputElement) {
+    evaluateLsx(code, lsxRootElement, outputElement) {
         let r = '';
 
         try {
@@ -235,15 +235,15 @@ class App extends React.Component {
             (div (@ (style (margin "4px")))
                 (ExampleLoader  (@ (loadExample ${(i) => this.loadExample(i)}) ))
                 " "
-                (EvaluteButtons (@ (editorId "editor")
+                (EvaluateButtons (@ (editorId "editor")
                                    (lsxRootId "root")
                                    (outputId "root")
                                    (parseSExpression ${(code, outputElement) =>
                                        this.parseSExpression(code, outputElement)})
-                                   (evaluteLisp ${(code, outputElement) =>
-                                       this.evaluteLisp(code, outputElement)})
-                                   (evaluteLsx ${(code, lsxRootElement, outputElement) =>
-                                       this.evaluteLsx(code, lsxRootElement, outputElement)}) ))
+                                   (evaluateLisp ${(code, outputElement) =>
+                                       this.evaluateLisp(code, outputElement)})
+                                   (evaluateLsx ${(code, lsxRootElement, outputElement) =>
+                                       this.evaluateLsx(code, lsxRootElement, outputElement)}) ))
             )
             (div (@ (style (display "flex")
                            (flexWrap "wrap") ))
@@ -278,7 +278,7 @@ window.lsx = liyad.LSX({
     components: {
         AceEditor,
         ExampleLoader,
-        EvaluteButtons,
+        EvaluateButtons,
         App,
     },
 });

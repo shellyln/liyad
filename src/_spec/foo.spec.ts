@@ -101,6 +101,7 @@ describe("foo", function() {
     });
 });
 
+/*
 describe("foo", function() {
     it("foo", function() {
         console.log(JSON.stringify(LM`
@@ -118,6 +119,7 @@ describe("foo", function() {
         expect(1).toEqual(1);
     });
 });
+*/
 
 
 

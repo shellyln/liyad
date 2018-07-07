@@ -12,12 +12,11 @@ import { SxMacroInfo,
          SxToken,
          LsxConfig }        from './types';
 import { parse }            from './parser';
-import { evalute }          from './evalute';
+import { evaluate }          from './evaluate';
 import installCore          from './operators/core';
 import installArithmetic    from './operators/arithmetic';
 import installSequence      from './operators/sequence';
 import installJsx           from './operators/jsx';
-import { $jsxStandardTag }  from './operators/jsx.fn';
 
 
 
@@ -59,7 +58,7 @@ export const defaultReservedNames: SxReservedNames = {
 
 export const defaultConfig: SxParserConfig = {
     raiseOnUnresolvedSymbol: false,
-    enableEvalute: true,
+    enableEvaluate: true,
     enableHereDoc: true,
     enableTailCallOptimization: true,
     stripComments: false,
@@ -96,9 +95,9 @@ export function SExpression(config: SxParserConfig): (strings: TemplateStringsAr
 
         const s = parse(state);
 
-        if (config.enableEvalute) {
+        if (config.enableEvaluate) {
             for (let i = 0; i < s.length; i++) {
-                s[i] = evalute(state, s[i]);
+                s[i] = evaluate(state, s[i]);
             }
         }
 
@@ -119,7 +118,7 @@ export const S = (() => {
     config = installArithmetic(config);
     config = installSequence(config);
 
-    config.enableEvalute = false;
+    config.enableEvaluate = false;
     config.returnMultipleRoot = true;
 
     return SExpression(config);

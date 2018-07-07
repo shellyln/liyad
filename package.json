@@ -1,13 +1,15 @@
 {
   "name": "liyad",
   "private": false,
-  "version": "0.0.2",
-  "description": "Liyad (Lisp yet another DSL interpreter) is very small Lisp interpreter written in Javascript.",
+  "version": "0.0.3",
+  "description": "Liyad (Lisp yet another DSL interpreter) is very small Lisp interpreter written in JavaScript.",
   "keywords": [
     "LISP",
     "S-expression",
     "DSL",
-    "jsx"
+    "JSX",
+    "LSX",
+    "TypeScript"
   ],
   "main": "./bin/index.js",
   "module": "./modules/index.js",
@@ -46,18 +48,22 @@
     "webpack-cli": "^3.0.8"
   },
   "scripts": {
-    "clean": "run-s clean:cjs clean:esm clean:spec",
+    "clean": "run-s clean:cjs clean:esm clean:spec clean:dist",
     "clean:cjs": "rimraf ./bin",
     "clean:esm": "rimraf ./modules",
     "clean:spec": "rimraf ./bin.test",
+    "clean:dist": "rimraf ./dist",
     "build": "run-s build:cjs build:esm build:spec",
     "build:cjs": "tsc --module commonjs --target es2015 --outDir bin --declaration --declarationDir ./bin",
     "build:esm": "tsc --outDir modules --declaration --declarationDir ./modules",
     "build:spec": "webpack-cli --mode=development --config webpack.config.js",
     "build:spec2": "tsc -p tsconfig.spec.json --module commonjs --target es2015 --outDir bin.test",
-    "build:dist": "run-s build:dist:1 build:dist:2",
-    "build:dist:1": "webpack-cli --mode=development --config webpack.dist.config.js",
-    "build:dist:2": "cpx ./src.dist/* ./dist/.",
+    "build:dist": "run-s build:dist:var:dev:1 build:dist:2",
+    "build:dist:var:prod:1": "webpack-cli --mode=production --config webpack.dist.config.js",
+    "build:dist:var:dev:1": "webpack-cli --mode=development --config webpack.dist.config.js",
+    "build:dist:umd:prod:1": "webpack-cli --mode=production --config webpack.dist.config.js",
+    "build:dist:umd:dev:1": "webpack-cli --mode=development --config webpack.dist.config.js",
+    "build:dist:2": "cpx -C \"./src.dist/**/!(liyad.js|liyad.js.map)\" ./dist",
     "lint": "tslint ./src/**/*.ts -t verbose",
     "test": "jasmine",
     "prepublishOnly": "run-s clean build test"

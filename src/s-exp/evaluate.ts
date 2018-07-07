@@ -150,7 +150,7 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
 }
 
 
-export function evalute(state: SxParserState, x: SxToken): SxToken {
+export function evaluate(state: SxParserState, x: SxToken): SxToken {
     if (x === null || x === void 0) {
         return x;
     }
@@ -187,12 +187,12 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
                     return r.slice(1, 2)[0];
                 }
                 if (sym.symbol === state.config.reservedNames.eval) {
-                    return evalute(state, r[1]);
+                    return evaluate(state, r[1]);
                 }
             }
 
             for (let i = r.length - 1; i > 0; i--) {
-                r[i] = evalute(state, r[i]);
+                r[i] = evaluate(state, r[i]);
             }
 
             let fn: any;
@@ -201,13 +201,13 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
             } else if (sym) {
                 fn = resolveFunctionSymbol(state, sym);
             } else {
-                fn = evalute(state, r[0]);
+                fn = evaluate(state, r[0]);
             }
 
             if (typeof fn === 'function') {
                 r = (fn as any)(...(r.slice(1)));
             } else {
-                throw new Error(`[SX] evalute: First item of list is not a function: ${JSON.stringify(r)}.`);
+                throw new Error(`[SX] evaluate: First item of list is not a function: ${JSON.stringify(r)}.`);
             }
         }
     } else if (state.config.wrapExternalValue && Object.prototype.hasOwnProperty.call(r, 'value')) {
@@ -218,16 +218,16 @@ export function evalute(state: SxParserState, x: SxToken): SxToken {
         if (Array.isArray((r as SxDottedPair).cdr)) {
             const a = ((r as SxDottedPair).cdr as any[]).slice(0);
             a.unshift((r as SxDottedPair).car);
-            r = evalute(state, a);
+            r = evaluate(state, a);
         } else {
             r = {
-                car: evalute(state, (r as SxDottedPair).car),
-                cdr: evalute(state, (r as SxDottedPair).cdr),
+                car: evaluate(state, (r as SxDottedPair).car),
+                cdr: evaluate(state, (r as SxDottedPair).cdr),
             };
         }
     } else if (Object.prototype.hasOwnProperty.call(r, 'dotted')) {
         r = [
-            evalute(state, (r as SxDottedFragment).dotted),
+            evaluate(state, (r as SxDottedFragment).dotted),
         ];
     } else if (Object.prototype.hasOwnProperty.call(r, 'comment')) {
         r = state.config.strippedCommentValue;

@@ -7,8 +7,8 @@ import { SxParserState,
          SxToken,
          quote,
          isSymbol }  from '../types';
-import { evalute,
-         getScope }  from '../evalute';
+import { evaluate,
+         getScope }  from '../evaluate';
 import { $$first,
          $$firstAndSecond,
          $__scope,
@@ -26,9 +26,9 @@ export const $__outputIf = (state: SxParserState, name: string) => (...args: any
     if ($$boolean(car)) {
         if (2 < args.length) {
             r.push({symbol: state.config.reservedNames.Template}, ...args.slice(1));
-            r = evalute(state, r);
+            r = evaluate(state, r);
         } else {
-            r = evalute(state, cdr);
+            r = evaluate(state, cdr);
         }
     }
     return r;
@@ -57,8 +57,8 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
             }
         }
     }
-    // All of r items are already evaluted.
-    return evalute(state,
+    // All of r items are already evaluated.
+    return evaluate(state,
         ([{symbol: state.config.reservedNames.Template}] as SxToken[])
         .concat(r.map(z => [{symbol: state.config.reservedNames.quote}, z])));
 };
@@ -74,7 +74,7 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
             const sym = isSymbol(x[0]);
             const keyName =
                 sym ? sym.symbol :
-                String(evalute(state, x[0]));
+                String(evaluate(state, x[0]));
             if (x.length === 1) {
                 // S expression: (# ... (keyName) ...)
                 //  -> JSON    : {..., keyName: true, ...}
@@ -82,12 +82,12 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
             } else if (x.length === 2) {
                 // S expression: (# ... (keyName value) ...)
                 //  -> JSON    : {..., keyName: value, ...}
-                r[keyName] = evalute(state, x[1]);
+                r[keyName] = evaluate(state, x[1]);
             } else {
                 // S expression: (# ... (keyName value1 value2 ...) ...)
                 //  -> JSON    : {..., keyName: [value1, value2, ], ...}
                 r[keyName] =
-                    evalute(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
+                    evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
                     .concat(x.slice(1)));
             }
         }
@@ -105,7 +105,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
             const sym = isSymbol(x[0]);
             const keyName =
                 sym ? sym.symbol :
-                String(evalute(state, x[0]));
+                String(evaluate(state, x[0]));
             switch (keyName) {
             case 'style':
                 {
@@ -120,7 +120,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                         const styles: object = {};
                         for (const s of x.slice(1)) {
                             if (Array.isArray(s) && 1 < s.length) {
-                                styles[String(evalute(state, s[0]))] = String(evalute(state, s[1]));
+                                styles[String(evaluate(state, s[0]))] = String(evaluate(state, s[1]));
                             } else if (typeof s === 'string') {
                                 for (const v of s.split(';')) {
                                     const matched = /^\s*(\S+)\s*:\s*(.*?)\s*$/.exec(v);
@@ -147,7 +147,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                         let classes: any[] = [];
                         for (const c of x.slice(1)) {
                             if (Array.isArray(c)) {
-                                classes = classes.concat(c.map(z => evalute(state, z)));
+                                classes = classes.concat(c.map(z => evaluate(state, z)));
                             } else if (typeof c === 'string') {
                                 classes = classes.concat(c.split(' '));
                             }
@@ -171,7 +171,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                             let f = '';
                             if (Array.isArray(c)) {
                                 f = c
-                                    .map(z => evalute(state, z))
+                                    .map(z => evaluate(state, z))
                                     .map(z => (z === null || z === void 0) ? "" : String(z))
                                     .join(' ');
                             } else if (typeof c === 'string') {
@@ -189,10 +189,10 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                     if (x.length === 1) {
                         r[keyName] = {__html: ''};
                     } else if (x.length >= 2) {
-                        r[keyName] = {__html: evalute(state, x[1])};
+                        r[keyName] = {__html: evaluate(state, x[1])};
                     } else {
                         r[keyName] = {__html:
-                            evalute(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
+                            evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
                             .concat(x.slice(1)))
                         };
                     }
@@ -207,12 +207,12 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                     } else if (x.length === 2) {
                         // S expression: (@ ... (keyName value) ...)
                         //  -> JSON    : {..., keyName: value, ...}
-                        r[keyName] = evalute(state, x[1]);
+                        r[keyName] = evaluate(state, x[1]);
                     } else {
                         // S expression: (@ ... (keyName value1 value2 ...) ...)
                         //  -> JSON    : {..., keyName: [value1, value2, ], ...}
                         r[keyName] =
-                            evalute(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
+                            evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
                             .concat(x.slice(1)));
                     }
                 }

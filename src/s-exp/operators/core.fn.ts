@@ -7,13 +7,13 @@ import { SxParserState,
          SxSymbol,
          SxToken,
          isSymbol }           from '../types';
-import { evalute,
+import { evaluate,
          resolveValueSymbol,
          resolveValueSymbolScope,
          getGlobalScope,
          installScope,
          uninstallScope,
-         optimizeTailCall}    from '../evalute';
+         optimizeTailCall}    from '../evaluate';
 
 
 
@@ -189,7 +189,7 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
                 if (Array.isArray(x)) {
                     const kv = $$firstAndSecond(...x);
                     const kvSym = isSymbol(kv.car);
-                    scope[kvSym ? kvSym.symbol : String(kv.car)] = evalute(state, kv.cdr);
+                    scope[kvSym ? kvSym.symbol : String(kv.car)] = evaluate(state, kv.cdr);
                 } else {
                     const xSym = isSymbol(x);
                     scope[xSym ? xSym.symbol : String(x)] = null;
@@ -202,15 +202,15 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
             if (returnMultiple) {
                 r = [];
                 for (const x of args.slice(3)) {
-                    r.push(evalute(state, x));
+                    r.push(evaluate(state, x));
                 }
             } else {
                 for (const x of args.slice(3)) {
-                    r = evalute(state, x);
+                    r = evaluate(state, x);
                 }
             }
         } else {
-            r = evalute(state, cdr);
+            r = evaluate(state, cdr);
         }
     } finally {
         uninstallScope(state);
@@ -236,15 +236,15 @@ export const $__globalScope = (state: SxParserState, name: string) => (...args: 
             if (returnMultiple) {
                 r = [];
                 for (const x of args.slice(1)) {
-                    r.push(evalute(state, x));
+                    r.push(evaluate(state, x));
                 }
             } else {
                 for (const x of args.slice(1)) {
-                    r = evalute(state, x);
+                    r = evaluate(state, x);
                 }
             }
         } else {
-            r = evalute(state, cdr);
+            r = evaluate(state, cdr);
         }
     } finally {
         uninstallScope(state);
@@ -318,9 +318,9 @@ export const $__if = (state: SxParserState, name: string) => (...args: any[]) =>
     const car = $$first(...args);
     let r: SxToken = [];
     if ($$boolean(car)) {
-        r = evalute(state, args[1]);
+        r = evaluate(state, args[1]);
     } else {
-        r = evalute(state, args[2]);
+        r = evaluate(state, args[2]);
     }
     return r;
 };
@@ -334,8 +334,8 @@ export const $__cond = (state: SxParserState, name: string) => (...args: any[]) 
     for (let i = 0; i < args.length - 1; i += 2) {
         const c = args[i];
         const x = args[i + 1];
-        if ($$boolean(evalute(state, c))) {
-            return evalute(state, x);
+        if ($$boolean(evaluate(state, c))) {
+            return evaluate(state, x);
         }
     }
     return null;
@@ -350,9 +350,9 @@ export const $__while = (state: SxParserState, name: string) => (...args: any[])
     const car = $$first(...args);
     const cdr = args.slice(1);
     let r: SxToken = null;
-    while ($$boolean(evalute(state, car))) {
+    while ($$boolean(evaluate(state, car))) {
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
     }
     return r;
@@ -370,9 +370,9 @@ export const $__doWhile = (state: SxParserState, name: string) => (...args: any[
 
     do {
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
-    } while ($$boolean(evalute(state, car)));
+    } while ($$boolean(evaluate(state, car)));
     return r;
 };
 
@@ -385,9 +385,9 @@ export const $__until = (state: SxParserState, name: string) => (...args: any[])
     const car = $$first(...args);
     const cdr = args.slice(1);
     let r: SxToken = null;
-    while ($$not(evalute(state, car))) {
+    while ($$not(evaluate(state, car))) {
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
     }
     return r;
@@ -404,9 +404,9 @@ export const $__doUntil = (state: SxParserState, name: string) => (...args: any[
     let r: SxToken = null;
     do {
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
-    } while ($$not(evalute(state, car)));
+    } while ($$not(evaluate(state, car)));
     return r;
 };
 
@@ -428,7 +428,7 @@ export const $__repeat = (state: SxParserState, name: string) => (...args: any[]
     for (let i = 0; i < n; i++) {
         scope[sym.symbol] = i;
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
     }
     return r;
@@ -456,7 +456,7 @@ export const $__for = (state: SxParserState, name: string) => (...args: any[]) =
     for (const q of list) {
         scope[sym.symbol] = q;
         for (const x of cdr) {
-            r = evalute(state, x);
+            r = evaluate(state, x);
         }
     }
     return r;
@@ -477,7 +477,7 @@ export const $__get = (state: SxParserState, name: string) => (...args: any[]) =
         case 'object':
             sym = isSymbol(args[i]);
             if (sym) {
-                v = v[evalute(state, sym) as any];
+                v = v[evaluate(state, sym) as any];
             } else {
                 throw new Error(`[SX] $__get: Invalid argument(s): invalid name path.`);
             }
@@ -557,7 +557,7 @@ export const $__set = (state: SxParserState, name: string) => (...args: any[]) =
         case 'object':
             sym = isSymbol(path[i]);
             if (sym) {
-                scope = scope[evalute(state, sym) as any];
+                scope = scope[evaluate(state, sym) as any];
             } else {
                 throw new Error(`[SX] $__set: Invalid argument(s): invalid name.`);
             }
@@ -582,7 +582,7 @@ export const $__set = (state: SxParserState, name: string) => (...args: any[]) =
         case 'object':
             sym = isSymbol(path[i]);
             if (sym) {
-                scope[evalute(state, sym) as any] = args[1];
+                scope[evaluate(state, sym) as any] = args[1];
             } else {
                 throw new Error(`[SX] $__set: Invalid argument(s): invalid name.`);
             }

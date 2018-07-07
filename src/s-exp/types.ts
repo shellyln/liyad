@@ -69,7 +69,7 @@ export interface SxReservedNames {
 
 export interface SxParserConfig {
     raiseOnUnresolvedSymbol: boolean;
-    enableEvalute: boolean;
+    enableEvaluate: boolean;
     enableHereDoc: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;

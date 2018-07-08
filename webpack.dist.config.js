@@ -7,7 +7,7 @@ module.exports = function (env) {
     return [{
         target: "node",
         entry: {
-            spec: [
+            liyad: [
                 path.resolve(__dirname, 'src/index.ts')
             ]
         },
@@ -25,10 +25,10 @@ module.exports = function (env) {
             library: 'liyad',
 
             libraryTarget: 'var',
-            filename: 'liyad.js',
+            filename: process.env.NODE_ENV === 'production' ? '[name].min.js' : '[name].js',
             path: path.resolve(__dirname, 'dist'),
-            devtoolModuleFilenameTemplate: '../[resource-path]',
-            // devtoolModuleFilenameTemplate: void 0
+            // devtoolModuleFilenameTemplate: '../[resource-path]',
+            devtoolModuleFilenameTemplate: void 0
         },
         module: {
             rules: [{

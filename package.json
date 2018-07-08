@@ -1,7 +1,7 @@
 {
   "name": "liyad",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Liyad (Lisp yet another DSL interpreter) is very small Lisp interpreter written in JavaScript.",
   "keywords": [
     "LISP",
@@ -9,6 +9,8 @@
     "DSL",
     "JSX",
     "LSX",
+    "interpreter",
+    "parser",
     "TypeScript"
   ],
   "main": "./bin/index.js",

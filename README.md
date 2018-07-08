@@ -18,9 +18,13 @@ You can easily start making your new DSL using Lisp and S-expression.
 
 ## Install
 
+from NPM:
 ```bash
 $ npm install liyad --save
 ```
+
+or download from [release](https://github.com/shellyln/liyad/releases) page.
+
 
 ## Playground
 

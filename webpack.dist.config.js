@@ -24,10 +24,9 @@ module.exports = function (env) {
         output: {
             library: 'liyad',
 
-            libraryTarget: 'var',
+            libraryTarget: 'umd',
             filename: process.env.NODE_ENV === 'production' ? '[name].min.js' : '[name].js',
             path: path.resolve(__dirname, 'dist'),
-            // devtoolModuleFilenameTemplate: '../[resource-path]',
             devtoolModuleFilenameTemplate: void 0
         },
         module: {

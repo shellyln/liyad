@@ -267,9 +267,19 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
     if (! Array.isArray(formalArgs)) {
         throw new Error(`[SX] $__lambda: Invalid argument(s): args[0] is not array.`);
     }
-    for (const fa of formalArgs) {
-        if (! isSymbol(fa)) {
-            throw new Error(`[SX] $__lambda: Invalid argument(s): item(s) of args[0] is not symbol.`);
+
+    let lastIsSpread = false;
+    for (let i = 0; i < formalArgs.length; i++) {
+        const fa = formalArgs[i];
+        if (i === formalArgs.length - 1 && state.config.enableSpread &&
+            Array.isArray(fa) && isSymbol(fa[0], state.config.reservedNames.spread)) {
+            if (! isSymbol(fa[1])) {
+                throw new Error(`[SX] $__lambda: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
+            }
+            formalArgs[i] = fa[1];
+            lastIsSpread = true;
+        } else if (! isSymbol(fa)) {
+            throw new Error(`[SX] $__lambda: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
         }
     }
 
@@ -279,15 +289,19 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
     }
 
     const fn = (...actualArgs: any[]) => {
-        if (actualArgs.length < formalArgs.length) {
+        if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
             throw new Error(`[SX] func call: Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
         return $__scope(state, name)(false, false, [
             [state.config.reservedNames.self, fn],
-            ...(formalArgs.map((x: SxSymbol, index) => {
-                return [x.symbol, quote(state, actualArgs[index])];
-            })),
+            ...(formalArgs.map((x: SxSymbol, index) => [
+                    x.symbol,
+                    quote(state,
+                        (lastIsSpread && index === formalArgs.length - 1) ?
+                            actualArgs.slice(index) : actualArgs[index]
+                    )
+            ])),
         ], ...fnBody);
     };
     return fn;

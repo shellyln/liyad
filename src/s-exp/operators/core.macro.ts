@@ -44,7 +44,7 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
-    name: '$clisp-let',
+    name: '$clisp-let', // alias of $local
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($clisp-let ((name value) | name ...) expr ... expr)
         //  -> S expr  : ($__scope isBlockLocal=true returnMultiple=false '((name value) | name ...) 'expr ... 'expr)
@@ -199,7 +199,7 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
-    name: '$clisp-setq',
+    name: '$clisp-setq', // alias of $set
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($clisp-setq symbol expr)
         //  -> S expr  : ($__set 'symbol expr)

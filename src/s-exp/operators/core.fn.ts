@@ -94,6 +94,17 @@ export const $second = (state: SxParserState, name: string) => (...args: any[]) 
 export const $$second = $second(null as any, null as any);
 
 
+export const $last = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($last first second ... last)
+    //  -> S expr  : last
+    // S expression: ($last)
+    //  -> S expr  : null
+    const car: any = args.slice(args.length - 1, args.length);
+    return (car.length === 1) ? car[0] : null;
+};
+export const $$last = $last(null as any, null as any);
+
+
 export const $rest = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($rest first second ... last)
     //  -> S expr  : (second ... last)

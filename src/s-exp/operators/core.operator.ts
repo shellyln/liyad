@@ -24,6 +24,12 @@ export const funcs: SxFuncInfo[] = [{
     name: '$second',
     fn: ops.$second,
 }, {
+    name: '$last',
+    fn: ops.$last,
+}, {
+    name: '$progn', // alias of $last
+    fn: ops.$last,
+}, {
     name: '$rest',
     fn: ops.$rest,
 }, {

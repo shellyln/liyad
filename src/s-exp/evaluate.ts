@@ -192,7 +192,14 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             }
 
             for (let i = r.length - 1; i > 0; i--) {
-                r[i] = evaluate(state, r[i]);
+                const symSpr = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.spread);
+                if (symSpr) {
+                    let a = evaluate(state, (r[i] as SxToken[])[1]);
+                    a = Array.isArray(a) ? a : [a];
+                    r = (r as SxToken[]).slice(0, i).concat(a, r.slice(i + 1));
+                } else {
+                    r[i] = evaluate(state, r[i]);
+                }
             }
 
             let fn: any;

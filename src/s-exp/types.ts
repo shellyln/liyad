@@ -34,6 +34,7 @@ export interface SxScope {
 export interface SxReservedNames {
     eval: string;
     quote: string;
+    spread: string;
 
     car: string;
     cdr: string;
@@ -71,6 +72,7 @@ export interface SxParserConfig {
     raiseOnUnresolvedSymbol: boolean;
     enableEvaluate: boolean;
     enableHereDoc: boolean;
+    enableSpread: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     strippedCommentValue: any;
@@ -161,6 +163,11 @@ export function isQuoted(state: SxParserState, x: any) {
         }
     }
     return false;
+}
+
+
+export function spread(state: SxParserState, x: any) {
+    return [{symbol: state.config.reservedNames.spread}, x];
 }
 
 

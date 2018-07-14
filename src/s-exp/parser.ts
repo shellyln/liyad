@@ -10,7 +10,8 @@ import { SxParserState,
          SxComment,
          SxToken,
          SxChar,
-         quote } from './types';
+         quote,
+         spread } from './types';
 
 
 
@@ -364,9 +365,19 @@ function parseOneToken(state: SxParserState): SxToken {
             }
 
         case ".":
-            getChar(state);
-            skipWhitespaces(state);
-            return {dotted: parseOneToken(state)};
+            {
+                getChar(state);
+                const aheads = lookAheads(state, 2);
+                if (state.config.enableSpread && aheads[0] === '.' && aheads[1] === '.') {
+                    getChar(state);
+                    getChar(state);
+                    skipWhitespaces(state);
+                    return spread(state, parseOneToken(state));
+                } else {
+                    skipWhitespaces(state);
+                    return {dotted: parseOneToken(state)};
+                }
+            }
 
         case '"':
             {

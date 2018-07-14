@@ -86,6 +86,73 @@ describe("foo", function() {
 describe("foo", function() {
     it("foo", function() {
         console.log(JSON.stringify(LM`
+($list 1 2 ...($list 3 4 5) 6 7)
+        `));
+        expect(1).toEqual(1);
+    });
+});
+
+describe("foo", function() {
+    it("foo", function() {
+        console.log(JSON.stringify(LM`
+($concat "abc" "def")
+
+($defun fac (n)
+    ($if (== n 0)
+        1
+        (* n ($self (- n 1))) ) )
+
+($defun multipy (x y)
+    (* x y) )
+
+($defun aaa (x y)
+    ($concat x y) )
+
+(multipy 4 (fac 3))
+
+(aaa ($list 1 2 3) ($list 4 5 6))
+        `));
+        expect(1).toEqual(1);
+    });
+});
+
+describe("foo", function() {
+    it("foo", function() {
+        console.log(JSON.stringify(LM`
+($defun aaa (x ...y)
+    ($list x y) )
+
+(aaa 1)
+(aaa 1 2)
+(aaa 1 2 3)
+(aaa 1 2 3 4)
+(aaa 1 2 3 4 5)
+        `));
+        expect(1).toEqual(1);
+    });
+});
+
+describe("foo", function() {
+    it("foo", function() {
+        console.log(JSON.stringify(LM`
+($list 1 2 ...${[33, 44, 55]} 6 7)
+        `));
+        expect(1).toEqual(1);
+    });
+});
+
+describe("foo", function() {
+    it("foo", function() {
+        console.log(JSON.stringify(LM`
+($list 9 8 ...7 6 5)
+        `));
+        expect(1).toEqual(1);
+    });
+});
+
+describe("foo", function() {
+    it("foo", function() {
+        console.log(JSON.stringify(LM`
 ($list ($list 53 54 55) 56 ($list 57 58 59))
         `));
         expect(1).toEqual(1);

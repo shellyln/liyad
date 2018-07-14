@@ -396,6 +396,47 @@ Hello, " ($get name) "!
 ### Spread operator
 
 ```lisp
+($list 1 2 ...($concat (3 4) (5 6)) 7 8)
+```
+
+is equivalent to:
+```lisp
+($list 1 2 ($spread ($concat (3 4) (5 6))) 7 8)
+```
+
+and is to be:
+```json
+[1,2,3,4,5,6,7,8]
+```
+
+`$spread` is NOT a macro, the list passed as a parameter is spliced ​​after evaluation.
+
+<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+
+
+### Rest parameter
+
+```lisp
+($defun f (x ...y)
+    ($list x y) )
+
+($list
+    (f 1)
+    (f 1 2)
+    (f 1 2 3)
+    (f 1 2 3 4)
+    (f 1 2 3 4 5) )
+```
+
+is to be:
+```json
+[
+    [1,[]],
+    [1,[2]],
+    [1,[2,3]],
+    [1,[2,3,4]],
+    [1,[2,3,4,5]]
+]
 ```
 
 

@@ -76,24 +76,37 @@ export const defaultConfig: SxParserConfig = {
 
 
 
-export function SExpression(config: SxParserConfig): (strings: TemplateStringsArray, ...values: any[]) => SxToken {
-    return (strings: TemplateStringsArray, ...values: any[]) => {
-        const state: SxParserState = {
-            strings: typeof strings === 'string' ? [strings] : strings,
-            values: values || [],
+function initState(config: SxParserConfig, globals: any, strings: TemplateStringsArray, values?: any[]): SxParserState {
+    return {
+        strings: typeof strings === 'string' ? [strings] : strings,
+        values: values || [],
 
-            index: 0,
-            pos: 0,
-            line: 0,
+        index: 0,
+        pos: 0,
+        line: 0,
 
-            scopes: [{isBlockLocal: false, scope: {}}],
+        scopes: [{isBlockLocal: false, scope: globals}],
 
-            macroMap: new Map<string, SxMacroInfo>(config.macros.map(x => [x.name, x] as [string, SxMacroInfo])),
-            funcMap: new Map<string, SxFuncInfo>(config.funcs.map(x => [x.name, x] as [string, SxFuncInfo])),
-            symbolMap: new Map<string, SxSymbolInfo>(config.symbols.map(x => [x.name, x] as [string, SxSymbolInfo])),
+        macroMap: new Map<string, SxMacroInfo>(config.macros.map(x => [x.name, x] as [string, SxMacroInfo])),
+        funcMap: new Map<string, SxFuncInfo>(config.funcs.map(x => [x.name, x] as [string, SxFuncInfo])),
+        symbolMap: new Map<string, SxSymbolInfo>(config.symbols.map(x => [x.name, x] as [string, SxSymbolInfo])),
 
-            config,
-        };
+        config,
+    };
+}
+
+
+
+interface SExpressionTemplateFn<R = SxToken> {
+    (strings: TemplateStringsArray | string, ...values: any[]): R;
+    setGlobals: (globals: object) => SExpressionTemplateFn<R>;
+}
+
+export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
+    let globalScope: any = {};
+
+    const f: SExpressionTemplateFn = ((strings: TemplateStringsArray, ...values: any[]) => {
+        const state = initState(config, globalScope, strings, values);
 
         const s = parse(state);
 
@@ -108,7 +121,54 @@ export function SExpression(config: SxParserConfig): (strings: TemplateStringsAr
         } else {
             return s[s.length - 1];
         }
+    }) as any;
+
+    f.setGlobals = (globals: object) => {
+        globalScope = globals || {};
+        return f;
     };
+
+    return f;
+}
+
+
+
+interface SExpressionAsyncTemplateFn<R = SxToken> {
+    (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
+    setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
+}
+
+export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTemplateFn {
+    let globalScope: any = {};
+
+    const f: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray, ...values: any[]) => {
+        const state = initState(config, globalScope, strings, values);
+
+        const s = parse(state);
+
+        if (config.enableEvaluate) {
+            for (let i = 0; i < s.length; i++) {
+                s[i] = evaluate(state, s[i]);
+
+                if (typeof s[i] === 'object' && typeof (s[i] as any).then === 'function') {
+                    s[i] = await s[i];
+                }
+            }
+        }
+
+        if (config.returnMultipleRoot) {
+            return s.length === 1 ? s[0] : s;
+        } else {
+            return s[s.length - 1];
+        }
+    }) as any;
+
+    f.setGlobals = (globals: object) => {
+        globalScope = globals || {};
+        return f;
+    };
+
+    return f;
 }
 
 
@@ -143,6 +203,24 @@ export const lisp = L;
 
 
 
+// tslint:disable-next-line:variable-name
+export const L_async = (() => {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
+
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
+
+    return SExpressionAsync(config);
+})();
+
+// tslint:disable-next-line:variable-name
+export const LS_async = L_async;
+// tslint:disable-next-line:variable-name
+export const lisp_async = L_async;
+
+
+
 export const LM = (() => {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
 
@@ -157,7 +235,22 @@ export const LM = (() => {
 
 
 
-export function LSX<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsArray, ...values: any[]) => R {
+// tslint:disable-next-line:variable-name
+export const LM_async = (() => {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
+
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
+
+    config.returnMultipleRoot = true;
+
+    return SExpressionAsync(config);
+})();
+
+
+
+export function LSX<R = SxToken>(lsxConf: LsxConfig): SExpressionTemplateFn<R> {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
 
     config = installCore(config);
@@ -166,4 +259,17 @@ export function LSX<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsA
     config = installJsx(config, lsxConf);
 
     return SExpression(config) as any;
+}
+
+
+
+export function LSX_async<R = SxToken>(lsxConf: LsxConfig): SExpressionAsyncTemplateFn<R> {
+    let config: SxParserConfig = Object.assign({}, defaultConfig);
+
+    config = installCore(config);
+    config = installArithmetic(config);
+    config = installSequence(config);
+    config = installJsx(config, lsxConf);
+
+    return SExpressionAsync(config) as any;
 }

@@ -3,11 +3,27 @@
 // https://github.com/shellyln
 
 
-import { SxMacroInfo } from '../types';
+import { SxMacroInfo,
+         SxParserState,
+         isSymbol } from '../types';
 
 
 
-export const macros: SxMacroInfo[] = [];
+export const macros: SxMacroInfo[] = [{
+    name: '$[',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($[ index ] listOrObject)
+        //  -> S expr  : ($__at listOrObject)
+        const symOf = isSymbol(list[2], ']');
+        if (! symOf) {
+            throw new Error(`[SX] $repeat: Invalid syntax: missing ']' keyword.`);
+        }
+        return [{symbol: '$__at'},
+            list[1],
+            list[3],
+        ];
+    },
+}];
 
 
 export default macros;

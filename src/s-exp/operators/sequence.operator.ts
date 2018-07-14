@@ -17,6 +17,30 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$slice',
     fn: ops.$slice,
+}, {
+    name: '$__at',
+    fn: ops.$__at,
+}, {
+    name: '$reverse',
+    fn: ops.$reverse,
+}, {
+    name: '$filter',
+    fn: ops.$filter,
+}, {
+    name: '$map',
+    fn: ops.$map,
+}, {
+    name: '$reduce',
+    fn: ops.$reduce,
+}, {
+    name: '$max',
+    fn: ops.$max,
+}, {
+    name: '$min',
+    fn: ops.$min,
+}, {
+    name: '$avg',
+    fn: ops.$avg,
 }];
 
 

@@ -6,7 +6,8 @@
 import { SxParserState,
          SxSymbol,
          SxToken,
-         isSymbol }           from '../types';
+         isSymbol,
+         quote }              from '../types';
 import { evaluate,
          resolveValueSymbol,
          resolveValueSymbolScope,
@@ -285,7 +286,7 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
         return $__scope(state, name)(false, false, [
             [state.config.reservedNames.self, fn],
             ...(formalArgs.map((x: SxSymbol, index) => {
-                return [x.symbol, actualArgs[index]];
+                return [x.symbol, quote(state, actualArgs[index])];
             })),
         ], ...fnBody);
     };

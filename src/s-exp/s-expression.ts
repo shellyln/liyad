@@ -23,6 +23,7 @@ import installJsx           from './operators/jsx';
 export const defaultReservedNames: SxReservedNames = {
     eval: '$eval',
     quote: '$quote',
+    spread: '$spread',
 
     car: '$car',
     cdr: '$cdr',
@@ -60,6 +61,7 @@ export const defaultConfig: SxParserConfig = {
     raiseOnUnresolvedSymbol: false,
     enableEvaluate: true,
     enableHereDoc: true,
+    enableSpread: true,
     enableTailCallOptimization: true,
     stripComments: false,
     strippedCommentValue: [],

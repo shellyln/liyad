@@ -12,6 +12,15 @@ export const funcs: SxFuncInfo[] = [{
     name: '$length',
     fn: ops.$length,
 }, {
+    name: '$trim',
+    fn: ops.$trim,
+}, {
+    name: '$trim-head',
+    fn: ops.$trimHead,
+}, {
+    name: '$trim-tail',
+    fn: ops.$trimTail,
+}, {
     name: '$concat',
     fn: ops.$concat,
 }, {
@@ -24,6 +33,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$reverse',
     fn: ops.$reverse,
 }, {
+    name: '$find',
+    fn: ops.$find,
+}, {
     name: '$filter',
     fn: ops.$filter,
 }, {
@@ -32,6 +44,15 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$reduce',
     fn: ops.$reduce,
+}, {
+    name: '$reduce-from-head',
+    fn: ops.$reduce,
+}, {
+    name: '$reduce-from-tail',
+    fn: ops.$reduceFromTail,
+}, {
+    name: '$sort',
+    fn: ops.$sort,
 }, {
     name: '$max',
     fn: ops.$max,

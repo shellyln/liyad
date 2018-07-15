@@ -14,7 +14,7 @@ import { evaluate,
          getGlobalScope,
          installScope,
          uninstallScope,
-         optimizeTailCall}    from '../evaluate';
+         optimizeTailCall }   from '../evaluate';
 
 
 

@@ -146,6 +146,12 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$to-number',
     fn: ops.$toNumber,
+}, {
+    name: '$console-log',
+    fn: ops.$consoleLog,
+}, {
+    name: '$console-error',
+    fn: ops.$consoleError,
 }];
 
 

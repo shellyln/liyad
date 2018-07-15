@@ -159,24 +159,3 @@ export const $sort = (state: SxParserState, name: string) => (...args: any[]) =>
     return car.sort(cdr);
 };
 export const $$sort = $sort(null as any, null as any);
-
-
-export const $max = (state: SxParserState, name: string) => (...args: any[]) =>
-    // S expression: ($max val1 ... valN)
-    //  -> S expr  : value
-    Math.max(...args);
-export const $$max = $max(null as any, null as any);
-
-
-export const $min = (state: SxParserState, name: string) => (...args: any[]) =>
-    // S expression: ($min val1 ... valN)
-    //  -> S expr  : value
-    Math.min(...args);
-export const $$min = $min(null as any, null as any);
-
-
-export const $avg = (state: SxParserState, name: string) => (...args: any[]) =>
-    // S expression: ($avg val1 ... valN)
-    //  -> S expr  : value
-    $$add(...args) / args.length;
-export const $$avg = $avg(null as any, null as any);

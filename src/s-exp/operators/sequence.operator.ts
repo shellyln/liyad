@@ -53,15 +53,6 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$sort',
     fn: ops.$sort,
-}, {
-    name: '$max',
-    fn: ops.$max,
-}, {
-    name: '$min',
-    fn: ops.$min,
-}, {
-    name: '$avg',
-    fn: ops.$avg,
 }];
 
 

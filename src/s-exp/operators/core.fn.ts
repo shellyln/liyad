@@ -806,3 +806,21 @@ export const $toNumber = (state: SxParserState, name: string) => (...args: any[]
     return Number($$first(...args));
 };
 export const $$toNumber = $toNumber(null as any, null as any);
+
+
+export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-log expr1 ... exprN)
+    //  -> S expr  : null
+    console.log(...args);
+    return null;
+};
+export const $$consoleLog = $consoleLog(null as any, null as any);
+
+
+export const $consoleError = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-error expr1 ... exprN)
+    //  -> S expr  : null
+    console.error(...args);
+    return null;
+};
+export const $$consoleError = $consoleError(null as any, null as any);

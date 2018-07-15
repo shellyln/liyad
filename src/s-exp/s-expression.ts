@@ -12,11 +12,12 @@ import { SxMacroInfo,
          SxToken,
          LsxConfig }        from './types';
 import { parse }            from './parser';
-import { evaluate }          from './evaluate';
+import { evaluate }         from './evaluate';
 import installCore          from './operators/core';
 import installArithmetic    from './operators/arithmetic';
 import installSequence      from './operators/sequence';
 import installJsx           from './operators/jsx';
+import installConcurrent    from './operators/concurrent';
 
 
 
@@ -100,14 +101,16 @@ function initState(config: SxParserConfig, globals: any, strings: TemplateString
 interface SExpressionTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): R;
     setGlobals: (globals: object) => SExpressionTemplateFn<R>;
-    setStartup: (code: string) => SExpressionTemplateFn<R>;
+    appendGlobals: (globals: object) => SExpressionTemplateFn<R>;
+    setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
+    appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
 }
 
 export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
-    const f: SExpressionTemplateFn = ((strings: TemplateStringsArray, ...values: any[]) => {
+    const f: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
         const state = initState(config, Object.assign({}, globalScope), strings, values);
 
         const s = startup.concat(parse(state));
@@ -129,9 +132,18 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
         globalScope = Object.assign({}, globals || {});
         return f;
     };
-    f.setStartup = (code: string) => {
-        const state = initState(config, Object.assign({}, globalScope), code, void 0);
+    f.appendGlobals = (globals: object) => {
+        globalScope = Object.assign({}, globalScope, globals || {});
+        return f;
+    };
+    f.setStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
         startup = parse(state);
+        return f;
+    };
+    f.appendStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
+        startup = startup.concat(parse(state));
         return f;
     };
 
@@ -143,14 +155,16 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
 interface SExpressionAsyncTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
     setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
-    setStartup: (code: string) => SExpressionAsyncTemplateFn<R>;
+    appendGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
+    setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
+    appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
 }
 
 export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTemplateFn {
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
-    const f: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray, ...values: any[]) => {
+    const f: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray | string, ...values: any[]) => {
         const state = initState(config, Object.assign({}, globalScope), strings, values);
 
         const s = startup.concat(parse(state));
@@ -176,9 +190,18 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
         globalScope = Object.assign({}, globals || {});
         return f;
     };
-    f.setStartup = (code: string) => {
-        const state = initState(config, Object.assign({}, globalScope), code, void 0);
+    f.appendGlobals = (globals: object) => {
+        globalScope = Object.assign({}, globalScope, globals || {});
+        return f;
+    };
+    f.setStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
         startup = parse(state);
+        return f;
+    };
+    f.appendStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
+        startup = startup.concat(parse(state));
         return f;
     };
 
@@ -188,11 +211,7 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
 
 
 export const S = (() => {
-    let config: SxParserConfig = Object.assign({}, defaultConfig);
-
-    config = installCore(config);
-    config = installArithmetic(config);
-    config = installSequence(config);
+    const config: SxParserConfig = Object.assign({}, defaultConfig);
 
     config.enableEvaluate = false;
     config.returnMultipleRoot = true;
@@ -224,6 +243,7 @@ export const L_async = (() => {
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
 
     return SExpressionAsync(config);
 })();
@@ -256,6 +276,7 @@ export const LM_async = (() => {
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
 
     config.returnMultipleRoot = true;
 
@@ -283,6 +304,7 @@ export function LSX_async<R = SxToken>(lsxConf: LsxConfig): SExpressionAsyncTemp
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
     config = installJsx(config, lsxConf);
 
     return SExpressionAsync(config) as any;

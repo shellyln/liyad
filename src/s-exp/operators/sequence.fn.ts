@@ -20,6 +20,8 @@ export const $$length = $length(null as any, null as any);
 
 
 export const $trim = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($trim string)
+    //  -> S expr  : string
     const car = $$first(...args);
     return car.trim();
 };
@@ -27,6 +29,8 @@ export const $$trim = $trim(null as any, null as any);
 
 
 export const $trimHead = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($trim-head string)
+    //  -> S expr  : string
     const car = $$first(...args);
     return car.length();
 };
@@ -34,6 +38,8 @@ export const $$trimHead = $trimHead(null as any, null as any);
 
 
 export const $trimTail = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($trim-tail string)
+    //  -> S expr  : string
     const car = $$first(...args);
     return car.length();
 };

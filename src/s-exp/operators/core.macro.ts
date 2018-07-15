@@ -208,6 +208,24 @@ export const macros: SxMacroInfo[] = [{
             list[2],
         ];
     },
+}, {
+    name: '$and',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($and expr1 ... exprN)
+        //  -> S expr  : ($__and 'expr1 ... 'exprN)
+        return [{symbol: '$__and'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '$or',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($or expr1 ... exprN)
+        //  -> S expr  : ($__or 'expr1 ... 'exprN)
+        return [{symbol: '$__or'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
 }];
 
 

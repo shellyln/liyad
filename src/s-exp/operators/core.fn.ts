@@ -633,6 +633,8 @@ export const $__set = (state: SxParserState, name: string) => (...args: any[]) =
 
 
 export const $boolean = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($boolean any)
+    //  -> S expr  : boolean
     const car = $$first(...args);
     if (Array.isArray(car) && car.length === 0) return false;
     else return Boolean(car);
@@ -641,22 +643,52 @@ export const $$boolean = $boolean(null as any, null as any);
 
 
 export const $not = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($not any)
+    //  -> S expr  : boolean
     return ! $$boolean(...args);
 };
 export const $$not = $not(null as any, null as any);
 
 
-export const $and = (state: SxParserState, name: string) => (...args: any[]) =>
-    (args as any[]).reduce((prev, curr) => prev && curr, true);
-export const $$and = $and(null as any, null as any);
+// tslint:disable-next-line:variable-name
+export const $__and = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__and 'expr1 ... 'exprN)
+    //  -> (if all of ($boolean expr1) ... ($boolean exprN) are true) S expr  : exprN
+    //  -> (else)                                                     S expr  : null
+    let prev = null;
+    for (let i = 0; i < args.length; i++) {
+        const curr = evaluate(state, args[i]);
+        if (! $$boolean(curr)) {
+            return null;
+        }
+        prev = curr;
+    }
+    return prev;
+};
+// tslint:disable-next-line:variable-name
+export const $$__and = $__and(null as any, null as any);
 
 
-export const $or = (state: SxParserState, name: string) => (...args: any[]) =>
-    (args as any[]).reduce((prev, curr) => prev || curr, false);
-export const $$or = $or(null as any, null as any);
+// tslint:disable-next-line:variable-name
+export const $__or = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__or 'expr1 ... 'exprN)
+    //  -> (if any ($boolean expr1) ... ($boolean exprN) are true) S expr  : expr-i (where i: index of item first ($boolean expr-i) is to be true)
+    //  -> (else)                                                  S expr  : null
+    for (let i = 0; i < args.length; i++) {
+        const curr = evaluate(state, args[i]);
+        if ($$boolean(curr)) {
+            return curr;
+        }
+    }
+    return null;
+};
+// tslint:disable-next-line:variable-name
+export const $$__or = $__or(null as any, null as any);
 
 
 export const $ambiguousEq = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (== a b)
+    //  -> S expr  : boolean
     let {car, cdr} = $$firstAndSecond(...args);
     if (Array.isArray(car) && car.length === 0) car = null;
     if (Array.isArray(cdr) && cdr.length === 0) cdr = null;
@@ -669,12 +701,16 @@ export const $$ambiguousEq = $ambiguousEq(null as any, null as any);
 
 
 export const $ambiguousNotEq = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (!= a b)
+    //  -> S expr  : boolean
     return ! $$ambiguousEq(...args);
 };
 export const $$ambiguousNotEq = $ambiguousNotEq(null as any, null as any);
 
 
 export const $lt = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (< a b)
+    //  -> S expr  : boolean
     const {car, cdr} = $$firstAndSecond(...args);
     return Number(car) < Number(cdr);
 };
@@ -682,6 +718,8 @@ export const $$lt = $lt(null as any, null as any);
 
 
 export const $le = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (<= a b)
+    //  -> S expr  : boolean
     const {car, cdr} = $$firstAndSecond(...args);
     return Number(car) <= Number(cdr);
 };
@@ -689,6 +727,8 @@ export const $$le = $le(null as any, null as any);
 
 
 export const $gt = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (> a b)
+    //  -> S expr  : boolean
     const {car, cdr} = $$firstAndSecond(...args);
     return Number(car) > Number(cdr);
 };
@@ -696,6 +736,8 @@ export const $$gt = $gt(null as any, null as any);
 
 
 export const $ge = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: (>= a b)
+    //  -> S expr  : boolean
     const {car, cdr} = $$firstAndSecond(...args);
     return Number(car) >= Number(cdr);
 };
@@ -703,48 +745,64 @@ export const $$ge = $ge(null as any, null as any);
 
 
 export const $isList = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-list x)
+    //  -> S expr  : boolean
     return Array.isArray($$first(...args));
 };
 export const $$isList = $isList(null as any, null as any);
 
 
 export const $isString = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-string x)
+    //  -> S expr  : boolean
     return typeof $$first(...args) === 'string';
 };
 export const $$isString = $isString(null as any, null as any);
 
 
 export const $isNumber = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-number x)
+    //  -> S expr  : boolean
     return typeof $$first(...args) === 'number';
 };
 export const $$isNumber = $isNumber(null as any, null as any);
 
 
 export const $isNaN = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-NaN x)
+    //  -> S expr  : boolean
     return Number.isNaN(Number($$first(...args)));
 };
 export const $$isNaN = $isNaN(null as any, null as any);
 
 
 export const $isFinite = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-finate x)
+    //  -> S expr  : boolean
     return Number.isFinite(Number($$first(...args)));
 };
 export const $$isFinite = $isFinite(null as any, null as any);
 
 
 export const $isInteger = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-integer x)
+    //  -> S expr  : boolean
     return Number.isInteger(Number($$first(...args)));
 };
 export const $$isInteger = $isInteger(null as any, null as any);
 
 
 export const $toString = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($to-string x)
+    //  -> S expr  : string
     return String($$first(...args));
 };
 export const $$toString = $toString(null as any, null as any);
 
 
 export const $toNumber = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($to-number x)
+    //  -> S expr  : number
     return Number($$first(...args));
 };
 export const $$toNumber = $toNumber(null as any, null as any);

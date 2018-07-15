@@ -99,11 +99,11 @@ export const funcs: SxFuncInfo[] = [{
     name: '$not',
     fn: ops.$not,
 }, {
-    name: '$and',
-    fn: ops.$and,
+    name: '$__and',
+    fn: ops.$__and,
 }, {
-    name: '$or',
-    fn: ops.$or,
+    name: '$__or',
+    fn: ops.$__or,
 }, {
     name: '==',
     fn: ops.$ambiguousEq,

@@ -47,7 +47,7 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
             const v = $__scope(state, name)(true, true, [
                 ['$data', quote(state, x)],
                 ['$index', i],
-                ['$parent', getScope(state)],
+                ['$parent', quote(state, getScope(state))],
             ], ...args.slice(1));
 
             if (2 < args.length && Array.isArray(v)) {
@@ -61,38 +61,6 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
     return evaluate(state,
         ([{symbol: state.config.reservedNames.Template}] as SxToken[])
         .concat(r.map(z => [{symbol: state.config.reservedNames.quote}, z])));
-};
-
-
-// tslint:disable-next-line:variable-name
-export const $__toObject = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($__# '(name value...)...)
-    //  -> JSON    : {name: value, ...}
-    const r: any = {};
-    for (const x of args) {
-        if (Array.isArray(x) && 0 < x.length) {
-            const sym = isSymbol(x[0]);
-            const keyName =
-                sym ? sym.symbol :
-                String(evaluate(state, x[0]));
-            if (x.length === 1) {
-                // S expression: (# ... (keyName) ...)
-                //  -> JSON    : {..., keyName: true, ...}
-                r[keyName] = true;
-            } else if (x.length === 2) {
-                // S expression: (# ... (keyName value) ...)
-                //  -> JSON    : {..., keyName: value, ...}
-                r[keyName] = evaluate(state, x[1]);
-            } else {
-                // S expression: (# ... (keyName value1 value2 ...) ...)
-                //  -> JSON    : {..., keyName: [value1, value2, ], ...}
-                r[keyName] =
-                    evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
-                    .concat(x.slice(1)));
-            }
-        }
-    }
-    return r;
 };
 
 

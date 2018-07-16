@@ -24,6 +24,12 @@ export const funcs: SxFuncInfo[] = [{
     name: '$second',
     fn: ops.$second,
 }, {
+    name: '$last',
+    fn: ops.$last,
+}, {
+    name: '$progn', // alias of $last
+    fn: ops.$last,
+}, {
     name: '$rest',
     fn: ops.$rest,
 }, {
@@ -53,6 +59,12 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$__defun',
     fn: ops.$__defun,
+}, {
+    name: '$__try',
+    fn: ops.$__try,
+}, {
+    name: '$raise',
+    fn: ops.$raise,
 }, {
     name: '$__if',
     fn: ops.$__if,
@@ -93,11 +105,11 @@ export const funcs: SxFuncInfo[] = [{
     name: '$not',
     fn: ops.$not,
 }, {
-    name: '$and',
-    fn: ops.$and,
+    name: '$__and',
+    fn: ops.$__and,
 }, {
-    name: '$or',
-    fn: ops.$or,
+    name: '$__or',
+    fn: ops.$__or,
 }, {
     name: '==',
     fn: ops.$ambiguousEq,
@@ -140,6 +152,15 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$to-number',
     fn: ops.$toNumber,
+}, {
+    name: '$__#',
+    fn: ops.$__toObject,
+}, {
+    name: '$console-log',
+    fn: ops.$consoleLog,
+}, {
+    name: '$console-error',
+    fn: ops.$consoleError,
 }];
 
 

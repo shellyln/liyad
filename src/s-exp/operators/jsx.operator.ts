@@ -14,9 +14,6 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$=__for',
     fn: ops.$__outputForOf,
-}, {
-    name: '$__#',
-    fn: ops.$__toObject,
 }];
 
 

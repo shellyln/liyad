@@ -44,7 +44,7 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
-    name: '$clisp-let',
+    name: '$clisp-let', // alias of $local
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($clisp-let ((name value) | name ...) expr ... expr)
         //  -> S expr  : ($__scope isBlockLocal=true returnMultiple=false '((name value) | name ...) 'expr ... 'expr)
@@ -69,6 +69,15 @@ export const macros: SxMacroInfo[] = [{
         // S expression: ($defun name (sym1 ... symN) expr ... expr)
         //  -> S expr  : ($__defun 'name '(sym1 ... symN) 'expr ... 'expr)
         return [{symbol: '$__defun'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '$try',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($try expr catch-expr)
+        //  -> S expr  : ($__try 't-expr 'catch-expr)
+        return [{symbol: '$__try'},
             ...(list.slice(1).map(x => quote(state, x))),
         ];
     },
@@ -199,13 +208,31 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
-    name: '$clisp-setq',
+    name: '$clisp-setq', // alias of $set
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($clisp-setq symbol expr)
         //  -> S expr  : ($__set 'symbol expr)
         return [{symbol: '$__set'},
             quote(state, list[1]),
             list[2],
+        ];
+    },
+}, {
+    name: '$and',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($and expr1 ... exprN)
+        //  -> S expr  : ($__and 'expr1 ... 'exprN)
+        return [{symbol: '$__and'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '$or',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($or expr1 ... exprN)
+        //  -> S expr  : ($__or 'expr1 ... 'exprN)
+        return [{symbol: '$__or'},
+            ...(list.slice(1).map(x => quote(state, x))),
         ];
     },
 }];

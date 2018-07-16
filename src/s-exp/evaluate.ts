@@ -150,7 +150,17 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
 }
 
 
+function setEvaluationCount(state: SxParserState) {
+    state.evalCount++;
+    if (state.config.maxEvalCount && state.config.maxEvalCount < state.evalCount) {
+        throw new Error(`[SX] evaluate: The maximum count of evaluations has been exceeded.`);
+    }
+}
+
+
 export function evaluate(state: SxParserState, x: SxToken): SxToken {
+    setEvaluationCount(state);
+
     if (x === null || x === void 0) {
         return x;
     }
@@ -176,6 +186,8 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
         } else {
             break;
         }
+
+        setEvaluationCount(state);
     }
 
     if (Array.isArray(r)) {

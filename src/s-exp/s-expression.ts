@@ -68,6 +68,7 @@ export const defaultConfig: SxParserConfig = {
     strippedCommentValue: [],
     wrapExternalValue: true,
     returnMultipleRoot: false,
+    maxEvalCount: 0,
 
     reservedNames: defaultReservedNames,
     symbols: [],
@@ -85,6 +86,8 @@ function initState(config: SxParserConfig, globals: any, strings: TemplateString
         index: 0,
         pos: 0,
         line: 0,
+
+        evalCount: 0,
 
         scopes: [{isBlockLocal: false, scope: globals}],
 

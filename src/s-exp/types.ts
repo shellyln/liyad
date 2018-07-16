@@ -79,6 +79,7 @@ export interface SxParserConfig {
     wrapExternalValue: boolean;
     reservedNames: SxReservedNames;
     returnMultipleRoot: boolean;
+    maxEvalCount: number;
 
     jsx?: (comp: any, props: any, ...children: any[]) => any;
     JsxFragment?: any;
@@ -98,6 +99,8 @@ export interface SxParserState {
     index: number;
     pos: number;
     line: number;
+
+    evalCount: number;
 
     scopes: SxScope[];
 

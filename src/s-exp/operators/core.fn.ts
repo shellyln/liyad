@@ -11,6 +11,7 @@ import { SxParserState,
 import { evaluate,
          resolveValueSymbol,
          resolveValueSymbolScope,
+         getScope,
          getGlobalScope,
          installScope,
          uninstallScope,
@@ -193,6 +194,7 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
     const returnMultiple = $$second(...args);
     const {car, cdr} = $$firstAndSecond(...args.slice(2));
     let r: SxToken = null;
+    let scopeInstalled = false;
 
     try {
         const scope: any = {};
@@ -209,6 +211,7 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
             }
         }
         installScope(state, scope, isBlockLocal);
+        scopeInstalled = true;
 
         if (4 < args.length) {
             if (returnMultiple) {
@@ -225,7 +228,9 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
             r = evaluate(state, cdr);
         }
     } finally {
-        uninstallScope(state);
+        if (scopeInstalled) {
+            uninstallScope(state);
+        }
     }
 
     return r;
@@ -333,6 +338,32 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
         fn: (st, nm) => fn
     });
     return fn;
+};
+
+
+// tslint:disable-next-line:variable-name
+export const $__try = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__try 'expr 'catch-expr)
+    //  ->                               S expr  : expr
+    //  -> (if error is raised in expr)  S expr  : catch-expr
+    let r: SxToken = [];
+    try {
+        r = evaluate(state, args[0]);
+    } catch (e) {
+        r = $__scope(state, name)(true, false, [
+            ['$error', quote(state, e)],
+            ['$parent', quote(state, getScope(state))],
+        ], ...args[1]);
+    }
+    return r;
+};
+
+
+export const $raise = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($raise 'expr)
+    //  -> S expr  : -
+    const car = $$first(...args);
+    throw car;
 };
 
 

@@ -73,6 +73,15 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$try',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($try expr catch-expr)
+        //  -> S expr  : ($__try 't-expr 'catch-expr)
+        return [{symbol: '$__try'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '$if',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($if cond t-expr f-expr)

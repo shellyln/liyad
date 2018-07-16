@@ -60,6 +60,12 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__defun',
     fn: ops.$__defun,
 }, {
+    name: '$__try',
+    fn: ops.$__try,
+}, {
+    name: '$raise',
+    fn: ops.$raise,
+}, {
     name: '$__if',
     fn: ops.$__if,
 }, {

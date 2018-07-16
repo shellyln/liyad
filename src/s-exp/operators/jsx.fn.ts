@@ -47,7 +47,7 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
             const v = $__scope(state, name)(true, true, [
                 ['$data', quote(state, x)],
                 ['$index', i],
-                ['$parent', getScope(state)],
+                ['$parent', quote(state, getScope(state))],
             ], ...args.slice(1));
 
             if (2 < args.length && Array.isArray(v)) {

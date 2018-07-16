@@ -64,38 +64,6 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
 };
 
 
-// tslint:disable-next-line:variable-name
-export const $__toObject = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($__# '(name value...)...)
-    //  -> JSON    : {name: value, ...}
-    const r: any = {};
-    for (const x of args) {
-        if (Array.isArray(x) && 0 < x.length) {
-            const sym = isSymbol(x[0]);
-            const keyName =
-                sym ? sym.symbol :
-                String(evaluate(state, x[0]));
-            if (x.length === 1) {
-                // S expression: (# ... (keyName) ...)
-                //  -> JSON    : {..., keyName: true, ...}
-                r[keyName] = true;
-            } else if (x.length === 2) {
-                // S expression: (# ... (keyName value) ...)
-                //  -> JSON    : {..., keyName: value, ...}
-                r[keyName] = evaluate(state, x[1]);
-            } else {
-                // S expression: (# ... (keyName value1 value2 ...) ...)
-                //  -> JSON    : {..., keyName: [value1, value2, ], ...}
-                r[keyName] =
-                    evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
-                    .concat(x.slice(1)));
-            }
-        }
-    }
-    return r;
-};
-
-
 export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: (@ (name value...)...)
     //  -> JSON    : {name: value, ...}

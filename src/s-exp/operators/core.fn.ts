@@ -118,7 +118,7 @@ export const $$rest = $rest(null as any, null as any);
 
 
 export const $firstAndSecond = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($car first second ... last)
+    // S expression: ($first-and-second first second ... last)
     //  -> S expr  : first.second
     let car: any = args.slice(0, 1);
     car = (car.length === 1) ? car[0] : null;

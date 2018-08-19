@@ -331,16 +331,16 @@ function parseHereDoc(state: SxParserState, symbol: SxSymbol, attrs: SxToken[] |
 
 
 function parseSingleLineComment(state: SxParserState): SxComment | ' ' {
-    return state.config.stripComments ?
-        state.config.strippedCommentValue :
-        { comment: parseStringOrComment(state, ['\r', '\n'], null, ')').strings[0] };
+    return {
+        comment: parseStringOrComment(state, ['\r', '\n'], null, ')').strings[0]
+    };
 }
 
 
 function parseMultiLineComment(state: SxParserState): SxComment | ' ' {
-    return state.config.stripComments ?
-        state.config.strippedCommentValue :
-        { comment: parseStringOrComment(state, ['|#'], null, ')').strings[0] };
+    return {
+        comment: parseStringOrComment(state, ['|#'], null, ')').strings[0]
+    };
 }
 
 
@@ -505,6 +505,10 @@ function parseList(state: SxParserState, listStopChar: string, initialList: SxTo
                     } else {
                         r.push({car: r.pop() as SxToken, cdr: t});
                     }
+                } else if (typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, 'comment')) {
+                    if (! state.config.stripComments) {
+                        r.push(t);
+                    }
                 } else {
                     r.push(t);
                 }
@@ -538,13 +542,27 @@ export function parse(state: SxParserState) {
             {
                 getChar(state);
                 skipWhitespaces(state);
-                r.push(quote(state, parseOneToken(state)));
+                for (;;) {
+                    const t = parseOneToken(state);
+                    if (typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, 'comment')) {
+                        if (! state.config.stripComments) {
+                            r.push(t);
+                        }
+                    } else {
+                        r.push(quote(state, t));
+                        break;
+                    }
+                }
                 break;
             }
 
         case ';':
             getChar(state);
-            r.push(parseSingleLineComment(state));
+            if (state.config.stripComments) {
+                parseSingleLineComment(state);
+            } else {
+                r.push(parseSingleLineComment(state));
+            }
             break;
 
         case '#':
@@ -553,13 +571,31 @@ export function parse(state: SxParserState) {
                 if (aheads[1] === '|') {
                     getChar(state);
                     getChar(state);
-                    r.push(parseMultiLineComment(state));
+                    if (state.config.stripComments) {
+                        parseMultiLineComment(state);
+                    } else {
+                        r.push(parseMultiLineComment(state));
+                    }
                 } else {
                     getChar(state);
-                    r.push(parseSingleLineComment(state));
+                    if (state.config.stripComments) {
+                        parseSingleLineComment(state);
+                    } else {
+                        r.push(parseSingleLineComment(state));
+                    }
                 }
             }
             break;
+
+        case '"':
+            {
+                const aheads = lookAheads(state, 3);
+                if (aheads[1] === '"' && aheads[2] === '"') {
+                    r.push(parseOneToken(state));
+                    break;
+                }
+            }
+            // FALL_THRU
 
         default:
             throw new Error(`[SX] parseInitialState: Invalid syntax at: ${lookCurrentLineHint(state)}.`);

@@ -9,6 +9,9 @@ import * as ops       from './sequence.fn';
 
 
 export const funcs: SxFuncInfo[] = [{
+    name: '$range',
+    fn: ops.$range,
+}, {
     name: '$length',
     fn: ops.$length,
 }, {
@@ -27,11 +30,20 @@ export const funcs: SxFuncInfo[] = [{
     name: '$slice',
     fn: ops.$slice,
 }, {
+    name: '$top',
+    fn: ops.$top,
+}, {
+    name: '$tail',
+    fn: ops.$tail,
+}, {
     name: '$__at',
     fn: ops.$__at,
 }, {
     name: '$reverse',
     fn: ops.$reverse,
+}, {
+    name: '$reverse!',
+    fn: ops.$reverseDestructive,
 }, {
     name: '$find',
     fn: ops.$find,
@@ -53,6 +65,9 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$sort',
     fn: ops.$sort,
+}, {
+    name: '$sort!',
+    fn: ops.$sortDestructive,
 }];
 
 

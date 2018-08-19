@@ -10,8 +10,19 @@ import { SxParserState,
          SxDottedFragment,
          SxToken,
          SxScope,
-         isSymbol } from './types';
+         isSymbol }           from './types';
+import { setEvaluationCount } from './errors';
 
+
+
+export function toNumber(x: any) {
+    switch (typeof x) {
+    case 'object': case 'symbol': case 'function':
+        return NaN;
+    default:
+        return Number(x);
+    }
+}
 
 
 export function resolveMacro(state: SxParserState, x: SxSymbol): ((list: SxToken[]) => SxToken) | false {
@@ -150,14 +161,6 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
 }
 
 
-function setEvaluationCount(state: SxParserState) {
-    state.evalCount++;
-    if (state.config.maxEvalCount && state.config.maxEvalCount < state.evalCount) {
-        throw new Error(`[SX] evaluate: The maximum count of evaluations has been exceeded.`);
-    }
-}
-
-
 export function evaluate(state: SxParserState, x: SxToken): SxToken {
     setEvaluationCount(state);
 
@@ -249,7 +252,7 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             evaluate(state, (r as SxDottedFragment).dotted),
         ];
     } else if (Object.prototype.hasOwnProperty.call(r, 'comment')) {
-        r = state.config.strippedCommentValue;
+        r = [];
     }
 
     return r;

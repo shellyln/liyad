@@ -65,7 +65,6 @@ export const defaultConfig: SxParserConfig = {
     enableSpread: true,
     enableTailCallOptimization: true,
     stripComments: false,
-    strippedCommentValue: [],
     wrapExternalValue: true,
     returnMultipleRoot: false,
     maxEvalCount: 0,
@@ -231,6 +230,8 @@ export const L = (() => {
     config = installArithmetic(config);
     config = installSequence(config);
 
+    config.stripComments = true;
+
     return SExpression(config);
 })();
 
@@ -247,6 +248,8 @@ export const L_async = (() => {
     config = installArithmetic(config);
     config = installSequence(config);
     config = installConcurrent(config);
+
+    config.stripComments = true;
 
     return SExpressionAsync(config);
 })();
@@ -265,6 +268,7 @@ export const LM = (() => {
     config = installArithmetic(config);
     config = installSequence(config);
 
+    config.stripComments = true;
     config.returnMultipleRoot = true;
 
     return SExpression(config);
@@ -281,6 +285,7 @@ export const LM_async = (() => {
     config = installSequence(config);
     config = installConcurrent(config);
 
+    config.stripComments = true;
     config.returnMultipleRoot = true;
 
     return SExpressionAsync(config);
@@ -296,6 +301,8 @@ export function LSX<R = SxToken>(lsxConf: LsxConfig): SExpressionTemplateFn<R> {
     config = installSequence(config);
     config = installJsx(config, lsxConf);
 
+    config.stripComments = true;
+
     return SExpression(config) as any;
 }
 
@@ -309,6 +316,8 @@ export function LSX_async<R = SxToken>(lsxConf: LsxConfig): SExpressionAsyncTemp
     config = installSequence(config);
     config = installConcurrent(config);
     config = installJsx(config, lsxConf);
+
+    config.stripComments = true;
 
     return SExpressionAsync(config) as any;
 }

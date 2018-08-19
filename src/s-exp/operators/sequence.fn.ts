@@ -3,18 +3,51 @@
 // https://github.com/shellyln
 
 
-import { SxParserState } from '../types';
+import { SxParserState }     from '../types';
+import { toNumber,
+         evaluate }          from '../evaluate';
+import { checkParamsLength } from '../errors';
 import { $$first,
-         $$second }      from './core.fn';
-import { $$add }         from './arithmetic.fn';
+         $$firstAndSecond }  from './core.fn';
 
+
+
+export const $range = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($range start end)
+    // S expression: ($range start end step)
+    //  -> S expr  : list
+    checkParamsLength('$range', args, 2, 3);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    const start = toNumber(car) || 0;
+    const stop = toNumber(cdr) || 0;
+
+    const step = (args.length > 2 ? toNumber(args[2]) || 0 : 0) || (start <= stop ? 1 : -1);
+    const n = Math.sign(stop - start) + Math.sign(step) !== 0 ?
+        (Math.floor((Math.abs(stop - start) / Math.abs(step))) + 1) : 0;
+
+    state.evalCount += n;
+    evaluate(state, 0);
+    return Array.from({length: n}, (x, i) => start + i * step);
+};
 
 
 export const $length = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($length listOrString)
     //  -> S expr  : number
+    checkParamsLength('$length', args, 1, 1);
+
     const car = $$first(...args);
-    return car.length();
+    switch (typeof car) {
+    case 'object':
+        if (! ('length' in car)) {
+            break;
+        }
+        // FALL_THRU
+    case 'string':
+        return car.length;
+    }
+    throw new Error(`[SX] $length: Invalid argument type: object has no property 'length'.`);
 };
 export const $$length = $length(null as any, null as any);
 
@@ -22,8 +55,13 @@ export const $$length = $length(null as any, null as any);
 export const $trim = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($trim string)
     //  -> S expr  : string
+    checkParamsLength('$trim', args, 1, 1);
+
     const car = $$first(...args);
-    return car.trim();
+    if (typeof car === 'string') {
+        return car.trim();
+    }
+    throw new Error(`[SX] $trim: Invalid argument type: args[0] is not string.`);
 };
 export const $$trim = $trim(null as any, null as any);
 
@@ -31,8 +69,13 @@ export const $$trim = $trim(null as any, null as any);
 export const $trimHead = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($trim-head string)
     //  -> S expr  : string
+    checkParamsLength('$trimHead', args, 1, 1);
+
     const car = $$first(...args);
-    return car.length();
+    if (typeof car === 'string') {
+        return car.trimLeft();
+    }
+    throw new Error(`[SX] $trimHead: Invalid argument type: args[0] is not string.`);
 };
 export const $$trimHead = $trimHead(null as any, null as any);
 
@@ -40,8 +83,13 @@ export const $$trimHead = $trimHead(null as any, null as any);
 export const $trimTail = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($trim-tail string)
     //  -> S expr  : string
+    checkParamsLength('$trimTail', args, 1, 1);
+
     const car = $$first(...args);
-    return car.length();
+    if (typeof car === 'string') {
+        return car.trimRight();
+    }
+    throw new Error(`[SX] $trimTail: Invalid argument type: args[0] is not string.`);
 };
 export const $$trimTail = $trimTail(null as any, null as any);
 
@@ -49,8 +97,19 @@ export const $$trimTail = $trimTail(null as any, null as any);
 export const $concat = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($concat listOrString1 ... listOrStringN)
     //  -> S expr  : listOrString
+    checkParamsLength('$concat', args, 1);
+
     const car = $$first(...args);
-    return car.concat(...args.slice(1));
+    switch (typeof car) {
+    case 'object':
+        if (! ('concat' in car)) {
+            break;
+        }
+        // FALL_THRU
+    case 'string':
+        return car.concat(...args.slice(1));
+    }
+    throw new Error(`[SX] $concat: Invalid argument type: object has no property 'concat'.`);
 };
 export const $$concat = $concat(null as any, null as any);
 
@@ -59,23 +118,57 @@ export const $slice = (state: SxParserState, name: string) => (...args: any[]) =
     // S expression: ($slice start end listOrString)
     // S expression: ($slice start listOrString)
     //  -> S expr  : listOrString
+    checkParamsLength('$slice', args, 2, 3);
+
     if (args.length === 3) {
-        return args[2].slice(Number(args[0]), Number(args[1]));
+        if (typeof args[2] === 'string' || Array.isArray(args[2])) {
+            return args[2].slice(toNumber(args[0]), toNumber(args[1]));
+        }
     }
     if (args.length === 2) {
-        return args[1].slice(Number(args[0]));
+        if (typeof args[1] === 'string' || Array.isArray(args[1])) {
+            return args[1].slice(toNumber(args[0]));
+        }
     }
-    throw new Error(`[SX] $slice: Invalid argument length: expected: 2-3 / args: ${args.length}.`);
+    throw new Error(`[SX] $slice: Invalid argument type: args[${args.length - 1}] is not string or array.`);
 };
 export const $$slice = $slice(null as any, null as any);
+
+
+export const $top = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($top n listOrString)
+    //  -> S expr  : listOrString
+    checkParamsLength('$top', args, 2, 2);
+
+    if (typeof args[1] === 'string' || Array.isArray(args[1])) {
+        return args[1].slice(0, toNumber(args[0]));
+    }
+    throw new Error(`[SX] $top: Invalid argument type: args[1] is not string or array.`);
+};
+export const $$top = $top(null as any, null as any);
+
+
+export const $tail = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($tail n listOrString)
+    //  -> S expr  : listOrString
+    checkParamsLength('$tail', args, 2, 2);
+
+    if (typeof args[1] === 'string' || Array.isArray(args[1])) {
+        const n = -toNumber(args[0]);
+        return args[1].slice(n >= 0 || Number.isNaN(n) ? args[1].length : n);
+    }
+    throw new Error(`[SX] $tail: Invalid argument type: args[1] is not string or array.`);
+};
+export const $$tail = $tail(null as any, null as any);
 
 
 // tslint:disable-next-line:variable-name
 export const $__at = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__at index listOrString)
     //  -> S expr  : any
-    const car = $$first(...args);
-    const cdr = $$second(...args);
+    checkParamsLength('$__at', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
     return cdr[car];
 };
 // tslint:disable-next-line:variable-name
@@ -85,18 +178,41 @@ export const $$__at = $__at(null as any, null as any);
 export const $reverse = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($reverse listOrString)
     //  -> S expr  : listOrString
+    checkParamsLength('$reverse', args, 1, 1);
+
     const car = $$first(...args);
-    return car.slice(0).reverse();
+    if (Array.isArray(car)) {
+        return car.slice(0).reverse();
+    }
+    throw new Error(`[SX] $reverse: Invalid argument type: args[0] is not array.`);
 };
 export const $$reverse = $reverse(null as any, null as any);
 
 
-export const $find = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($map list (lambda (v index array) (... boolean)))
-    //  -> S expr  : list
+export const $reverseDestructive = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($reverse! listOrString)
+    //  -> S expr  : listOrString
+    checkParamsLength('$reverse!', args, 1, 1);
+
     const car = $$first(...args);
-    const cdr = $$second(...args);
-    return car.map(cdr);
+    if (Array.isArray(car)) {
+        return car.reverse();
+    }
+    throw new Error(`[SX] $reverse!: Invalid argument type: args[0] is not array.`);
+};
+export const $$reverseDestructive = $reverseDestructive(null as any, null as any);
+
+
+export const $find = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($find list (lambda (v index array) (... boolean)))
+    //  -> S expr  : list
+    checkParamsLength('$find', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        return car.find(cdr);
+    }
+    throw new Error(`[SX] $find: Invalid argument type: args[0] is not array.`);
 };
 export const $$find = $find(null as any, null as any);
 
@@ -104,9 +220,13 @@ export const $$find = $find(null as any, null as any);
 export const $filter = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($filter list (lambda (v index array) (... boolean)))
     //  -> S expr  : list
-    const car = $$first(...args);
-    const cdr = $$second(...args);
-    return car.filter(cdr);
+    checkParamsLength('$filter', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        return car.filter(cdr);
+    }
+    throw new Error(`[SX] $filter: Invalid argument type: args[0] is not array.`);
 };
 export const $$filter = $filter(null as any, null as any);
 
@@ -114,9 +234,13 @@ export const $$filter = $filter(null as any, null as any);
 export const $map = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($map list (lambda (v index array) (... any)))
     //  -> S expr  : list
-    const car = $$first(...args);
-    const cdr = $$second(...args);
-    return car.map(cdr);
+    checkParamsLength('$map', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        return car.map(cdr);
+    }
+    throw new Error(`[SX] $map: Invalid argument type: args[0] is not array.`);
 };
 export const $$map = $map(null as any, null as any);
 
@@ -125,37 +249,63 @@ export const $reduce = (state: SxParserState, name: string) => (...args: any[]) 
     // S expression: ($reduce list (lambda (acc v index array) (... any)) initial-value)
     // S expression: ($reduce list (lambda (acc v index array) (... any)))
     //  -> S expr  : list
-    const car = $$first(...args);
-    const cdr = $$second(...args);
-    if (args.length < 3) {
-        return car.reduce(cdr);
-    } else {
-        return car.reduce(cdr, args[2]);
+    checkParamsLength('$reduce', args, 2, 3);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        if (args.length < 3) {
+            return car.reduce(cdr);
+        } else {
+            return car.reduce(cdr, args[2]);
+        }
     }
+    throw new Error(`[SX] $reduce: Invalid argument type: args[0] is not array.`);
 };
 export const $$reduce = $reduce(null as any, null as any);
 
 
 export const $reduceFromTail = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($reduce list (lambda (acc v index array) (... any)) initial-value)
-    // S expression: ($reduce list (lambda (acc v index array) (... any)))
+    // S expression: ($reduce-from-tail list (lambda (acc v index array) (... any)) initial-value)
+    // S expression: ($reduce-from-tail list (lambda (acc v index array) (... any)))
     //  -> S expr  : list
-    const car = $$first(...args);
-    const cdr = $$second(...args);
-    if (args.length < 3) {
-        return car.reduceRight(cdr);
-    } else {
-        return car.reduceRight(cdr, args[2]);
+    checkParamsLength('$reduceFromTail', args, 2, 3);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        if (args.length < 3) {
+            return car.reduceRight(cdr);
+        } else {
+            return car.reduceRight(cdr, args[2]);
+        }
     }
+    throw new Error(`[SX] $reduceFromTail: Invalid argument type: args[0] is not array.`);
 };
 export const $$reduceFromTail = $reduceFromTail(null as any, null as any);
 
 
 export const $sort = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($reduce list (lambda (a b) (... number_a-b)))
+    // S expression: ($sort list (lambda (a b) (... number_a-b)))
     //  -> S expr  : list
-    const car = $$first(...args);
-    const cdr = $$second(...args);
-    return car.sort(cdr);
+    checkParamsLength('$sort', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        return car.slice(0).sort(cdr);
+    }
+    throw new Error(`[SX] $sort: Invalid argument type: args[0] is not array.`);
 };
 export const $$sort = $sort(null as any, null as any);
+
+
+export const $sortDestructive = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($sort! list (lambda (a b) (... number_a-b)))
+    //  -> S expr  : list
+    checkParamsLength('$sort!', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (Array.isArray(car)) {
+        return car.sort(cdr);
+    }
+    throw new Error(`[SX] $sort!: Invalid argument type: args[0] is not array.`);
+};
+export const $$sortDestructive = $sortDestructive(null as any, null as any);

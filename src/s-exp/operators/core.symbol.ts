@@ -22,10 +22,17 @@ export const symbols: SxSymbolInfo[] = [
     {name: '#false', fn: (state: SxParserState, name: string) => false},
     {name: '#f', fn: (state: SxParserState, name: string) => false},
 
-    {name: '+Infinity', fn: (state: SxParserState, name: string) => +Infinity},
-    {name: '-Infinity', fn: (state: SxParserState, name: string) => -Infinity},
+    {name: '#Number:Infinity', fn: (state: SxParserState, name: string) => Number.POSITIVE_INFINITY},
+    {name: '+Infinity', fn: (state: SxParserState, name: string) => Number.POSITIVE_INFINITY},
+    {name: '-Infinity', fn: (state: SxParserState, name: string) => Number.NEGATIVE_INFINITY},
 
-    {name: 'NaN', fn: (state: SxParserState, name: string) => NaN},
+    {name: '#Number:Epsilon', fn: (state: SxParserState, name: string) => Number.EPSILON},
+    {name: '#Number:MaxValue', fn: (state: SxParserState, name: string) => Number.MAX_VALUE},
+    {name: '#Number:MinValue', fn: (state: SxParserState, name: string) => Number.MIN_VALUE},
+    {name: '#Number:MinSafeInteger', fn: (state: SxParserState, name: string) => Number.MAX_SAFE_INTEGER},
+    {name: '#Number:MinSafeInteger', fn: (state: SxParserState, name: string) => Number.MIN_SAFE_INTEGER},
+
+    {name: 'NaN', fn: (state: SxParserState, name: string) => Number.NaN},
 ];
 
 

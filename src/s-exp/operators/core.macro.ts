@@ -6,7 +6,8 @@
 import { SxMacroInfo,
          SxParserState,
          quote,
-         isSymbol } from '../types';
+         isSymbol }          from '../types';
+import { checkParamsLength } from '../errors';
 
 
 
@@ -37,8 +38,7 @@ export const macros: SxMacroInfo[] = [{
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($__global expr1 ... exprN)
         //  -> S expr  : ($__global returnMultiple=false 'expr ... 'expr)
-        return [{symbol: '$__scope'},
-            true,
+        return [{symbol: '$__global'},
             false,
             ...(list.slice(1).map(x => quote(state, x))),
         ];
@@ -56,6 +56,15 @@ export const macros: SxMacroInfo[] = [{
     },
 }, {
     name: '$lambda',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($lambda (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($__lambda '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$__lambda'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '->',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($lambda (sym1 ... symN) expr ... expr)
         //  -> S expr  : ($__lambda '(sym1 ... symN) 'expr ... 'expr)
@@ -87,6 +96,26 @@ export const macros: SxMacroInfo[] = [{
         // S expression: ($if cond t-expr f-expr)
         //  -> S expr  : ($__if cond 't-expr 'f-expr)
         return [{symbol: '$__if'},
+            list[1],
+            ...(list.slice(2).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '$if-null',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($if-null cond null-expr)
+        //  -> S expr  : ($__if-null cont 'null-expr)
+        return [{symbol: '$__if-null'},
+            list[1],
+            ...(list.slice(2).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '??',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: (?? cond null-expr)
+        //  -> S expr  : ($__if-null cont 'null-expr)
+        return [{symbol: '$__if-null'},
             list[1],
             ...(list.slice(2).map(x => quote(state, x))),
         ];
@@ -180,6 +209,8 @@ export const macros: SxMacroInfo[] = [{
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($let nameStrOrSymbol expr)
         //  -> S expr  : ($__let 'nameStrOrSymbol expr)
+        checkParamsLength('$let', list, 3, 3);
+
         return [{symbol: '$__let'},
             quote(state, list[1]),
             list[2],
@@ -190,6 +221,8 @@ export const macros: SxMacroInfo[] = [{
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($let nameStrOrSymbol expr)
         //  -> S expr  : ($__let 'nameStrOrSymbol expr)
+        checkParamsLength('$clisp-defvar', list, 3, 3);
+
         return [{symbol: '$global'},
             [{symbol: '$__let'},
                 quote(state, list[1]),
@@ -202,6 +235,8 @@ export const macros: SxMacroInfo[] = [{
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($set nameOrListOfNameOrIndex expr)
         //  -> S expr  : ($__set 'nameOrListOfNameOrIndex expr)
+        checkParamsLength('$set', list, 3, 3);
+
         return [{symbol: '$__set'},
             quote(state, list[1]),
             list[2],
@@ -212,6 +247,8 @@ export const macros: SxMacroInfo[] = [{
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($clisp-setq symbol expr)
         //  -> S expr  : ($__set 'symbol expr)
+        checkParamsLength('$clisp-setq', list, 3, 3);
+
         return [{symbol: '$__set'},
             quote(state, list[1]),
             list[2],
@@ -232,6 +269,16 @@ export const macros: SxMacroInfo[] = [{
         // S expression: ($or expr1 ... exprN)
         //  -> S expr  : ($__or 'expr1 ... 'exprN)
         return [{symbol: '$__or'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '#',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: (# (name value...)...)
+        //  -> S expr  : ($__# '(name value...)...)
+        return [
+            {symbol: '$__#'},
             ...(list.slice(1).map(x => quote(state, x))),
         ];
     },

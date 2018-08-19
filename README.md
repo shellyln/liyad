@@ -445,8 +445,6 @@ is to be:
 
 ## APIs
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
-
 ### `SExpression`
 
 Create a new DSL.
@@ -456,12 +454,14 @@ interface SxParserConfig {
     raiseOnUnresolvedSymbol: boolean;
     enableEvaluate: boolean;
     enableHereDoc: boolean;
+    enableSpread: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     strippedCommentValue: any;
     wrapExternalValue: boolean;
     reservedNames: SxReservedNames;
     returnMultipleRoot: boolean;
+    maxEvalCount: number;
 
     jsx?: (comp: any, props: any, ...children: any[]) => any;
     JsxFragment?: any;
@@ -477,72 +477,60 @@ interface SxParserConfig {
 function SExpression(config: SxParserConfig): (strings: TemplateStringsArray | string, ...values?: any[]) => SxToken
 ```
 
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
+* returns : Template literal function.
+* `config` : Parser config.
 
-#### `returns` :
-> Template literal function.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `config` :
-> Parser config.
-
-
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+----
 
 
 ### `S`
+
 Parse a S-expression.
 
 ```ts
 function S(strings: TemplateStringsArray | string, ...values?: any[]): SxToken
 ```
 
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
+* returns : S-expression parsing result as JSON object.
+* `strings` : Template strings.
+* `values` : values.
 
-#### `returns` :
-> S-expression parsing result as JSON object.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `strings` :
-> Template strings.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `values` :
-> values.
-
-
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+----
 
 
 ### `lisp`
+
 Evaluate a Lisp code.
 
 ```ts
 function lisp(strings: TemplateStringsArray | string, ...values?: any[]): SxToken
 ```
 
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
+* returns : Evalueting result value of Lisp code.  
+    * If input Lisp code has multiple top level parenthesis,  
+      result value is last one.
+* `strings` : Template strings.
+* `values` : values.
 
-#### `returns` :
-> Evalueting result value of Lisp code.  
-> If input Lisp code has multiple top level parenthesis,
-> result value is last one.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `strings` :
-> Template strings.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `values` :
-> values.
+----
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+### `lisp_async`
+
+Evaluate a Lisp code.  
+(asynchronous features are enabled.)
+
+```ts
+function lisp_async(strings: TemplateStringsArray | string, ...values?: any[]): Promise<SxToken>
+```
+
+* returns : Promise that evalueting result value of Lisp code.  
+    * If input Lisp code has multiple top level parenthesis,  
+      result value is last one.
+* `strings` : Template strings.
+* `values` : values.
+
+----
 
 
 ### `LM`
@@ -552,25 +540,30 @@ Evaluate a Lisp code (returns multiple value).
 function LM(strings: TemplateStringsArray | string, ...values?: any[]): SxToken
 ```
 
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
+* returns : Evalueting result value of lisp code.  
+    * If input Lisp code has multiple top level parenthesis,  
+      result value is array.
+* `strings` : Template strings.
+* `values` : values.
 
-#### `returns` :
-> Evalueting result value of lisp code.  
-> If input Lisp code has multiple top level parenthesis,
-> result value is array.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `strings` :
-> Template strings.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `values` :
-> values.
+----
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+### `LM_async`
+Evaluate a Lisp code (returns multiple value).  
+(asynchronous features are enabled.)
+
+```ts
+function LM_async(strings: TemplateStringsArray | string, ...values?: any[]): Promise<SxToken>
+```
+
+* returns : Promise that evalueting result value of lisp code.  
+    * If input Lisp code has multiple top level parenthesis,  
+      result value is array.
+* `strings` : Template strings.
+* `values` : values.
+
+----
 
 
 ### `LSX`
@@ -586,17 +579,28 @@ interface LsxConfig {
 function LSX<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsArray, ...values: any[]) => R
 ```
 
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
+* returns : Template literal function.
+* `lsxConf` : LSX config.
 
-#### `returns` :
-> Template literal function.
-
-<hr style="width: 30%; border-style: dotted; margin-left: 0;" />
-
-#### `lsxConf` :
-> LSX config.
+----
 
 
+### `LSX_async`
+Evaluate a Lisp code as LSX.  
+(asynchronous features are enabled.)
+
+```ts
+interface LsxConfig {
+    jsx: (comp: any, props: any, ...children: any[]) => any;
+    jsxFlagment: any;
+    components: object;
+}
+
+function LSX_async<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsArray, ...values: any[]) => Promise<R>
+```
+
+* returns : Template literal function.
+* `lsxConf` : LSX config.
 
 ----
 
@@ -607,6 +611,7 @@ See
 [core](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/core.ts),
 [arithmetic](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/arithmetic.ts),
 [sequence](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/sequence.ts),
+[concurrent](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/concurrent.ts),
 [JSX (LSX)](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/jsx.ts) operators.
 
 

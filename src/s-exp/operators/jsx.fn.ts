@@ -6,13 +6,14 @@
 import { SxParserState,
          SxToken,
          quote,
-         isSymbol }  from '../types';
+         isSymbol }          from '../types';
 import { evaluate,
-         getScope }  from '../evaluate';
+         getScope }          from '../evaluate';
+import { checkParamsLength } from '../errors';
 import { $$first,
          $$firstAndSecond,
          $__scope,
-         $$boolean } from './core.fn';
+         $$boolean }         from './core.fn';
 
 
 
@@ -21,6 +22,8 @@ export const $__outputIf = (state: SxParserState, name: string) => (...args: any
     // S expression: ($__outputIf cond 'expr)
     //  -> (if cond is true ) S expr  : expr
     //  -> (if cond is false) S expr  : ()
+    checkParamsLength('$__outputIf', args, 2);
+
     const {car, cdr} = $$firstAndSecond(...args);
     let r: SxToken = [];
     if ($$boolean(car)) {
@@ -39,6 +42,8 @@ export const $__outputIf = (state: SxParserState, name: string) => (...args: any
 export const $__outputForOf = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__outputForOf list 'expr)
     //  -> S expr  : (Template expr ... expr)
+    checkParamsLength('$__outputForOf', args, 2);
+
     const car = $$first(...args);
     const r: SxToken[] = [];
     if (Array.isArray(car)) {
@@ -47,7 +52,7 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
             const v = $__scope(state, name)(true, true, [
                 ['$data', quote(state, x)],
                 ['$index', i],
-                ['$parent', quote(state, getScope(state))],
+                ['$parent', quote(state, getScope(state).scope)],
             ], ...args.slice(1));
 
             if (2 < args.length && Array.isArray(v)) {
@@ -56,6 +61,8 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
                 r.push(v);
             }
         }
+    } else {
+        throw new Error(`[SX] $__outputForOf: Invalid argument(s): args[0] is not array.`);
     }
     // All of r items are already evaluated.
     return evaluate(state,
@@ -120,7 +127,13 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                                 classes = classes.concat(c.split(' '));
                             }
                         }
-                        r[keyName] = classes.map(c => (c === null || c === void 0) ? "" : String(c));
+                        const cs: string[] = [];
+                        const fn: (a: any[]) => void = (a) => a
+                            .forEach(c => (c === null || c === void 0) ?
+                                void 0 :
+                                (Array.isArray(c) ? fn(c) : cs.push(String(c))));
+                        fn(classes);
+                        r[keyName] = cs;
                     }
                 }
                 break;
@@ -136,17 +149,21 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                         //  -> JSON    : {..., class: "className1 className2 ...", ...}
                         let classes: string = '';
                         for (const c of x.slice(1)) {
-                            let f = '';
+                            let fragment = '';
                             if (Array.isArray(c)) {
-                                f = c
+                                const cs: string[] = [];
+                                const fn: (a: any[]) => void = (a) => a
                                     .map(z => evaluate(state, z))
-                                    .map(z => (z === null || z === void 0) ? "" : String(z))
-                                    .join(' ');
+                                    .forEach(z => (z === null || z === void 0) ?
+                                        void 0 :
+                                        (Array.isArray(z) ? fn(z) : cs.push(String(z))));
+                                fn(c);
+                                fragment = cs.join(' ');
                             } else if (typeof c === 'string') {
-                                f = c;
+                                fragment = c;
                             }
-                            if (0 < classes.length) classes += ' ' + f;
-                            else classes = f;
+                            if (0 < classes.length) classes += ' ' + fragment;
+                            else classes = fragment;
                         }
                         r[keyName] = classes;
                     }
@@ -186,6 +203,8 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                 }
                 break;
             }
+        } else {
+            throw new Error(`[SX] $jsxProps: Invalid argument(s): args[?] is not array.`);
         }
     }
     return r;

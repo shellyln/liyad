@@ -42,7 +42,13 @@ export const funcs: SxFuncInfo[] = [{
     name: '$eq',
     fn: ops.$eq,
 }, {
+    name: '===',
+    fn: ops.$eq,
+}, {
     name: '$not-eq',
+    fn: ops.$notEq,
+}, {
+    name: '!==',
     fn: ops.$notEq,
 }, {
     name: '$list',
@@ -69,6 +75,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__if',
     fn: ops.$__if,
 }, {
+    name: '$__if-null',
+    fn: ops.$__ifNull,
+}, {
     name: '$__cond',
     fn: ops.$__cond,
 }, {
@@ -89,6 +98,9 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$__for',
     fn: ops.$__for,
+}, {
+    name: '$pipe',
+    fn: ops.$pipe,
 }, {
     name: '$__get',
     fn: ops.$__get,
@@ -155,6 +167,15 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$__#',
     fn: ops.$__toObject,
+}, {
+    name: '$object-assign',
+    fn: ops.$objectAssign,
+}, {
+    name: '$json-stringify',
+    fn: ops.$jsonStringify,
+}, {
+    name: '$json-parse',
+    fn: ops.$jsonParse,
 }, {
     name: '$console-log',
     fn: ops.$consoleLog,

@@ -5,7 +5,7 @@ var webpack = require('webpack');
 
 module.exports = function (env) {
     return [{
-        target: "node",
+        target: "web",
         entry: {
             liyad: [
                 path.resolve(__dirname, 'src/index.ts')

@@ -10,16 +10,6 @@ import { SxMacroInfo,
 
 
 export const macros: SxMacroInfo[] = [{
-    name: '#',
-    fn: (state: SxParserState, name: string) => (list) => {
-        // S expression: (# (name value...)...)
-        //  -> S expr  : ($__# '(name value...)...)
-        return [
-            {symbol: '$__#'},
-            ...(list.slice(1).map(x => quote(state, x))),
-        ];
-    },
-}, {
     name: '@',
     fn: (state: SxParserState, name: string) => (list) => {
         return quote(state, list);

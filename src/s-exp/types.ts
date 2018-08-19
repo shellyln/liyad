@@ -75,7 +75,6 @@ export interface SxParserConfig {
     enableSpread: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
-    strippedCommentValue: any;
     wrapExternalValue: boolean;
     reservedNames: SxReservedNames;
     returnMultipleRoot: boolean;
@@ -183,4 +182,18 @@ export function isSymbol(x: any, name?: string): SxSymbol | null {
         }
     }
     return null;
+}
+
+
+export class FatalError extends Error {
+    public constructor(message?: string | undefined) {
+        super(message);
+    }
+}
+
+
+export class MaxEvaluationCountError extends FatalError {
+    public constructor() {
+        super(`[SX] evaluate: The maximum count of evaluations has been exceeded.`);
+    }
 }

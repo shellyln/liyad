@@ -9,6 +9,24 @@ import * as ops       from './arithmetic.fn';
 
 
 export const funcs: SxFuncInfo[] = [{
+    name: '<<',
+    fn: ops.$bitLShift,
+}, {
+    name: '$bit-l-shift',
+    fn: ops.$bitLShift,
+}, {
+    name: '>>',
+    fn: ops.$bitSRShift,
+}, {
+    name: '$bit-sr-shift',
+    fn: ops.$bitSRShift,
+}, {
+    name: '>>>',
+    fn: ops.$bitURShift,
+}, {
+    name: '$bit-ur-shift',
+    fn: ops.$bitURShift,
+}, {
     name: '$bit-not',
     fn: ops.$bitNot,
 }, {
@@ -80,6 +98,12 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$round',
     fn: ops.$round,
+}, {
+    name: '$abs',
+    fn: ops.$abs,
+}, {
+    name: '$sign',
+    fn: ops.$sign,
 }];
 
 

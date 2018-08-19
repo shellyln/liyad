@@ -307,7 +307,9 @@ console.log(
 
 ## Extended syntax
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+
+----
+
 
 ### Here document:
 
@@ -327,7 +329,7 @@ Hello, Liyad!
 ```
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+----
 
 
 ### Here document with variable substitution:
@@ -348,7 +350,7 @@ Hello, " ($get name) "!
 ```
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+----
 
 
 ### Here document with custom function:
@@ -369,9 +371,6 @@ Hello, " ($get name) "!
 ```
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
-
-
 ### Here document with custom function and LSX props:
 
 ```lisp
@@ -390,7 +389,7 @@ Hello, " ($get name) "!
 ```
 
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+----
 
 
 ### Spread operator
@@ -409,9 +408,10 @@ and is to be:
 [1,2,3,4,5,6,7,8]
 ```
 
-`$spread` is NOT a macro, the list passed as a parameter is spliced ​​after evaluation.
+`$spread` is NOT a macro. The list passed as a parameter is spliced ​​after evaluation.
 
-<hr style="width: 50%; border-style: dashed; margin-left: 0;" />
+
+----
 
 
 ### Rest parameter
@@ -457,7 +457,6 @@ interface SxParserConfig {
     enableSpread: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
-    strippedCommentValue: any;
     wrapExternalValue: boolean;
     reservedNames: SxReservedNames;
     returnMultipleRoot: boolean;

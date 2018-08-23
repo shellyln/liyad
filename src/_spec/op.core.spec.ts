@@ -1048,6 +1048,61 @@ describe("operator.core.$defun", function() {
 });
 
 
+describe("operator.core.$call", function() {
+    it("$call -> throw", function() {
+        expect(() => lisp`
+            ($call)
+        `).toThrow();
+    });
+    it("$call a -> throw", function() {
+        expect(() => lisp`
+            ($call ${'abcdefgh'})
+        `).toThrow();
+    });
+    it("$call a b -> throw", function() {
+        expect(() => lisp`
+            ($call ${'abcdefgh'} qwerty)
+        `).toThrow();
+    });
+    it("$call a b -> throw", function() {
+        expect(() => lisp`
+            ($call null toUpperCase)
+        `).toThrow();
+    });
+    it("$call a b -> throw", function() {
+        expect(() => lisp`
+            ($call undefined toUpperCase)
+        `).toThrow();
+    });
+    it("$call a b -> value", function() {
+        expect(lisp`
+            ($call ${'abcdefgh'} toUpperCase)
+        `).toEqual('ABCDEFGH');
+    });
+    it("$call a b -> value", function() {
+        expect(lisp`
+            ($call ${'abcdefgh'} ($concat "toUpper" "Case"))
+        `).toEqual('ABCDEFGH');
+    });
+    it("$call a b -> value", function() {
+        expect(lisp`
+            ($call ${'abcdefgh'} slice 3)
+        `).toEqual('defgh');
+    });
+    it("$call a b c -> value", function() {
+        expect(lisp`
+            ($call ${'abcdefgh'} slice 3 5)
+        `).toEqual('de');
+    });
+    it("$call a b c -> value", function() {
+        expect(lisp`
+            ($let foo ${'abcdefgh'})
+            ($call foo slice 3 6)
+        `).toEqual('def');
+    });
+});
+
+
 describe("operator.core.$try", function() {
     it("$try throwing-expr catch-expr -> catch-expr", function() {
         expect(lisp`

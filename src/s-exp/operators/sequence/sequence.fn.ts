@@ -3,12 +3,12 @@
 // https://github.com/shellyln
 
 
-import { SxParserState }     from '../types';
+import { SxParserState }     from '../../types';
 import { toNumber,
-         evaluate }          from '../evaluate';
-import { checkParamsLength } from '../errors';
+         evaluate }          from '../../evaluate';
+import { checkParamsLength } from '../../errors';
 import { $$first,
-         $$firstAndSecond }  from './core.fn';
+         $$firstAndSecond }  from '../core/core.fn';
 
 
 

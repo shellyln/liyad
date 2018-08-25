@@ -3,10 +3,10 @@
 // https://github.com/shellyln
 
 
-import { SxParserConfig } from '../types';
-import operators          from './core.operator';
-import macros             from './core.macro';
-import symbols            from './core.symbol';
+import { SxParserConfig } from '../../types';
+import operators          from './sequence.operator';
+import macros             from './sequence.macro';
+import symbols            from './sequence.symbol';
 
 
 

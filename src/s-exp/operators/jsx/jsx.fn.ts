@@ -6,14 +6,14 @@
 import { SxParserState,
          SxToken,
          quote,
-         isSymbol }          from '../types';
+         isSymbol }          from '../../types';
 import { evaluate,
-         getScope }          from '../evaluate';
-import { checkParamsLength } from '../errors';
+         getScope }          from '../../evaluate';
+import { checkParamsLength } from '../../errors';
 import { $$first,
          $$firstAndSecond,
          $__scope,
-         $$boolean }         from './core.fn';
+         $$boolean }         from '../core/core.fn';
 
 
 

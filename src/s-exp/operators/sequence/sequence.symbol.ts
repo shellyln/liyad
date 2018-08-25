@@ -3,7 +3,7 @@
 // https://github.com/shellyln
 
 
-import { SxSymbolInfo } from '../types';
+import { SxSymbolInfo } from '../../types';
 
 
 

@@ -3,10 +3,10 @@
 // https://github.com/shellyln
 
 
-import { SxParserState }     from '../types';
-import { checkParamsLength } from '../errors';
+import { SxParserState }     from '../../types';
+import { checkParamsLength } from '../../errors';
 import { $__let,
-         $__set  }           from './core.fn';
+         $__set  }           from '../core/core.fn';
 
 
 

@@ -5,8 +5,8 @@
 
 import { SxMacroInfo,
          SxParserState,
-         quote }             from '../types';
-import { checkParamsLength } from '../errors';
+         quote }             from '../../types';
+import { checkParamsLength } from '../../errors';
 
 
 

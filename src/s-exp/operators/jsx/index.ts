@@ -4,7 +4,7 @@
 
 
 import { SxParserConfig,
-         LsxConfig }        from '../types';
+         LsxConfig }        from '../../types';
 import operators            from './jsx.operator';
 import macros               from './jsx.macro';
 import symbols              from './jsx.symbol';

@@ -5,7 +5,7 @@
 
 import { SxMacroInfo,
          SxParserState,
-         isSymbol } from '../types';
+         isSymbol } from '../../types';
 
 
 

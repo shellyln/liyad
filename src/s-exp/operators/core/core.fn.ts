@@ -8,7 +8,7 @@ import { SxParserState,
          SxToken,
          isSymbol,
          quote,
-         FatalError }         from '../types';
+         FatalError }         from '../../types';
 import { evaluate,
          resolveValueSymbolScope,
          getScope,
@@ -16,8 +16,8 @@ import { evaluate,
          installScope,
          uninstallScope,
          optimizeTailCall,
-         toNumber }           from '../evaluate';
-import { checkParamsLength }  from '../errors';
+         toNumber }           from '../../evaluate';
+import { checkParamsLength }  from '../../errors';
 
 
 

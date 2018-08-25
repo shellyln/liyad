@@ -4,7 +4,7 @@
 
 
 import { SxParserState,
-         SxSymbolInfo } from '../types';
+         SxSymbolInfo } from '../../types';
 
 
 

@@ -5,7 +5,7 @@
 
 import { SxMacroInfo,
          SxParserState,
-         quote } from '../types';
+         quote } from '../../types';
 
 
 

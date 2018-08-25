@@ -3,7 +3,7 @@
 // https://github.com/shellyln
 
 
-import { SxFuncInfo } from '../types';
+import { SxFuncInfo } from '../../types';
 import * as ops       from './concurrent.fn';
 
 

@@ -3,7 +3,7 @@
 // https://github.com/shellyln
 
 
-import { SxMacroInfo } from '../types';
+import { SxMacroInfo } from '../../types';
 
 
 

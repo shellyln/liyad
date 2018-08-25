@@ -102,6 +102,7 @@ function initState(config: SxParserConfig, globals: any, strings: TemplateString
 
 interface SExpressionTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): R;
+    evaluateAST: (ast: SxToken[]) => R;
     setGlobals: (globals: object) => SExpressionTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
@@ -112,11 +113,7 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
-    const f: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
-        const state = initState(config, Object.assign({}, globalScope), strings, values);
-
-        const s = startup.concat(parse(state));
-
+    const exec = (state: SxParserState, s: SxToken[]) => {
         if (config.enableEvaluate) {
             for (let i = 0; i < s.length; i++) {
                 s[i] = evaluate(state, s[i]);
@@ -128,8 +125,17 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
         } else {
             return s[s.length - 1];
         }
+    };
+
+    const f: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
+        return exec(state, startup.concat(parse(state)));
     }) as any;
 
+    f.evaluateAST = (ast: SxToken[]) => {
+        const state = initState(config, Object.assign({}, globalScope), '');
+        return exec(state, startup.concat(ast));
+    };
     f.setGlobals = (globals: object) => {
         globalScope = Object.assign({}, globals || {});
         return f;
@@ -156,6 +162,7 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
 
 interface SExpressionAsyncTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
+    evaluateAST: (ast: SxToken[]) => Promise<R>;
     setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
@@ -166,11 +173,7 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
-    const f: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray | string, ...values: any[]) => {
-        const state = initState(config, Object.assign({}, globalScope), strings, values);
-
-        const s = startup.concat(parse(state));
-
+    const exec = async (state: SxParserState, s: SxToken[]) => {
         if (config.enableEvaluate) {
             for (let i = 0; i < s.length; i++) {
                 s[i] = evaluate(state, s[i]);
@@ -186,8 +189,17 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
         } else {
             return s[s.length - 1];
         }
+    };
+
+    const f: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray | string, ...values: any[]) => {
+        const state = initState(config, Object.assign({}, globalScope), strings, values);
+        return exec(state, startup.concat(parse(state)));
     }) as any;
 
+    f.evaluateAST = (ast: SxToken[]) => {
+        const state = initState(config, Object.assign({}, globalScope), '');
+        return exec(state, startup.concat(ast));
+    };
     f.setGlobals = (globals: object) => {
         globalScope = Object.assign({}, globals || {});
         return f;

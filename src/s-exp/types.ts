@@ -197,3 +197,10 @@ export class MaxEvaluationCountError extends FatalError {
         super(`[SX] evaluate: The maximum count of evaluations has been exceeded.`);
     }
 }
+
+
+export class ScriptTerminationError extends FatalError {
+    public constructor(where: string) {
+        super(`[SX] ${where}: Unexpected termination of script.`);
+    }
+}

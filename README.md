@@ -288,6 +288,8 @@ export const MyDSL = (() => {
     config = installArithmetic(config);
     config = installSequence(config);
 
+    config.stripComments = true;
+
     config.funcs = (config.funcs || []).concat(myOperators);
     config.macros = (config.macros || []).concat(myMacros);
     config.symbols = (config.symbols || []).concat(mySymbols);
@@ -607,11 +609,11 @@ function LSX_async<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsAr
 ## Operators
 
 See
-[core](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/core.ts),
-[arithmetic](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/arithmetic.ts),
-[sequence](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/sequence.ts),
-[concurrent](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/concurrent.ts),
-[JSX (LSX)](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/jsx.ts) operators.
+[core](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/core/index.ts),
+[arithmetic](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/arithmetic/index.ts),
+[sequence](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/sequence/index.ts),
+[concurrent](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/concurrent/index.ts),
+[JSX (LSX)](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/jsx/index.ts) operators.
 
 
 ----

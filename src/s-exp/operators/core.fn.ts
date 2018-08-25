@@ -356,6 +356,22 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
 
 
 // tslint:disable-next-line:variable-name
+export const $__call = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__call thisArg 'symbol arg1 ... argN)
+    //  -> S expr  : fn
+    checkParamsLength('$__call', args, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    const sym = isSymbol(cdr);
+    return Function.prototype.apply.call(
+        car[sym ? sym.symbol : evaluate(state, cdr) as any],
+        car,
+        args.slice(2)
+    );
+};
+
+
+// tslint:disable-next-line:variable-name
 export const $__try = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__try 'expr 'catch-expr)
     //  ->                               S expr  : expr
@@ -388,6 +404,7 @@ export const $raise = (state: SxParserState, name: string) => (...args: any[]) =
     const car = $$first(...args);
     throw car;
 };
+export const $$raise = $raise(null as any, null as any);
 
 
 // tslint:disable-next-line:variable-name

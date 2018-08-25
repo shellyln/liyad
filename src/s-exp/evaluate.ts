@@ -237,15 +237,14 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
     } else if (Object.prototype.hasOwnProperty.call(r, 'symbol')) {
         r = resolveValueSymbol(state, r as SxSymbol);
     } else if (Object.prototype.hasOwnProperty.call(r, 'car')) {
-        if (Array.isArray((r as SxDottedPair).cdr)) {
-            const a = ((r as SxDottedPair).cdr as any[]).slice(0);
-            a.unshift((r as SxDottedPair).car);
-            r = evaluate(state, a);
+        const car = evaluate(state, (r as SxDottedPair).car);
+        const cdr = evaluate(state, (r as SxDottedPair).cdr);
+        if (Array.isArray(cdr)) {
+            const a = (cdr as any[]).slice(0);
+            a.unshift(car);
+            r = a;
         } else {
-            r = {
-                car: evaluate(state, (r as SxDottedPair).car),
-                cdr: evaluate(state, (r as SxDottedPair).cdr),
-            };
+            r = { car, cdr };
         }
     } else if (Object.prototype.hasOwnProperty.call(r, 'dotted')) {
         r = [

@@ -7,11 +7,13 @@ import { SxParserState,
          SxEof,
          SxExternalValue,
          SxSymbol,
+         SxDottedFragment,
          SxComment,
          SxToken,
          SxChar,
          quote,
-         spread } from './types';
+         spread,
+         ScriptTerminationError } from './types';
 
 
 
@@ -290,7 +292,7 @@ function parseStringOrComment(
         getChar(state, eofSeqs);
 
         if ((ch as SxEof).eof === true) {
-            throw new Error(`[SX] parseStringOrComment: Unexpected termination of script.`);
+            throw new ScriptTerminationError('parseStringOrComment');
         }
 
         strings.push(s);
@@ -421,7 +423,10 @@ function parseOneToken(state: SxParserState): SxToken {
                             }
                             getChar(state);
                             getChar(state);
-                            attrs = parseList(state, '}', [{symbol: '@'}]);
+                            const a = parseList(state, '}', [{symbol: '@'}]);
+                            if (Array.isArray(a)) {
+                                attrs = a;
+                            }
                         }
                     }
 
@@ -476,12 +481,13 @@ function parseOneToken(state: SxParserState): SxToken {
         ch = lookAhead(state);
     }
 
-    throw new Error(`[SX] parseOneToken: Unexpected termination of script.`);
+    throw new ScriptTerminationError('parseOneToken');
 }
 
 
-function parseList(state: SxParserState, listStopChar: string, initialList: SxToken[]) {
+function parseList(state: SxParserState, listStopChar: string, initialList: SxToken[]): SxToken {
     const r: SxToken[] = initialList.slice(0);
+    let dotted = false;
 
     skipWhitespaces(state);
     let ch = lookAhead(state);
@@ -490,26 +496,34 @@ function parseList(state: SxParserState, listStopChar: string, initialList: SxTo
         switch (ch) {
         case listStopChar:
             getChar(state);
-            return r;
+            if (dotted) {
+                return r[0];
+            } else {
+                return r;
+            }
 
         default:
             {
                 const t = parseOneToken(state);
                 if (typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, 'dotted')) {
-                    if (r.length === 0 || Array.isArray(r[r.length - 1])) {
+                    if (r.length !== 1) {
                         throw new Error(`[SX] parseList: Invalid syntax at: ${lookCurrentLineHint(state)}.`);
                     }
+                    dotted = true;
                     if (Array.isArray(t)) {
                         t.unshift(r.pop() as SxToken);
                         r.push(t);
                     } else {
-                        r.push({car: r.pop() as SxToken, cdr: t});
+                        r.push({car: r.pop() as SxToken, cdr: (t as SxDottedFragment).dotted});
                     }
                 } else if (typeof t === 'object' && Object.prototype.hasOwnProperty.call(t, 'comment')) {
                     if (! state.config.stripComments) {
                         r.push(t);
                     }
                 } else {
+                    if (dotted) {
+                        throw new Error(`[SX] parseList: Invalid syntax at: ${lookCurrentLineHint(state)}.`);
+                    }
                     r.push(t);
                 }
             }
@@ -520,7 +534,7 @@ function parseList(state: SxParserState, listStopChar: string, initialList: SxTo
         ch = lookAhead(state);
     }
 
-    throw new Error(`[SX] parseList: Unexpected termination of script.`);
+    throw new ScriptTerminationError('parseList');
 }
 
 

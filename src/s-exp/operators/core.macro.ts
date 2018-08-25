@@ -82,6 +82,19 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$call',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($call thisArg symbol arg1 ... argN)
+        //  -> S expr  : ($__call thisArg 'symbol arg1 ... argN)
+        checkParamsLength('$call', list, 3);
+
+        return [{symbol: '$__call'},
+            list[1],
+            quote(state, list[2]),
+            ...(list.slice(3)),
+        ];
+    },
+}, {
     name: '$try',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($try expr catch-expr)

@@ -106,7 +106,9 @@ interface SExpressionTemplateFn<R = SxToken> {
     setGlobals: (globals: object) => SExpressionTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
+    setStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
     appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
+    appendStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
 }
 
 export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
@@ -149,9 +151,17 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
         startup = parse(state);
         return f;
     };
+    f.setStartupAST = (ast: SxToken[]) => {
+        startup = ast;
+        return f;
+    };
     f.appendStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
         const state = initState(config, Object.assign({}, globalScope), strings, values);
         startup = startup.concat(parse(state));
+        return f;
+    };
+    f.appendStartupAST = (ast: SxToken[]) => {
+        startup = startup.concat(ast);
         return f;
     };
 
@@ -166,7 +176,9 @@ interface SExpressionAsyncTemplateFn<R = SxToken> {
     setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
+    setStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
     appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
+    appendStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
 }
 
 export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTemplateFn {
@@ -213,9 +225,17 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
         startup = parse(state);
         return f;
     };
+    f.setStartupAST = (ast: SxToken[]) => {
+        startup = ast;
+        return f;
+    };
     f.appendStartup = (strings: TemplateStringsArray | string, ...values: any[]) => {
         const state = initState(config, Object.assign({}, globalScope), strings, values);
         startup = startup.concat(parse(state));
+        return f;
+    };
+    f.appendStartupAST = (ast: SxToken[]) => {
+        startup = startup.concat(ast);
         return f;
     };
 

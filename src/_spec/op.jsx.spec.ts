@@ -346,6 +346,94 @@ describe("operator.core.$=for", function() {
             `<div class="aaa bbb ccc hhh cls-i-2 cls-7" style="color:red;width:100%;style-1:style-value-1;">Hello, asdfgh! 17</div>`
         );
     });
+    it("$=for", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(lsx`
+            ($let a null)
+            ($=for ($list 1 2 3 4 5) ($set a $array))
+            ($get a)
+        `)
+        .toEqual([1, 2, 3, 4, 5]);
+    });
+    it("$=for", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(lsx`
+            ($let a null)
+            ($=for ($list 1 2 3 4 5)
+                ($if (=== $index 2)
+                    ($set a $data)
+                )
+            )
+            ($get a)
+        `)
+        .toEqual(3);
+    });
+    it("$=for", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(lsx`
+            ($let a null)
+            ($=for ($list 1 2 3 4 5)
+                ($=for ($list 7)
+                    ($if (=== ($get $parent $index) 2)
+                        ($set a ($get $parent $data))
+                    )
+                )
+            )
+            ($get a)
+        `)
+        .toEqual(3);
+    });
 });
 
 

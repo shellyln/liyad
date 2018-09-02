@@ -1048,6 +1048,82 @@ describe("operator.core.$defun", function() {
 });
 
 
+describe("operator.core.$apply", function() {
+    it("$apply", function() {
+        expect(() => lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply))
+            (fn2)
+        `).toThrow();
+    });
+    it("$apply", function() {
+        expect(() => lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply (+ 3) (+ 5) (+ 7) (+ 11)))
+            (fn2)
+        `).toThrow();
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn (+ 3) (+ 5) (+ 7) (+ 11)))
+            (fn2)
+        `).toEqual([3, 5, 7, 11]);
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn 3 5 7 11))
+            (fn2)
+        `).toEqual([3, 5, 7, 11]);
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn 3 5 7))
+            (fn2 11)
+        `).toEqual([3, 5, 7, 11]);
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn 3 5))
+            (fn2 7 11)
+        `).toEqual([3, 5, 7, 11]);
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn 3))
+            (fn2 5 7 11)
+        `).toEqual([3, 5, 7, 11]);
+    });
+    it("$apply", function() {
+        expect(lisp`
+            ($let fn ($lambda (a b c d)
+                ($list a b c d)
+            ))
+            ($let fn2 ($apply fn))
+            (fn2 3 5 7 11)
+        `).toEqual([3, 5, 7, 11]);
+    });
+});
+
+
 describe("operator.core.$call", function() {
     it("$call -> throw", function() {
         expect(() => lisp`

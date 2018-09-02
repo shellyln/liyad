@@ -9,6 +9,7 @@ import { toNumber,
 import { checkParamsLength } from '../../errors';
 import { $$first,
          $$firstAndSecond }  from '../core/core.fn';
+import { query }             from '../../../lib/data';
 
 
 
@@ -355,3 +356,51 @@ export const $sortDestructive = (state: SxParserState, name: string) => (...args
     throw new Error(`[SX] $sort!: Invalid argument type: args[0] is not array.`);
 };
 export const $$sortDestructive = $sortDestructive(null as any, null as any);
+
+
+export const $groupEvery = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($group-every optionsOrNumber (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$group-every', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+
+    return query(cdr as any[]).groupEvery(car).select();
+};
+export const $$groupEvery = $groupEvery(null as any, null as any);
+
+
+export const $groupBy = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($group-by conditions (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$group-by', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+
+    return query(cdr as any[]).groupBy(car).select();
+};
+export const $$groupBy = $groupBy(null as any, null as any);
+
+
+export const $orderBy = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($order-by conditions (x1 ... xN))
+    //  -> S expr  : (x1 ... xN)
+    checkParamsLength('$order-by', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+
+    return query(cdr as any[]).orderBy(car).select();
+};
+export const $$orderBy = $orderBy(null as any, null as any);
+
+
+export const $where = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($where (-> (v index array) ... boolean) (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$where', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+
+    return query(cdr as any[]).where(car).select();
+};
+export const $$where = $where(null as any, null as any);

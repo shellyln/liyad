@@ -355,6 +355,23 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
 };
 
 
+export const $apply = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($apply fn arg1 ... argN)
+    //  -> S expr  : fn'
+    checkParamsLength('$apply', args, 1);
+
+    const car: () => any = $$first(...args);
+    if (typeof car !== 'function') {
+        throw new Error(`[SX] $apply: Invalid argument(s): args[0] is not function.`);
+    }
+
+    return (
+        (...p: any[]) => car.apply(null, args.slice(1).concat(p))
+    );
+};
+export const $$apply = $apply(null as any, null as any);
+
+
 // tslint:disable-next-line:variable-name
 export const $__call = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__call thisArg 'symbol arg1 ... argN)

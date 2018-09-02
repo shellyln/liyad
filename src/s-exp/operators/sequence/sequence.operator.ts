@@ -77,6 +77,18 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$sort!',
     fn: ops.$sortDestructive,
+}, {
+    name: '$group-every',
+    fn: ops.$groupEvery,
+}, {
+    name: '$group-by',
+    fn: ops.$groupBy,
+}, {
+    name: '$order-by',
+    fn: ops.$orderBy,
+}, {
+    name: '$where',
+    fn: ops.$where,
 }];
 
 

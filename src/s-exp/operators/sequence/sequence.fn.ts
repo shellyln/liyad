@@ -9,6 +9,7 @@ import { toNumber,
 import { checkParamsLength } from '../../errors';
 import { $$first,
          $$firstAndSecond }  from '../core/core.fn';
+import { query }             from '../../../lib/data';
 
 
 
@@ -92,6 +93,52 @@ export const $trimTail = (state: SxParserState, name: string) => (...args: any[]
     throw new Error(`[SX] $trimTail: Invalid argument type: args[0] is not string.`);
 };
 export const $$trimTail = $trimTail(null as any, null as any);
+
+
+export const $replaceAll = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($replace-all src-string match-string replacement-string)
+    //  -> S expr  : string
+    checkParamsLength('$replaceAll', args, 3, 3);
+
+    if (typeof args[0] === 'string' && typeof args[1] === 'string' && typeof args[2] === 'string') {
+        return args[0].split(args[1]).join(args[2]);
+    }
+    throw new Error(`[SX] $replaceAll: Invalid argument type: args[0] or [1] or [2] is not string.`);
+};
+export const $$replaceAll = $replaceAll(null as any, null as any);
+
+
+export const $split = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($split src-string match-string)
+    //  -> S expr  : (string ... string)
+    checkParamsLength('$split', args, 2, 2);
+
+    if (typeof args[0] === 'string' && typeof args[1] === 'string') {
+        return args[0].split(args[1]);
+    }
+    throw new Error(`[SX] $split: Invalid argument type: args[0] or [1] is not string.`);
+};
+export const $$split = $split(null as any, null as any);
+
+
+export const $join = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($join '(str1 ... strN) separator)
+    //  -> S expr  : (string ... string)
+    checkParamsLength('$join', args, 1, 2);
+
+    if (typeof Array.isArray(args[0])) {
+        if (args.length > 1) {
+            if (typeof args[1] === 'string') {
+                return args[0].join(args[1]);
+            }
+            throw new Error(`[SX] $join: Invalid argument type: args[1] is not string.`);
+        } else {
+            return args[0].join();
+        }
+    }
+    throw new Error(`[SX] $join: Invalid argument type: args[0] is not array.`);
+};
+export const $$join = $join(null as any, null as any);
 
 
 export const $concat = (state: SxParserState, name: string) => (...args: any[]) => {
@@ -309,3 +356,66 @@ export const $sortDestructive = (state: SxParserState, name: string) => (...args
     throw new Error(`[SX] $sort!: Invalid argument type: args[0] is not array.`);
 };
 export const $$sortDestructive = $sortDestructive(null as any, null as any);
+
+
+export const $groupEvery = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($group-every optionsOrNumber (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$group-every', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $group-every: Invalid argument type: args[1] is not array.`);
+    }
+
+    return query(cdr as any[]).groupEvery(car).select();
+};
+export const $$groupEvery = $groupEvery(null as any, null as any);
+
+
+export const $groupBy = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($group-by conditions (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$group-by', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $group-by: Invalid argument type: args[1] is not array.`);
+    }
+
+    return query(cdr as any[]).groupBy(car).select();
+};
+export const $$groupBy = $groupBy(null as any, null as any);
+
+
+export const $orderBy = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($order-by conditions (x1 ... xN))
+    //  -> S expr  : (x1 ... xN)
+    checkParamsLength('$order-by', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $order-by: Invalid argument type: args[1] is not array.`);
+    }
+
+    return query(cdr as any[]).orderBy(car).select();
+};
+export const $$orderBy = $orderBy(null as any, null as any);
+
+
+export const $where = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($where (-> (v index array) ... boolean) (x1 ... xN))
+    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    checkParamsLength('$where', args, 2, 2);
+
+    const {car, cdr} = $$firstAndSecond(...args);
+    if (typeof args[0] !== 'function') {
+        throw new Error(`[SX] $where: Invalid argument type: args[0] is not function.`);
+    }
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $where: Invalid argument type: args[1] is not array.`);
+    }
+
+    return query(cdr as any[]).where(car).select();
+};
+export const $$where = $where(null as any, null as any);

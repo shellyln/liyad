@@ -206,15 +206,19 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
                 }
             }
 
-            for (let i = r.length - 1; i > 0; i--) {
+            const sprs = [];
+            for (let i = 1; i < r.length; i++) {
                 const symSpr = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.spread);
                 if (symSpr) {
-                    let a = evaluate(state, (r[i] as SxToken[])[1]);
-                    a = Array.isArray(a) ? a : [a];
-                    r = (r as SxToken[]).slice(0, i).concat(a, r.slice(i + 1));
+                    sprs.push(i);
+                    const a = evaluate(state, (r[i] as SxToken[])[1]);
+                    r[i] = Array.isArray(a) ? a : [a];
                 } else {
                     r[i] = evaluate(state, r[i]);
                 }
+            }
+            for (const i of sprs.reverse()) {
+                r = (r as SxToken[]).slice(0, i).concat(r[i], r.slice(i + 1));
             }
 
             let fn: any;

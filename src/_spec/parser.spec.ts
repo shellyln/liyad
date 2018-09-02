@@ -69,3 +69,104 @@ describe("repl", function() {
         })();
     });
 });
+
+
+describe("spread", function() {
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...($list 7 11) 13)`).toEqual([3, 5, 7, 11, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...($list 7) 13)`).toEqual([3, 5, 7, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...($list) 13)`).toEqual([3, 5, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...($list 7 11))`).toEqual([5, 7, 11]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...($list 7))`).toEqual([5, 7]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...($list))`).toEqual([5]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list 7 11) 13)`).toEqual([7, 11, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list 7) 13)`).toEqual([7, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list) 13)`).toEqual([13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list 7 11))`).toEqual([7, 11]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list 7))`).toEqual([7]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...($list))`).toEqual([]);
+    });
+
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...'(7 11) 13)`).toEqual([3, 5, 7, 11, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...'(7) 13)`).toEqual([3, 5, 7, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 3 5 ...'() 13)`).toEqual([3, 5, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...'(7 11))`).toEqual([5, 7, 11]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...'(7))`).toEqual([5, 7]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list 5 ...'())`).toEqual([5]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'(7 11) 13)`).toEqual([7, 11, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'(7) 13)`).toEqual([7, 13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'() 13)`).toEqual([13]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'(7 11))`).toEqual([7, 11]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'(7))`).toEqual([7]);
+    });
+    it("spread", function() {
+        const repl = lisp.repl();
+        expect(repl`($list ...'())`).toEqual([]);
+    });
+});

@@ -79,6 +79,11 @@ export class Query<T> {
                 if (w.single < r.data[0].length) {
                     r.data.push([]);
                 }
+            } else {
+                if (w.first < r.data[0].length) {
+                    // case of w.first === 0
+                    r.data.unshift([]);
+                }
             }
             if (r.data.length > 1) {
                 if (r.data[r.data.length - 1].length > w.last) {

@@ -364,6 +364,9 @@ export const $groupEvery = (state: SxParserState, name: string) => (...args: any
     checkParamsLength('$group-every', args, 2, 2);
 
     const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $group-every: Invalid argument type: args[1] is not array.`);
+    }
 
     return query(cdr as any[]).groupEvery(car).select();
 };
@@ -376,6 +379,9 @@ export const $groupBy = (state: SxParserState, name: string) => (...args: any[])
     checkParamsLength('$group-by', args, 2, 2);
 
     const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $group-by: Invalid argument type: args[1] is not array.`);
+    }
 
     return query(cdr as any[]).groupBy(car).select();
 };
@@ -388,6 +394,9 @@ export const $orderBy = (state: SxParserState, name: string) => (...args: any[])
     checkParamsLength('$order-by', args, 2, 2);
 
     const {car, cdr} = $$firstAndSecond(...args);
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $order-by: Invalid argument type: args[1] is not array.`);
+    }
 
     return query(cdr as any[]).orderBy(car).select();
 };
@@ -400,6 +409,12 @@ export const $where = (state: SxParserState, name: string) => (...args: any[]) =
     checkParamsLength('$where', args, 2, 2);
 
     const {car, cdr} = $$firstAndSecond(...args);
+    if (typeof args[0] !== 'function') {
+        throw new Error(`[SX] $where: Invalid argument type: args[0] is not function.`);
+    }
+    if (! Array.isArray(cdr)) {
+        throw new Error(`[SX] $where: Invalid argument type: args[1] is not array.`);
+    }
 
     return query(cdr as any[]).where(car).select();
 };

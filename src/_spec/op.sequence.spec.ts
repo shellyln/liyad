@@ -1236,3 +1236,347 @@ describe("operator.core.$sort!", function() {
         expect(() => lisp`($sort! (#))`).toThrow();
     });
 });
+
+
+describe("operator.core.$group-every", function() {
+    it("$group-every -> throw", function() {
+        expect(() => lisp`($group-every)`).toThrow();
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every 5
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13], [17, 19, 23, 29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every 9
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13, 17, 19, 23, 29], [31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every 10
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13, 17, 19, 23, 29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every 11
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13, 17, 19, 23, 29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 10) (intermediate 8))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13, 17, 19, 23, 29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (intermediate 8))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7, 11, 13, 17, 19, 23], [29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (first 3) (intermediate 6) (last 2))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7], [11, 13, 17, 19, 23, 29], [31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (first 3) (intermediate 5) (last 2))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7], [11, 13, 17, 19, 23], [29, 31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (first 3) (intermediate 4) (last 2))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7], [11, 13, 17, 19], [23, 29, 31], []] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (first 3) (intermediate 3) (last 2))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[3, 5, 7], [11, 13, 17], [19, 23, 29], [31]] as any);
+    });
+    it("$group-every -> list", function() {
+        expect(lisp`
+            ($group-every (# (single 9) (first 0) (intermediate 3) (last 0))
+                ($list
+                    3 5 7 11 13 17 19 23 29 31
+                )
+            )`).toEqual([[], [3, 5, 7], [11, 13, 17], [19, 23, 29], [31], []] as any);
+    });
+});
+
+
+describe("operator.core.$group-by", function() {
+    it("$group-by -> throw", function() {
+        expect(() => lisp`($group-by)`).toThrow();
+    });
+    it("$group-by -> list", function() {
+        expect(lisp`
+            ($group-by ($list "foo")
+                ($list
+                    (# (foo 23) (bar 7) (baz 1))
+                    (# (foo 23) (bar 5) (baz 2))
+                    (# (foo 29) (bar 13) (baz 1))
+                    (# (foo 29) (bar 11) (baz 2))
+                    (# (foo 29) (bar 3) (baz 2))
+                )
+            )`).toEqual([[
+                { foo: 23, bar: 7, baz: 1 },
+                { foo: 23, bar: 5, baz: 2 },
+            ], [
+                { foo: 29, bar: 13, baz: 1 },
+                { foo: 29, bar: 11, baz: 2 },
+                { foo: 29, bar: 3, baz: 2 },
+            ]] as any
+        );
+    });
+    it("$group-by -> list", function() {
+        expect(lisp`
+            ($group-by ($list "foo" "baz")
+                ($list
+                    (# (foo 23) (bar 7) (baz 1))
+                    (# (foo 23) (bar 5) (baz 2))
+                    (# (foo 29) (bar 13) (baz 1))
+                    (# (foo 29) (bar 11) (baz 2))
+                    (# (foo 29) (bar 3) (baz 2))
+                )
+            )`).toEqual([[
+                { foo: 23, bar: 7, baz: 1 },
+            ], [
+                { foo: 23, bar: 5, baz: 2 },
+            ], [
+                { foo: 29, bar: 13, baz: 1 },
+            ], [
+                { foo: 29, bar: 11, baz: 2 },
+                { foo: 29, bar: 3, baz: 2 },
+            ]] as any
+        );
+    });
+    it("$group-by -> list", function() {
+        expect(lisp`
+            ($group-by (-> (a b) ($and (=== ($get a foo) ($get b foo)) (=== ($get a baz) ($get b baz)) ))
+                ($list
+                    (# (foo 23) (bar 7) (baz 1))
+                    (# (foo 23) (bar 5) (baz 2))
+                    (# (foo 29) (bar 13) (baz 1))
+                    (# (foo 29) (bar 11) (baz 2))
+                    (# (foo 29) (bar 3) (baz 2))
+                )
+            )`).toEqual([[
+                { foo: 23, bar: 7, baz: 1 },
+            ], [
+                { foo: 23, bar: 5, baz: 2 },
+            ], [
+                { foo: 29, bar: 13, baz: 1 },
+            ], [
+                { foo: 29, bar: 11, baz: 2 },
+                { foo: 29, bar: 3, baz: 2 },
+            ]] as any
+        );
+    });
+});
+
+
+describe("operator.core.$order-by", function() {
+    it("$order-by -> throw", function() {
+        expect(() => lisp`($order-by)`).toThrow();
+    });
+    it("$order-by -> throw", function() {
+        expect(() => lisp`($order-by '())`).toThrow();
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`($order-by (-> (a b) (- a b)) '(11 7 13 3 5))`).toEqual([3, 5, 7, 11, 13]);
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`($order-by (-> (a b) (- b a)) '(11 7 13 3 5))`).toEqual([13, 11, 7, 5, 3]);
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by ($list "foo")
+                ($list
+                    (# (foo 11))
+                    (# (foo 7))
+                    (# (foo 13))
+                    (# (foo 3))
+                    (# (foo 5))
+                )
+            )`).toEqual([
+                { foo: 3 },
+                { foo: 5 },
+                { foo: 7 },
+                { foo: 11 },
+                { foo: 13 },
+            ] as any
+        );
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by ($list '("foo"))
+                ($list
+                    (# (foo 11))
+                    (# (foo 7))
+                    (# (foo 13))
+                    (# (foo 3))
+                    (# (foo 5))
+                )
+            )`).toEqual([
+                { foo: 3 },
+                { foo: 5 },
+                { foo: 7 },
+                { foo: 11 },
+                { foo: 13 },
+            ] as any
+        );
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by ($list '("foo" "desc"))
+                ($list
+                    (# (foo 11))
+                    (# (foo 7))
+                    (# (foo 13))
+                    (# (foo 3))
+                    (# (foo 5))
+                )
+            )`).toEqual([
+                { foo: 13 },
+                { foo: 11 },
+                { foo: 7 },
+                { foo: 5 },
+                { foo: 3 },
+            ] as any
+        );
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by ($list '("foo") '("bar" "desc"))
+                ($list
+                    (# (foo 29) (bar 11))
+                    (# (foo 23) (bar 7))
+                    (# (foo 29) (bar 13))
+                    (# (foo 29) (bar 3))
+                    (# (foo 23) (bar 5))
+                )
+            )`).toEqual([
+                { foo: 23, bar: 7 },
+                { foo: 23, bar: 5 },
+                { foo: 29, bar: 13 },
+                { foo: 29, bar: 11 },
+                { foo: 29, bar: 3 },
+            ] as any
+        );
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by (-> (a b) ($if (!== ($get a foo) ($get b foo))
+                                    (- ($get a foo) ($get b foo))
+                                    (- ($get b bar) ($get a bar)) ))
+                ($list
+                    (# (foo 29) (bar 11))
+                    (# (foo 23) (bar 7))
+                    (# (foo 29) (bar 13))
+                    (# (foo 29) (bar 3))
+                    (# (foo 23) (bar 5))
+                )
+            )`).toEqual([
+                { foo: 23, bar: 7 },
+                { foo: 23, bar: 5 },
+                { foo: 29, bar: 13 },
+                { foo: 29, bar: 11 },
+                { foo: 29, bar: 3 },
+            ] as any
+        );
+    });
+    it("$order-by -> list", function() {
+        expect(lisp`
+            ($order-by ($list '("foo" "desc"))
+                ($list
+                    (# (foo "ddd"))
+                    (# (foo "ccc"))
+                    (# (foo "eee"))
+                    (# (foo "aaa"))
+                    (# (foo "bbb"))
+                )
+            )`).toEqual([
+                { foo: "eee" },
+                { foo: "ddd" },
+                { foo: "ccc" },
+                { foo: "bbb" },
+                { foo: "aaa" },
+            ] as any
+        );
+    });
+});
+
+
+describe("operator.core.$where", function() {
+    it("$where -> throw", function() {
+        expect(() => lisp`($where)`).toThrow();
+    });
+    it("$where -> throw", function() {
+        expect(() => lisp`($where '())`).toThrow();
+    });
+    it("$where -> list", function() {
+        expect(lisp`($where (-> (v index array) (> v 4)) '() )`).toEqual([]);
+    });
+    it("$where -> list", function() {
+        expect(lisp`($where (-> (v) (> v 4)) '(11 7 13 3 5) )`).toEqual([11, 7, 13, 5]);
+    });
+    it("$where -> list", function() {
+        expect(lisp`($where (-> (v) (> v 100)) '(11 7 13 3 5) )`).toEqual([]);
+    });
+    it("$where -> list", function() {
+        expect(lisp`($where (-> (v index array) (=== 0 (% index 2))) '(11 7 13 3 5) )`).toEqual([11, 13, 5]);
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where "abcde")`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where 0)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where +Infinity)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where -Infinity)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where NaN)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where null)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where undefined)`).toThrow();
+    });
+    it("$where a -> throw", function() {
+        expect(() => lisp`($where (#))`).toThrow();
+    });
+});

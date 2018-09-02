@@ -184,6 +184,20 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                     }
                 }
                 break;
+            case 'setInnerText':
+                {
+                    if (x.length === 1) {
+                        r[keyName] = {__text: ''};
+                    } else if (x.length >= 2) {
+                        r[keyName] = {__text: evaluate(state, x[1])};
+                    } else {
+                        r[keyName] = {__text:
+                            evaluate(state, ([{symbol: state.config.reservedNames.list}] as SxToken[])
+                            .concat(x.slice(1)))
+                        };
+                    }
+                }
+                break;
             default:
                 {
                     if (x.length === 1) {

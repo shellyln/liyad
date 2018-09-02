@@ -434,6 +434,38 @@ describe("operator.core.$=for", function() {
         `)
         .toEqual(3);
     });
+    it("$=for", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(lsx`
+            ($let a null)
+            ($=for ($list 1 2 3 4 5)
+                ($=for ($list 7 11 13)
+                    ($if (=== ($get $index) 2)
+                        ($set a ($get $data))
+                    )
+                )
+            )
+            ($get a)
+        `)
+        .toEqual(13);
+    });
 });
 
 

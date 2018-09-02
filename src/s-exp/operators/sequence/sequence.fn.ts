@@ -94,6 +94,52 @@ export const $trimTail = (state: SxParserState, name: string) => (...args: any[]
 export const $$trimTail = $trimTail(null as any, null as any);
 
 
+export const $replaceAll = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($replace-all src-string match-string replacement-string)
+    //  -> S expr  : string
+    checkParamsLength('$replaceAll', args, 3, 3);
+
+    if (typeof args[0] === 'string' && typeof args[1] === 'string' && typeof args[2] === 'string') {
+        return args[0].split(args[1]).join(args[2]);
+    }
+    throw new Error(`[SX] $replaceAll: Invalid argument type: args[0] or [1] or [2] is not string.`);
+};
+export const $$replaceAll = $replaceAll(null as any, null as any);
+
+
+export const $split = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($split src-string match-string)
+    //  -> S expr  : (string ... string)
+    checkParamsLength('$split', args, 2, 2);
+
+    if (typeof args[0] === 'string' && typeof args[1] === 'string') {
+        return args[0].split(args[1]);
+    }
+    throw new Error(`[SX] $split: Invalid argument type: args[0] or [1] is not string.`);
+};
+export const $$split = $split(null as any, null as any);
+
+
+export const $join = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($join '(str1 ... strN) separator)
+    //  -> S expr  : (string ... string)
+    checkParamsLength('$join', args, 1, 2);
+
+    if (typeof Array.isArray(args[0])) {
+        if (args.length > 1) {
+            if (typeof args[1] === 'string') {
+                return args[0].join(args[1]);
+            }
+            throw new Error(`[SX] $join: Invalid argument type: args[1] is not string.`);
+        } else {
+            return args[0].join();
+        }
+    }
+    throw new Error(`[SX] $join: Invalid argument type: args[0] is not array.`);
+};
+export const $$join = $join(null as any, null as any);
+
+
 export const $concat = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($concat listOrString1 ... listOrStringN)
     //  -> S expr  : listOrString

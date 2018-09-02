@@ -24,6 +24,15 @@ export const funcs: SxFuncInfo[] = [{
     name: '$trim-tail',
     fn: ops.$trimTail,
 }, {
+    name: '$replace-all',
+    fn: ops.$replaceAll,
+}, {
+    name: '$split',
+    fn: ops.$split,
+}, {
+    name: '$join',
+    fn: ops.$join,
+}, {
     name: '$concat',
     fn: ops.$concat,
 }, {

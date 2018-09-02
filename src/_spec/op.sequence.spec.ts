@@ -354,6 +354,81 @@ describe("operator.core.$trim-tail", function() {
 });
 
 
+describe("operator.core.$replace-all", function() {
+    it("$replace-all -> throw", function() {
+        expect(() => lisp`($replace-all)`).toThrow();
+    });
+    it("$replace-all -> throw", function() {
+        expect(() => lisp`($replace-all "")`).toThrow();
+    });
+    it("$replace-all -> throw", function() {
+        expect(() => lisp`($replace-all "" "")`).toThrow();
+    });
+    it("$replace-all -> string", function() {
+        expect(lisp`($replace-all "" "" "")`).toEqual('');
+    });
+    it("$replace-all -> string", function() {
+        expect(lisp`($replace-all "abc" "abc" "XYZ")`).toEqual('XYZ');
+    });
+    it("$replace-all -> string", function() {
+        expect(lisp`($replace-all "abcdefghabcdefghabcdefgh" "abc" "XYZ")`).toEqual('XYZdefghXYZdefghXYZdefgh');
+    });
+    it("$replace-all -> string", function() {
+        expect(lisp`($replace-all "abcdefghabcdefghabcdefgh" "fgh" "XYZ")`).toEqual('abcdeXYZabcdeXYZabcdeXYZ');
+    });
+    it("$replace-all -> string", function() {
+        expect(lisp`($replace-all "abcdefghabcdefghabcdefgh" "defghabcdefghabcde" "XYZ")`).toEqual('abcXYZfgh');
+    });
+});
+
+
+describe("operator.core.$split", function() {
+    it("$split -> throw", function() {
+        expect(() => lisp`($split)`).toThrow();
+    });
+    it("$split -> throw", function() {
+        expect(() => lisp`($split "")`).toThrow();
+    });
+    it("$split -> array", function() {
+        expect(lisp`($split "" "")`).toEqual([]);
+    });
+    it("$split -> array", function() {
+        expect(lisp`($split "abc" "abc")`).toEqual(['', '']);
+    });
+    it("$split -> array", function() {
+        expect(lisp`($split "abcdefghabcdefghabcdefgh" "abc")`).toEqual(['', 'defgh', 'defgh', 'defgh']);
+    });
+    it("$split -> array", function() {
+        expect(lisp`($split "abcdefghabcdefghabcdefgh" "fgh")`).toEqual(['abcde', 'abcde', 'abcde', '']);
+    });
+    it("$split -> array", function() {
+        expect(lisp`($split "abcdefghabcdefghabcdefgh" "defghabcdefghabcde")`).toEqual(['abc', 'fgh']);
+    });
+});
+
+
+describe("operator.core.$join", function() {
+    it("$join -> throw", function() {
+        expect(() => lisp`($join)`).toThrow();
+    });
+    it("$join -> throw", function() {
+        expect(() => lisp`($join "")`).toThrow();
+    });
+    it("$join -> string", function() {
+        expect(lisp`($join '("") )`).toEqual('');
+    });
+    it("$join -> string", function() {
+        expect(lisp`($join '("123" "456" "789") )`).toEqual('123,456,789');
+    });
+    it("$join -> string", function() {
+        expect(lisp`($join '("123" "456" "789") "")`).toEqual('123456789');
+    });
+    it("$join -> string", function() {
+        expect(lisp`($join '("123" "456" "789") ";")`).toEqual('123;456;789');
+    });
+});
+
+
 describe("operator.core.$concat", function() {
     it("$concat -> throw", function() {
         expect(() => lisp`($concat)`).toThrow();

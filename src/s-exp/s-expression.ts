@@ -121,9 +121,11 @@ interface SExpressionTemplateFn<R = SxToken> {
     setStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
     appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
     appendStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
+    install: (installer: (config: SxParserConfig) => SxParserConfig) => SExpressionTemplateFn<R>;
 }
 
-export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
+export function SExpression(conf?: SxParserConfig): SExpressionTemplateFn {
+    let config = conf || Object.assign({}, defaultConfig);
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
@@ -185,6 +187,10 @@ export function SExpression(config: SxParserConfig): SExpressionTemplateFn {
         startup = startup.concat(ast);
         return f;
     };
+    f.install = (installer) => {
+        config = installer(config);
+        return f;
+    };
 
     return f;
 }
@@ -201,9 +207,11 @@ interface SExpressionAsyncTemplateFn<R = SxToken> {
     setStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
     appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
     appendStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
+    install: (installer: (config: SxParserConfig) => SxParserConfig) => SExpressionAsyncTemplateFn<R>;
 }
 
-export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTemplateFn {
+export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplateFn {
+    let config = conf || Object.assign({}, defaultConfig);
     let globalScope: any = {};
     let startup: SxToken[] = [];
 
@@ -267,6 +275,10 @@ export function SExpressionAsync(config: SxParserConfig): SExpressionAsyncTempla
     };
     f.appendStartupAST = (ast: SxToken[]) => {
         startup = startup.concat(ast);
+        return f;
+    };
+    f.install = (installer) => {
+        config = installer(config);
         return f;
     };
 

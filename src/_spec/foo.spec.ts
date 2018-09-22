@@ -6,7 +6,27 @@ import * as react from 'react';
 // tslint:disable-next-line:no-implicit-dependencies
 import * as ReactDOMServer from 'react-dom/server';
 
-import { S, lisp, LM, LSX } from '../';
+import { SxParserState } from '../s-exp/types';
+import { S, lisp, LM, LSX, SExpression } from '../';
+
+
+
+describe("SExpression#install", function() {
+    it("SExpression#install", function() {
+        const Z = SExpression();
+
+        expect(() => Z`($fooo)`).toThrow();
+
+        Z.install((config) => {
+            config.funcs = (config.funcs || []).concat([{
+                name: '$fooo',
+                fn: (state: SxParserState, name: string) => (...args: any[]) => 98765,
+            }]);
+            return config;
+        });
+        expect(Z`($fooo)`).toEqual(98765);
+    });
+});
 
 
 

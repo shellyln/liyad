@@ -2,6 +2,21 @@ var path    = require('path');
 var webpack = require('webpack');
 
 
+const babelOptions = {
+    loader: 'babel-loader',
+    options: {
+        'sourceMaps': true,
+        'presets': [
+            ['@babel/preset-env', {
+                'targets': {
+                    'chrome': 68
+                }
+            }]
+        ],
+        'ignore': [],
+    }
+};
+
 
 module.exports = function (env) {
     return [{
@@ -33,21 +48,7 @@ module.exports = function (env) {
             rules: [{
                 test: /\.tsx?$/,
                 use: [
-                    {
-                        loader: 'babel-loader',
-                        options: {
-                            'sourceMaps': true,
-                            'presets': [
-                                ["env", {
-                                    "targets": {
-                                        "browsers": [ ">0.25%", "not ie 11", "not op_mini all"]
-                                    }
-                                }]
-                            ],
-                            'ignore': [],
-                        }
-                    },
-                    // 'babel-loader',
+                    babelOptions,
                     'ts-loader?' + JSON.stringify({
                         configFile: 'tsconfig.json'
                     }),
@@ -55,7 +56,9 @@ module.exports = function (env) {
                 exclude: /node_modules[\/\\](?!liyad).*$/
             }, {
                 test: /\.jsx?$/,
-                use: ['babel-loader'],
+                use: [
+                    babelOptions,
+                ],
                 exclude: /node_modules[\/\\](?!liyad).*$/
             }, {
                 enforce: 'pre',

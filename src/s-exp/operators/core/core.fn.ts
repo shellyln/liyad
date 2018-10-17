@@ -289,6 +289,29 @@ export const $__globalScope = (state: SxParserState, name: string) => (...args: 
 
 
 // tslint:disable-next-line:variable-name
+export const $__capture = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__capture '(sym1 ... symN) 'expr1 ... 'exprN)
+    //  -> S expr  : exprN
+    checkParamsLength('$__capture', args, 1);
+
+    const car = $$first(...args);
+    const cdr = $$second(...args);
+    let r: SxToken = null;
+
+    try {
+        // installScope
+        for (const x of args.slice(1)) {
+            r = evaluate(state, x);
+        }
+    } finally {
+        // uninstallScope
+    }
+
+    return r;
+};
+
+
+// tslint:disable-next-line:variable-name
 export const $__lambda = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__lambda '(sym1 ... symN) 'expr1 ... 'exprN)
     //  -> S expr  : fn
@@ -319,12 +342,14 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
         fnBody = optimizeTailCall(state, formalArgs, fnBody);
     }
 
+    // TODO: find captured variables from scopes.
+
     const fn = (...actualArgs: any[]) => {
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
             throw new Error(`[SX] func call: Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
-        return $__scope(state, name)(false, false, [
+        return $__scope(state, name /* TODO: pass captured variables */)(false, false, [
             [state.config.reservedNames.self, fn],
             ...(formalArgs.map((x: SxSymbol, index) => [
                 x.symbol,

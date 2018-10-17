@@ -64,6 +64,10 @@ export function resolveValueSymbolScope(state: SxParserState, x: SxSymbol, nullI
         if (localScope && Object.prototype.hasOwnProperty.call(localScope.scope, x.symbol)) {
             return localScope.scope;
         }
+        if (localScope.capturedScopes &&
+            Object.prototype.hasOwnProperty.call(localScope.capturedScopes, x.symbol)) {
+            return localScope.capturedScopes[x.symbol];
+        }
         if (! localScope.isBlockLocal) {
             break;
         }

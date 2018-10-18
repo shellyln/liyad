@@ -10,7 +10,8 @@ import { SxParserState,
          SxDottedFragment,
          SxToken,
          SxScope,
-         isSymbol }           from './types';
+         isSymbol,
+         CapturedScopes }     from './types';
 import { setEvaluationCount } from './errors';
 
 
@@ -100,34 +101,20 @@ export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
 }
 
 
-export function collectCapturedVariables(state: SxParserState, names: string[]) {
-    const capturedScopes = {};
-    const hit: boolean[] = [];
-    for (let i = state.scopes.length - 1; i > 0; i--) {
-        const localScope: SxScope = state.scopes[i];
-        for (let j = 0; j < names.length; j++) {
-            const n = names[j];
-            if (! hit[j] && Object.prototype.hasOwnProperty.call(localScope.scope, n)) {
-                hit[j] = true;
-                capturedScopes[n] = localScope.scope;
-            }
+export function collectCapturedVariables(state: SxParserState, names: SxSymbol[]): CapturedScopes {
+    const capturedScopes: CapturedScopes = {};
+    for (const n of names) {
+        const scope = resolveValueSymbolScope(state, n, true);
+        if (scope === null) {
+            throw new Error(`[SX] collectCapturedVariables: Unresolved symbols ${n}`);
         }
-        if (hit.every(x => x)) {
-            break;
-        }
-        if (! localScope.isBlockLocal) {
-            break;
-        }
-    }
-    if (! hit.every(x => x)) {
-        throw new Error(`[SX] collectCapturedVariables: Unresolved symbols ${
-            names.filter((v, i) => hit[i]).join(',')}`);
+        capturedScopes[n.symbol] = scope;
     }
     return capturedScopes;
 }
 
 
-export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean, capturedScopes?: any): any {
+export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean, capturedScopes?: CapturedScopes): any {
     state.scopes.push({isBlockLocal, scope, capturedScopes});
 }
 

@@ -25,10 +25,12 @@ export interface SxSymbolInfo {
 }
 
 
+export interface CapturedScopes { [s: string]: { [s: string]: any; }; }
+
 export interface SxScope {
     isBlockLocal: boolean;
     scope: any;           // { [s: string]: any; };
-    capturedScopes?: any; // { [s: string]: { [s: string]: any; }; };
+    capturedScopes?: CapturedScopes;
 }
 
 

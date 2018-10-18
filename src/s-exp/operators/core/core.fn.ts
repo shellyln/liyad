@@ -8,7 +8,8 @@ import { SxParserState,
          SxToken,
          isSymbol,
          quote,
-         FatalError }         from '../../types';
+         FatalError,
+         CapturedScopes }     from '../../types';
 import { evaluate,
          resolveValueSymbolScope,
          collectCapturedVariables,
@@ -200,7 +201,7 @@ export const $$list = $list(null as any, null as any);
 
 
 // tslint:disable-next-line:variable-name
-export const $__scope = (state: SxParserState, name: string) => (...args: any[]) => {
+export const $__scope = (state: SxParserState, name: string, capturedScopes?: CapturedScopes) => (...args: any[]) => {
     // S expression: ($__scope isBlockLocal returnMultiple '((name value) | name ...) 'expr1 ... 'exprN)
     //  -> (if returnMultiple)  S expr  : [expr1 ... exprN]
     //  -> (else)               S expr  : exprN
@@ -224,7 +225,7 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
             }
         }
     }
-    installScope(state, scope, isBlockLocal);
+    installScope(state, scope, isBlockLocal, capturedScopes);
 
     try {
         if (4 < args.length) {
@@ -297,7 +298,7 @@ export const $__capture = (state: SxParserState, name: string) => (...args: any[
 
     let r: SxToken = null;
 
-    const capturedScopes = collectCapturedVariables(state, formalArgs.map(x => x.symbol));
+    const capturedScopes = collectCapturedVariables(state, formalArgs);
     installScope(state, {}, true, capturedScopes);
     try {
         for (const x of args.slice(1)) {
@@ -343,13 +344,14 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
     }
 
     // TODO: find captured variables from scopes.
+    const capturedScopes = void 0;
 
     const fn = (...actualArgs: any[]) => {
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
             throw new Error(`[SX] func call: Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
-        return $__scope(state, name /* TODO: pass captured variables */)(false, false, [
+        return $__scope(state, name, /* TODO: pass captured variables */capturedScopes)(false, false, [
             [state.config.reservedNames.self, fn],
             ...(formalArgs.map((x: SxSymbol, index) => [
                 x.symbol,

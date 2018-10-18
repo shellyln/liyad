@@ -831,6 +831,25 @@ describe("operator.core.$global", function() {
 });
 
 
+describe("operator.core.$capture", function() {
+    it("$capture", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture (a b c)
+                    (-> () (* a b c))
+                ))
+            )
+            (fn)
+        `).toEqual(105);
+        console.log('aaa');
+    });
+});
+
+
 describe("operator.core.$lambda", function() {
     it("$lambda fac", function() {
         expect(lisp`

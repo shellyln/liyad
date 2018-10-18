@@ -55,6 +55,15 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$capture',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($capture (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($__capture '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$__capture'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '$lambda',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($lambda (sym1 ... symN) expr ... expr)

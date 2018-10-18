@@ -11,6 +11,7 @@ import { SxParserState,
          FatalError }         from '../../types';
 import { evaluate,
          resolveValueSymbolScope,
+         collectCapturedVariables,
          getScope,
          getGlobalScope,
          installScope,
@@ -209,25 +210,23 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
     const returnMultiple = $$second(...args);
     const {car, cdr} = $$firstAndSecond(...args.slice(2));
     let r: SxToken = null;
-    let scopeInstalled = false;
 
-    try {
-        const scope: any = {};
-        if (Array.isArray(car)) {
-            for (const x of car) {
-                if (Array.isArray(x)) {
-                    const kv = $$firstAndSecond(...x);
-                    const kvSym = isSymbol(kv.car);
-                    scope[kvSym ? kvSym.symbol : String(kv.car)] = evaluate(state, kv.cdr);
-                } else {
-                    const xSym = isSymbol(x);
-                    scope[xSym ? xSym.symbol : String(x)] = null;
-                }
+    const scope: any = {};
+    if (Array.isArray(car)) {
+        for (const x of car) {
+            if (Array.isArray(x)) {
+                const kv = $$firstAndSecond(...x);
+                const kvSym = isSymbol(kv.car);
+                scope[kvSym ? kvSym.symbol : String(kv.car)] = evaluate(state, kv.cdr);
+            } else {
+                const xSym = isSymbol(x);
+                scope[xSym ? xSym.symbol : String(x)] = null;
             }
         }
-        installScope(state, scope, isBlockLocal);
-        scopeInstalled = true;
+    }
+    installScope(state, scope, isBlockLocal);
 
+    try {
         if (4 < args.length) {
             if (returnMultiple) {
                 r = [];
@@ -243,9 +242,7 @@ export const $__scope = (state: SxParserState, name: string) => (...args: any[])
             r = evaluate(state, cdr);
         }
     } finally {
-        if (scopeInstalled) {
-            uninstallScope(state);
-        }
+        uninstallScope(state);
     }
 
     return r;
@@ -263,9 +260,8 @@ export const $__globalScope = (state: SxParserState, name: string) => (...args: 
     const cdr = $$second(...args);
     let r: SxToken = null;
 
+    installScope(state, getGlobalScope(state).scope, true);
     try {
-        installScope(state, getGlobalScope(state).scope, true);
-
         if (2 < args.length) {
             if (returnMultiple) {
                 r = [];
@@ -294,17 +290,21 @@ export const $__capture = (state: SxParserState, name: string) => (...args: any[
     //  -> S expr  : exprN
     checkParamsLength('$__capture', args, 1);
 
-    const car = $$first(...args);
-    const cdr = $$second(...args);
+    const formalArgs: SxSymbol[] = args[0];
+    if (! Array.isArray(formalArgs)) {
+        throw new Error(`[SX] $__lambda: Invalid argument(s): args[0] is not array.`);
+    }
+
     let r: SxToken = null;
 
+    const capturedScopes = collectCapturedVariables(state, formalArgs.map(x => x.symbol));
+    installScope(state, {}, true, capturedScopes);
     try {
-        // installScope
         for (const x of args.slice(1)) {
             r = evaluate(state, x);
         }
     } finally {
-        // uninstallScope
+        uninstallScope(state);
     }
 
     return r;

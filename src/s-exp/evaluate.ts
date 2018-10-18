@@ -100,8 +100,35 @@ export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
 }
 
 
-export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean): any {
-    state.scopes.push({isBlockLocal, scope});
+export function collectCapturedVariables(state: SxParserState, names: string[]) {
+    const capturedScopes = {};
+    const hit: boolean[] = [];
+    for (let i = state.scopes.length - 1; i > 0; i--) {
+        const localScope: SxScope = state.scopes[i];
+        for (let j = 0; j < names.length; j++) {
+            const n = names[j];
+            if (! hit[j] && Object.prototype.hasOwnProperty.call(localScope.scope, n)) {
+                hit[j] = true;
+                capturedScopes[n] = localScope.scope;
+            }
+        }
+        if (hit.every(x => x)) {
+            break;
+        }
+        if (! localScope.isBlockLocal) {
+            break;
+        }
+    }
+    if (! hit.every(x => x)) {
+        throw new Error(`[SX] collectCapturedVariables: Unresolved symbols ${
+            names.filter((v, i) => hit[i]).join(',')}`);
+    }
+    return capturedScopes;
+}
+
+
+export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean, capturedScopes?: any): any {
+    state.scopes.push({isBlockLocal, scope, capturedScopes});
 }
 
 

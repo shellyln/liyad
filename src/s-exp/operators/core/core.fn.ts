@@ -13,6 +13,7 @@ import { SxParserState,
 import { evaluate,
          resolveValueSymbolScope,
          collectCapturedVariables,
+         getCapturedScopes,
          getScope,
          getGlobalScope,
          installScope,
@@ -344,7 +345,7 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
     }
 
     // TODO: find captured variables from scopes.
-    const capturedScopes = void 0;
+    const capturedScopes = getCapturedScopes(state);
 
     const fn = (...actualArgs: any[]) => {
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {

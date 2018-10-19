@@ -845,7 +845,6 @@ describe("operator.core.$capture", function() {
             )
             (fn)
         `).toEqual(105);
-        console.log('aaa');
     });
 });
 

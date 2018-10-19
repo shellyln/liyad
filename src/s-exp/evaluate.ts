@@ -114,6 +114,21 @@ export function collectCapturedVariables(state: SxParserState, names: SxSymbol[]
 }
 
 
+export function getCapturedScopes(state: SxParserState): CapturedScopes | undefined {
+    const a: CapturedScopes[] = [];
+    for (let i = state.scopes.length - 1; i > 0; i--) {
+        const localScope: SxScope = state.scopes[i];
+        if (localScope.capturedScopes) {
+            a.unshift(localScope.capturedScopes);
+        }
+        if (! localScope.isBlockLocal) {
+            break;
+        }
+    }
+    return a.length > 0 ? Object.assign({}, ...a) : void 0;
+}
+
+
 export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean, capturedScopes?: CapturedScopes): any {
     state.scopes.push({isBlockLocal, scope, capturedScopes});
 }

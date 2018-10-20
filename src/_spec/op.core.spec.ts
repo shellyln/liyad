@@ -1087,6 +1087,111 @@ describe("operator.core.$capture", function() {
 });
 
 
+describe("operator.core.$closure", function() {
+    it("$closure #1", function() {
+        expect(() => lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($closure
+                    (* a b c)
+                ))
+            )
+            (fn)
+        `).toThrow();
+    });
+    it("$closure #2", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($closure () use () ($concat a b c)) )
+            )
+            (fn)
+        `).toEqual('abc');
+    });
+    it("$closure #3", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a "3")
+                ($let b "5")
+                ($let c "7")
+                ($let fn ($closure () use (a c) ($concat a b c)) )
+            )
+            (fn)
+        `).toEqual('3b7');
+    });
+    it("$closure #4", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($closure () use (a c) ($let c (+ c 1) )) )
+            )
+            (fn)(fn)
+        `).toEqual(9);
+    });
+
+    it("|-> #1", function() {
+        expect(() => lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn (|->
+                    (* a b c)
+                ))
+            )
+            (fn)
+        `).toThrow();
+    });
+    it("|-> #2", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn (|-> () use () ($concat a b c)) )
+            )
+            (fn)
+        `).toEqual('abc');
+    });
+    it("|-> #3", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a "3")
+                ($let b "5")
+                ($let c "7")
+                ($let fn (|-> () use (a c) ($concat a b c)) )
+            )
+            (fn)
+        `).toEqual('3b7');
+    });
+    it("|-> #4", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn (|-> () use (a c) ($let c (+ c 1) )) )
+            )
+            (fn)(fn)
+        `).toEqual(9);
+    });
+});
+
+
 describe("operator.core.$lambda", function() {
     it("$lambda fac", function() {
         expect(lisp`

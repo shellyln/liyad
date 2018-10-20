@@ -832,7 +832,49 @@ describe("operator.core.$global", function() {
 
 
 describe("operator.core.$capture", function() {
-    it("$capture", function() {
+    it("$capture #1", function() {
+        expect(() => lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture
+                    (-> () (* a b c))
+                ))
+            )
+            (fn)
+        `).toThrow();
+    });
+    it("$capture #2", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture
+                    (-> () ($concat a b c))
+                ))
+            )
+            (fn)
+        `).toEqual('abc');
+    });
+    it("$capture #3", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a "3")
+                ($let b "5")
+                ($let c "7")
+                ($let fn ($capture (a c)
+                    (-> () ($concat a b c))
+                ))
+            )
+            (fn)
+        `).toEqual('3b7');
+    });
+    it("$capture #4", function() {
         expect(lisp`
             ($let fn nil)
             ($local ()
@@ -842,6 +884,154 @@ describe("operator.core.$capture", function() {
                 ($let fn ($capture (a b c)
                     (-> () (* a b c))
                 ))
+            )
+            (fn)
+        `).toEqual(105);
+    });
+    it("$capture #5", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture (a b c)
+                    (-> () (* a b c))
+                ))
+            )
+            (* a b c)
+        `).toEqual(NaN);
+    });
+    it("$capture #6", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture (a b c)
+                    (-> () ($let c (+ c 1)))
+                ))
+            )
+            (fn)
+        `).toEqual(8);
+    });
+    it("$capture #7", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($let fn ($capture (a b c)
+                    (-> () ($let c (+ c 1)))
+                ))
+            )
+            (fn)(fn)
+        `).toEqual(9);
+    });
+    it("$capture #8", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a b c)
+                    ($let fn
+                        (-> () ($let c (+ c 1)))
+                    )
+                )
+            )
+            (fn)(fn)
+        `).toEqual(9);
+    });
+    it("$capture #9", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($let fn2 nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a b c)
+                    ($let fn
+                        (-> () ($let c (+ c 1)))
+                    )
+                    ($let fn2
+                        (-> () ($let c (+ c 2)))
+                    )
+                )
+            )
+            (fn)(fn2)
+        `).toEqual(10);
+    });
+    it("$capture #10", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($let fn2 nil)
+            ($let fn3 nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a b c)
+                    ($let fn
+                        (-> () ($let c (+ c 1)))
+                    )
+                    ($let fn2
+                        (-> () ($let c (+ c 2)))
+                    )
+                )
+                ($capture (a b c)
+                    ($let fn3
+                        (-> () ($let c (+ c 3)))
+                    )
+                )
+            )
+            (fn)(fn2)(fn3)
+        `).toEqual(13);
+    });
+    it("$capture #11", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a)
+                    ($capture (b)
+                        ($capture (c)
+                            ($let fn
+                                (-> () (* a b c))
+                            )
+                        )
+                    )
+                )
+            )
+            (fn)
+        `).toEqual(105);
+    });
+    it("$capture #12", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a)
+                    ((-> ()
+                        ($capture (a b)
+                            ((-> ()
+                                ($capture (a b c)
+                                    ($let fn
+                                        (-> () (* a b c))
+                                    )
+                                )
+                            ))
+                        )
+                    ))
+                )
             )
             (fn)
         `).toEqual(105);

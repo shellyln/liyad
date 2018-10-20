@@ -853,7 +853,7 @@ describe("operator.core.$capture", function() {
                 ($let a 3)
                 ($let b 5)
                 ($let c 7)
-                ($let fn ($capture
+                ($let fn ($capture ()
                     (-> () ($concat a b c))
                 ))
             )
@@ -1013,7 +1013,7 @@ describe("operator.core.$capture", function() {
         `).toEqual(105);
     });
     it("$capture #12", function() {
-        expect(lisp`
+        expect(() => lisp`
             ($let fn nil)
             ($local ()
                 ($let a 3)
@@ -1034,7 +1034,55 @@ describe("operator.core.$capture", function() {
                 )
             )
             (fn)
+        `).toThrow();
+    });
+    it("$capture #13", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a b c)
+                    ((-> ()
+                        ($capture (a b c)
+                            ((-> ()
+                                ($capture (a b c)
+                                    ($let fn
+                                        (-> () (* a b c))
+                                    )
+                                )
+                            ))
+                        )
+                    ))
+                )
+            )
+            (fn)
         `).toEqual(105);
+    });
+    it("$capture #14", function() {
+        expect(lisp`
+            ($let fn nil)
+            ($local ()
+                ($let a 3)
+                ($let b 5)
+                ($let c 7)
+                ($capture (a b c)
+                    ((-> ()
+                        ($capture (a b c)
+                            ((-> ()
+                                ($capture (a b c)
+                                    ($let fn
+                                        (-> () ($let c (+ c 1)))
+                                    )
+                                )
+                            ))
+                        )
+                    ))
+                )
+            )
+            (fn)(fn)
+        `).toEqual(9);
     });
 });
 

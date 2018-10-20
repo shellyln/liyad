@@ -176,25 +176,90 @@ describe("tail call optimization", function() {
     it("no optimization", function() {
         expect(lisp`
             ($defun tarai(x y z)
-            ($if (<= x y)
-                y
-                (tarai (tarai (- x 1) y z)
-                       (tarai (- y 1) z x)
-                       (tarai (- z 1) x y))))
+                ($if (<= x y)
+                    y
+                    (tarai (tarai (- x 1) y z)
+                           (tarai (- y 1) z x)
+                           (tarai (- z 1) x y) )))
+            (tarai 5 6 0)
+        `).toEqual(6);
+    });
+    it("no optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    (tarai (tarai (- x 1) y z)
+                           (tarai (- y 1) z x)
+                           (tarai (- z 1) x y) )))
+            (tarai 6 6 0)
+        `).toEqual(6);
+    });
+    it("no optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    (tarai (tarai (- x 1) y z)
+                           (tarai (- y 1) z x)
+                           (tarai (- z 1) x y) )))
             (tarai 7 6 0)
         `).toEqual(7);
     });
-    /*
+    it("no optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    (tarai (tarai (- x 1) y z)
+                           (tarai (- y 1) z x)
+                           (tarai (- z 1) x y) )))
+            (tarai 9 6 0)
+        `).toEqual(9);
+    });
+
     it("optimization", function() {
         expect(lisp`
             ($defun tarai(x y z)
-            ($if (<= x y)
-                y
-                ($self (tarai (- x 1) y z)
-                       (tarai (- y 1) z x)
-                       (tarai (- z 1) x y))))
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                           ($self (- y 1) z x)
+                           ($self (- z 1) x y) )))
+            (tarai 5 6 0)
+        `).toEqual(6);
+    });
+    it("optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                           ($self (- y 1) z x)
+                           ($self (- z 1) x y) )))
+            (tarai 6 6 0)
+        `).toEqual(6);
+    });
+    it("optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                           ($self (- y 1) z x)
+                           ($self (- z 1) x y) )))
             (tarai 7 6 0)
         `).toEqual(7);
     });
-    */
+    it("optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                           ($self (- y 1) z x)
+                           ($self (- z 1) x y) )))
+            (tarai 9 6 0)
+        `).toEqual(9);
+    });
 });

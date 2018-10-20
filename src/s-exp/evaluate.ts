@@ -163,27 +163,38 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
             // S expression: ($if cond t-expr f-expr)
             if (tail[3][0].symbol === state.config.reservedNames.self) {
                 // S expression (recursive):
-                //     (   ;; fnBody
+                //     (                                 ;; fnBody
                 //         expr1 ... exprN-1             ;; front
                 //         ($if cond                     ;; tail[0] [1]
                 //             t-expr                    ;;     [2]
                 //             ($self                    ;;     [3]
-                //                 rArgs1 ... rArgsN) )  ;; tail
+                //                 rArgs1 ... rArgsN) )  ;; tail[4] ... [N+4]
                 //     )
                 //
                 //  -> S exp (tail call optimization):
-                //     (   ;; fnBody
-                //         ($do-until cond
-                //             expr1 ... exprN-1
-                //             ($let sym1 rArgs1) ... ($let symN rArgsN) )
-                //         t-expr
+                //     (                                                                  ;; fnBody
+                //         ($until cond                                                   ;; tail[1]
+                //             ($clisp-let (tempsym1 ... tempsymN)                        ;;
+                //                 expr1 ... exprN-1                                      ;; front
+                //                 ($set tempsym1   rArgs1) ... ($set tempsymN   rArgsN)  ;; tail[4] ... [N+4]
+                //                 ($set     sym1 tempsym1) ... ($set     symN tempsymN)  ;;
+                //             )                                                          ;;
+                //         )                                                              ;;
+                //         t-expr                                                         ;; tail[2]
                 //     )
+
+                const varBaseName = `$__tempvar__$$ec${state.evalCount++}$$_`;
+                const tempVarsSyms = formalArgs.map((a, idx) => ({symbol: `${varBaseName}_$i${idx}_${a.symbol}`}));
 
                 return [
                     [{symbol: state.config.reservedNames.until}, tail[1],
-                        ...front,
-                        ...((tail[3].slice(1) as any[]).map((x: any, idx) =>
-                            [{symbol: state.config.reservedNames.let}, formalArgs[idx], x])),
+                        [{symbol: state.config.reservedNames.let}, [...tempVarsSyms],
+                            ...front,
+                            ...((tail[3].slice(1) as any[]).map((x: any, idx) =>
+                                [{symbol: state.config.reservedNames.set}, tempVarsSyms[idx], x])),
+                            ...(tempVarsSyms.map((x, idx) =>
+                                [{symbol: state.config.reservedNames.set}, formalArgs[idx], x])),
+                        ],
                     ],
                     tail[2],
                 ];

@@ -170,3 +170,31 @@ describe("spread", function() {
         expect(repl`($list ...'())`).toEqual([]);
     });
 });
+
+
+describe("tail call optimization", function() {
+    it("no optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+            ($if (<= x y)
+                y
+                (tarai (tarai (- x 1) y z)
+                       (tarai (- y 1) z x)
+                       (tarai (- z 1) x y))))
+            (tarai 7 6 0)
+        `).toEqual(7);
+    });
+    /*
+    it("optimization", function() {
+        expect(lisp`
+            ($defun tarai(x y z)
+            ($if (<= x y)
+                y
+                ($self (tarai (- x 1) y z)
+                       (tarai (- y 1) z x)
+                       (tarai (- z 1) x y))))
+            (tarai 7 6 0)
+        `).toEqual(7);
+    });
+    */
+});

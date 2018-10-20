@@ -344,7 +344,6 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
         fnBody = optimizeTailCall(state, formalArgs, fnBody);
     }
 
-    // TODO: find captured variables from scopes.
     const capturedScopes = getCapturedScopes(state);
 
     const fn = (...actualArgs: any[]) => {
@@ -352,7 +351,7 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
             throw new Error(`[SX] func call: Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
-        return $__scope(state, name, /* TODO: pass captured variables */capturedScopes)(false, false, [
+        return $__scope(state, name, capturedScopes)(false, false, [
             [state.config.reservedNames.self, fn],
             ...(formalArgs.map((x: SxSymbol, index) => [
                 x.symbol,

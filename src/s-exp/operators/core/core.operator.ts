@@ -60,6 +60,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__global',
     fn: ops.$__globalScope,
 }, {
+    name: '$__capture',
+    fn: ops.$__capture,
+}, {
     name: '$__lambda',
     fn: ops.$__lambda,
 }, {

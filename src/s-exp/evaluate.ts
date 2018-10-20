@@ -10,7 +10,8 @@ import { SxParserState,
          SxDottedFragment,
          SxToken,
          SxScope,
-         isSymbol }           from './types';
+         isSymbol,
+         CapturedScopes }     from './types';
 import { setEvaluationCount } from './errors';
 
 
@@ -64,6 +65,10 @@ export function resolveValueSymbolScope(state: SxParserState, x: SxSymbol, nullI
         if (localScope && Object.prototype.hasOwnProperty.call(localScope.scope, x.symbol)) {
             return localScope.scope;
         }
+        if (localScope.capturedScopes &&
+            Object.prototype.hasOwnProperty.call(localScope.capturedScopes, x.symbol)) {
+            return localScope.capturedScopes[x.symbol];
+        }
         if (! localScope.isBlockLocal) {
             break;
         }
@@ -96,8 +101,36 @@ export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
 }
 
 
-export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean): any {
-    state.scopes.push({isBlockLocal, scope});
+export function collectCapturedVariables(state: SxParserState, names: SxSymbol[]): CapturedScopes {
+    const capturedScopes: CapturedScopes = {};
+    for (const n of names) {
+        const scope = resolveValueSymbolScope(state, n, true);
+        if (scope === null) {
+            throw new Error(`[SX] collectCapturedVariables: Unresolved symbols ${n}`);
+        }
+        capturedScopes[n.symbol] = scope;
+    }
+    return capturedScopes;
+}
+
+
+export function getCapturedScopes(state: SxParserState): CapturedScopes | undefined {
+    const a: CapturedScopes[] = [];
+    for (let i = state.scopes.length - 1; i > 0; i--) {
+        const localScope: SxScope = state.scopes[i];
+        if (localScope.capturedScopes) {
+            a.unshift(localScope.capturedScopes);
+        }
+        if (! localScope.isBlockLocal) {
+            break;
+        }
+    }
+    return a.length > 0 ? Object.assign({}, ...a) : void 0;
+}
+
+
+export function installScope(state: SxParserState, scope: any, isBlockLocal: boolean, capturedScopes?: CapturedScopes): any {
+    state.scopes.push({isBlockLocal, scope, capturedScopes});
 }
 
 

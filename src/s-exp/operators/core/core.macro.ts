@@ -114,6 +114,24 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$refun',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($refun name)
+        //  -> S expr  : ($__refun 'name)
+        return [{symbol: '$__refun'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '<-',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: (<- name)
+        //  -> S expr  : ($__refun 'name)
+        return [{symbol: '$__refun'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '$call',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($call thisArg symbol arg1 ... argN)

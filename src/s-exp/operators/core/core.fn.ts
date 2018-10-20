@@ -382,6 +382,21 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
 };
 
 
+// tslint:disable-next-line:variable-name
+export const $__refun = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($refun 'name)
+    //  -> S expr  : fn
+    checkParamsLength('$__refun', args, 1, 1);
+
+    const car: SxSymbol = $$first(...args);
+    const info = state.funcMap.get(car.symbol);
+    if (!info) {
+        throw new Error(`[SX] $__refun: function ${car.symbol} is not defined.`);
+    }
+    return info.fn(state, car.symbol);
+};
+
+
 export const $apply = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($apply fn arg1 ... argN)
     //  -> S expr  : fn'

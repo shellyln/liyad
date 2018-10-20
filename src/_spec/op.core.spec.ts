@@ -1409,6 +1409,49 @@ describe("operator.core.$defun", function() {
 });
 
 
+describe("operator.core.$refun", function() {
+    it("$refun #1", function() {
+        expect(() => lisp`
+            ($let fn ($refun aaaaa))
+            (fn 3 5)
+        `).toThrow();
+    });
+    it("$refun #2", function() {
+        expect(lisp`
+            ($let fn ($refun *))
+            (fn 3 5)
+        `).toEqual(15);
+    });
+    it("$refun #3", function() {
+        expect(lisp`
+            ($defun foo (a b) (+ a b))
+            ($let fn ($refun foo))
+            (fn 3 5)
+        `).toEqual(8);
+    });
+
+    it("<- #1", function() {
+        expect(() => lisp`
+            ($let fn (<- aaaaa))
+            (fn 3 5)
+        `).toThrow();
+    });
+    it("<- #2", function() {
+        expect(lisp`
+            ($let fn (<- *))
+            (fn 3 5)
+        `).toEqual(15);
+    });
+    it("<- #3", function() {
+        expect(lisp`
+            ($defun foo (a b) (+ a b))
+            ($let fn (<- foo))
+            (fn 3 5)
+        `).toEqual(8);
+    });
+});
+
+
 describe("operator.core.$apply", function() {
     it("$apply", function() {
         expect(() => lisp`

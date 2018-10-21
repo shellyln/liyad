@@ -262,4 +262,19 @@ describe("tail call optimization", function() {
             (tarai 9 6 0)
         `).toEqual(9);
     });
+
+    it("optimization", function() {
+        expect(lisp`
+            ($local ()
+                ($let fib-sub (-> (n a b)
+                    ($if (< n 3)
+                        ($cond (=== n 2) (+ a b)
+                               (=== n 1) a
+                               true      0)
+                        ($self (- n 1) (+ a b) a) ) ))
+                ($capture (fib-sub)
+                    ($defun fib (n) (fib-sub n 1 0)) ) )
+            ($map ($range 0 5) (<- fib))
+        `).toEqual([0, 1, 1, 2, 3, 5]);
+    });
 });

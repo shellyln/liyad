@@ -274,8 +274,8 @@ describe("tail call optimization", function() {
                         ($self (- n 1) (+ a b) a) ) ))
                 ($capture (fib-sub)
                     ($defun fib (n) (fib-sub n 1 0)) ) )
-            ($map ($range 0 5) (<- fib))
-        `).toEqual([0, 1, 1, 2, 3, 5]);
+            ($map ($range 0 20) (<- fib))
+        `).toEqual([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]);
     });
 
     it("optimization", function() {
@@ -293,8 +293,6 @@ describe("tail call optimization", function() {
             ($map ($range 0 20) (<- fib))
         `).toEqual([0, 2, 2, 5, 9, 16, 27, 45, 74, 121, 197, 320, 519, 841, 1362, 2205, 3569, 5776, 9347, 15125, 24474]);
     });
-    /*
-    // TODO: tail call optimization bug
     it("optimization", function() {
         expect(lisp`
             ($local (fib-sub)
@@ -310,5 +308,37 @@ describe("tail call optimization", function() {
             ($map ($range 0 20) (<- fib))
         `).toEqual([0, 2, 2, 5, 9, 16, 27, 45, 74, 121, 197, 320, 519, 841, 1362, 2205, 3569, 5776, 9347, 15125, 24474]);
     });
-    */
+
+    it("optimization", function() {
+        expect(lisp`
+            ($local (fib-sub)
+                ($set fib-sub (|-> (n a b) use (fib-sub)
+                    ($set a (+ a 1))
+                    ($set b (+ b 1))
+                    ($if (< n 3)
+                        ($cond (=== n 2) (+ a b)
+                               (=== n 1) a
+                               true      0)
+                        (fib-sub (- n 1) (+ a b) a) ) ))
+                ($capture (fib-sub)
+                    ($defun fib (n) (fib-sub n 1 0)) ) )
+            ($map ($range 0 20) (<- fib))
+        `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
+    });
+    it("optimization", function() {
+        expect(lisp`
+            ($local (fib-sub)
+                ($set fib-sub (|-> (n a b) use (fib-sub)
+                    ($set a (+ a 1))
+                    ($set b (+ b 1))
+                    ($if (< n 3)
+                        ($cond (=== n 2) (+ a b)
+                               (=== n 1) a
+                               true      0)
+                        ($self (- n 1) (+ a b) a) ) ))
+                ($capture (fib-sub)
+                    ($defun fib (n) (fib-sub n 1 0)) ) )
+            ($map ($range 0 20) (<- fib))
+        `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
+    });
 });

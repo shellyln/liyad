@@ -180,6 +180,7 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
                 //                 ($set     sym1 tempsym1) ... ($set     symN tempsymN)  ;;
                 //             )                                                          ;;
                 //         )                                                              ;;
+                //         expr1 ... exprN-1                                              ;; front
                 //         t-expr                                                         ;; tail[2]
                 //     )
 
@@ -196,6 +197,7 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
                                 [{symbol: state.config.reservedNames.set}, formalArgs[idx], x])),
                         ],
                     ],
+                    ...front,
                     tail[2],
                 ];
             }

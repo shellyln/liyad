@@ -278,7 +278,7 @@ describe("tail call optimization", function() {
         `).toEqual([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, 6765]);
     });
 
-    it("optimization", function() {
+    it("no optimization", function() {
         expect(lisp`
             ($local (fib-sub)
                 ($set fib-sub (|-> (n a b) use (fib-sub)
@@ -309,7 +309,7 @@ describe("tail call optimization", function() {
         `).toEqual([0, 2, 2, 5, 9, 16, 27, 45, 74, 121, 197, 320, 519, 841, 1362, 2205, 3569, 5776, 9347, 15125, 24474]);
     });
 
-    it("optimization", function() {
+    it("no optimization", function() {
         expect(lisp`
             ($local (fib-sub)
                 ($set fib-sub (|-> (n a b) use (fib-sub)

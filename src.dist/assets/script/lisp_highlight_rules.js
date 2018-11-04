@@ -4,10 +4,10 @@ define("ace/mode/lisp_highlight_rules", ["require", "exports", "module", "ace/li
     var r = e("../lib/oop")
       , i = e("./text_highlight_rules").TextHighlightRules
       , s = function() {
-        var e = "$let|$local|$global|$if|$while|$do-while|$until|$do-until|$=if|$=for"
-          , t = "$eq|$ne|$neq|$and|$or|==|!=|<=|>=|<|>|+|-|*|/|%"
+        var e = "$let|$local|$global|$capture|$if|$if-null|$cond|$while|$do-while|$until|$do-until|$for|$repeat|$try|$raise|$=if|$=for"
+          , t = "$eq|$ne|$neq|$and|$or|===|==|!==|!=|<=|>=|<|>|+|-|*|/|%"
           , n = "null|nil|$data"
-          , r = "$cons|$car|$cdr|$cond|$lambda|$self|$setq|$setf|$set|$get|$quote|$eval|$list|$concat|$length"
+          , r = "$cons|$car|$cdr|$self|$setq|$setf|$set|$get|$quote|$eval|$list|$concat|$length|$range|$map"
           , i = this.createKeywordMapper({
             "keyword.control": e,
             "keyword.operator": t,
@@ -20,7 +20,7 @@ define("ace/mode/lisp_highlight_rules", ["require", "exports", "module", "ace/li
                 regex: ";.*$"
             }, {
                 token: ["storage.type.function-type.lisp", "text", "entity.name.function.lisp"],
-                regex: "(?:(?:(\\$defun|\\$defmethod|\\$defmacro))\\b)(\\s+)((?:\\w|\\-|\\!|\\?)*)"
+                regex: "(?:(?:(\\$defun|\\$\\$defun|\\$lambda|\\$\\$lambda|\\$closure|\\$\\$closure|\\$defmethod|\\$defmacro))\\b)(\\s+)((?:\\w|\\-|\\!|\\?)*)"
             }, {
                 token: ["punctuation.definition.constant.character.lisp", "constant.character.lisp"],
                 regex: "(#)((?:\\w|[\\\\+-=<>'\"&#\\$])+)"

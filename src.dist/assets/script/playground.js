@@ -40,6 +40,61 @@ const exampleCodes = [
         (name ($concat "Jane Doe " $data)) ))
 )`},
 
+//// [2] ////
+{name: "Example3: tarai (compile)",
+ code:
+`($$defun tarai(x y z)
+    ($if (<= x y)
+        y
+        ($self ($self (- x 1) y z)
+               ($self (- y 1) z x)
+               ($self (- z 1) x y))))
+           
+(tarai 13 6 0)`},
+
+//// [3] ////
+{name: "Example4: tarai (interpret)",
+ code:
+`($defun tarai(x y z)
+    ($if (<= x y)
+        y
+        (tarai (tarai (- x 1) y z)
+               (tarai (- y 1) z x)
+               (tarai (- z 1) x y))))
+           
+; (tarai 12 6 0)
+(tarai 9 6 0)`},
+
+//// [4] ////
+{name: "Example5: Fibonacci number (compile)",
+ code:
+`($local ()
+    ($let fib-sub (=> (n a b)
+        ($if (< n 3)
+            ($cond (=== n 2) (+ a b)
+                   (=== n 1) a
+                   true      0)
+            ($self (- n 1) (+ a b) a) ) ))
+    ($capture (fib-sub)
+        ($$defun fib (n) (fib-sub n 1 0)) ) )
+
+($map ($range 0 10000) (<- fib))`},
+
+//// [5] ////
+{name: "Example6: Fibonacci number (interpret)",
+ code:
+`($local ()
+    ($let fib-sub (-> (n a b)
+        ($if (< n 3)
+            ($cond (=== n 2) (+ a b)
+                   (=== n 1) a
+                   true      0)
+            ($self (- n 1) (+ a b) a) ) ))
+    ($capture (fib-sub)
+        ($defun fib (n) (fib-sub n 1 0)) ) )
+
+($map ($range 0 20) (<- fib))`},
+
 ];
 
 
@@ -72,15 +127,9 @@ class AceEditor extends React.Component {
 
     render() {
         return (lsx`
-        (div (@ (style (width "calc(50% - 10px)")
-                       (minWidth "400px")
-                       (margin "8px 4px 4px 4px") ))
+        (div (@ (className "AceEditorOuterWrap"))
             (div (@ (id ${this.props.id})
-                    (style (width "100%")
-                           (height "calc(100vh - 64px - 220px - 55px - 15px)")
-                           (minHeight "300px")
-                           (fontSize "12pt") )))
-        )`);
+                    (className "AceEditorDiv") )))`);
     }
 }
 
@@ -250,13 +299,7 @@ class App extends React.Component {
                 (AceEditor (@ (id "editor")
                               (loadExample ${(i) => this.loadExample(i)}) ))
                 (div (@ (id "root")
-                        (className "grey")
-                        (style (width "calc(50% - 10px)")
-                               (minWidth "400px")
-                               (height "calc(100vh - 64px - 220px - 55px - 15px)")
-                               (minHeight "300px")
-                               (margin "8px 4px 4px 4px")
-                               (overflow "auto") )))
+                        (className "grey OutletDiv") ))
             )
         )`);
     }

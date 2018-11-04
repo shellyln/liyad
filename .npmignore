@@ -68,6 +68,7 @@ build/Release
 /spec/
 .babelrc
 .travis.yml
+.gitlab-ci.yml
 tsconfig.json
 tsconfig.spec.json
 tslint.json

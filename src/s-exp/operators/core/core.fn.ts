@@ -20,6 +20,7 @@ import { evaluate,
          uninstallScope,
          optimizeTailCall,
          toNumber }           from '../../evaluate';
+import { compileLambda }      from '../../compile';
 import { checkParamsLength }  from '../../errors';
 
 
@@ -367,6 +368,37 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
 
 
 // tslint:disable-next-line:variable-name
+export const $comp$__lambda = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__lambda '(sym1 ... symN) 'expr1 ... 'exprN)
+    //  -> S expr  : fn
+    checkParamsLength('$$__lambda', args, 2);
+
+    const formalArgs: SxSymbol[] = args[0];
+    if (! Array.isArray(formalArgs)) {
+        throw new Error(`[SX] $$__lambda: Invalid argument(s): args[0] is not array.`);
+    }
+
+    let lastIsSpread = false;
+    for (let i = 0; i < formalArgs.length; i++) {
+        const fa = formalArgs[i];
+        if (i === formalArgs.length - 1 && state.config.enableSpread &&
+            Array.isArray(fa) && isSymbol(fa[0], state.config.reservedNames.spread)) {
+            if (! isSymbol(fa[1])) {
+                throw new Error(`[SX] $$__lambda: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
+            }
+            formalArgs[i] = fa[1];
+            lastIsSpread = true;
+        } else if (! isSymbol(fa)) {
+            throw new Error(`[SX] $$__lambda: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
+        }
+    }
+
+    const fnBody = args.slice(1);
+    return compileLambda(state, formalArgs, lastIsSpread, fnBody);
+};
+
+
+// tslint:disable-next-line:variable-name
 export const $__defun = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__defun 'name '(sym1 ... symN) 'expr ... 'expr)
     //  -> S expr  : fn
@@ -374,6 +406,22 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
 
     const car: SxSymbol = $$first(...args);
     const fn = $__lambda(state, name)(...args.slice(1));
+    state.funcMap.set(car.symbol, {
+        name: car.symbol,
+        fn: (st, nm) => fn
+    });
+    return fn;
+};
+
+
+// tslint:disable-next-line:variable-name
+export const $comp$__defun = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__defun 'name '(sym1 ... symN) 'expr ... 'expr)
+    //  -> S expr  : fn
+    checkParamsLength('$$__defun', args, 3);
+
+    const car: SxSymbol = $$first(...args);
+    const fn = $comp$__lambda(state, name)(...args.slice(1));
     state.funcMap.set(car.symbol, {
         name: car.symbol,
         fn: (st, nm) => fn

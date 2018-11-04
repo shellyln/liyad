@@ -147,6 +147,23 @@ export type SxAtom = SxSymbol | string | number | boolean | null;
 export type SxList = SxDottedPair | SxAtom[];
 
 
+
+export type CompilerOperator = (r: SxToken[], args: SxToken[]) => string;
+
+
+export interface CompilerContext {
+    _$_vars: any[];
+    varsCount: number;
+    varNames: Map<string, string>;
+    varNamesCount: number;
+    varDefs: string;
+    ops: Map<string, CompilerOperator>;
+    makeScope: (scoped: () => void) => void;
+    compileToken: (body: any[], i: number) => string;
+}
+
+
+
 export interface LsxConfig {
     jsx: (comp: any, props: any, ...children: any[]) => any;
     jsxFlagment: any;

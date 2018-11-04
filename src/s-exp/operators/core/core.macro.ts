@@ -87,6 +87,29 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$$closure',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($$closure (sym1 ... symN) use (u-sym1 ... u-symM) expr ... expr)
+        //  -> S expr  : ($__capture '(u-sym1 ... u-symM) ($$__lambda '(sym1 ... symN) 'expr ... 'expr) )
+        const symUse = isSymbol(list[2], 'use');
+        if (! symUse) {
+            throw new Error(`[SX] $closure: Invalid syntax: missing 'use' keyword.`);
+        }
+        return [{symbol: '$__capture'}, quote(state, list[3]), quote(state, [{symbol: '$$__lambda'},
+            quote(state, list[1]),
+            ...(list.slice(4).map(x => quote(state, x))),
+        ])];
+    },
+}, {
+    name: '|=>',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: (|-> (sym1 ... symN) use (u-sym1 ... u-symM) expr ... expr)
+        //  -> S expr  : ($closure (sym1 ... symN) use (u-sym1 ... u-symM) expr ... expr)
+        return [{symbol: '$$closure'},
+            ...list.slice(1),
+        ];
+    },
+}, {
     name: '$lambda',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($lambda (sym1 ... symN) expr ... expr)
@@ -105,11 +128,38 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$$lambda',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($$lambda (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($$__lambda '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$$__lambda'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '=>',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($$lambda (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($$__lambda '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$$__lambda'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '$defun',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($defun name (sym1 ... symN) expr ... expr)
         //  -> S expr  : ($__defun 'name '(sym1 ... symN) 'expr ... 'expr)
         return [{symbol: '$__defun'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
+    name: '$$defun',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($$defun name (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($$__defun 'name '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$$__defun'},
             ...(list.slice(1).map(x => quote(state, x))),
         ];
     },

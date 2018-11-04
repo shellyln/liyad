@@ -342,3 +342,34 @@ describe("tail call optimization", function() {
         `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
     });
 });
+
+
+describe("compiler", function() {
+    it("compiler 1", function() {
+        expect(lisp`
+            ($$defun tarai(x y z)
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                           ($self (- y 1) z x)
+                           ($self (- z 1) x y) )))
+            (tarai 9 6 0)
+        `).toEqual(9);
+    });
+    it("compiler 2", function() {
+        expect(lisp`
+            ($local (fib-sub)
+                ($set fib-sub ($$closure (n a b) use (fib-sub)
+                    ($set a (+ a 1))
+                    ($set b (+ b 1))
+                    ($if (< n 3)
+                        ($cond (=== n 2) (+ a b)
+                               (=== n 1) a
+                               true      0)
+                        ($self (- n 1) (+ a b) a) ) ))
+                ($capture (fib-sub)
+                    ($$defun fib (n) (fib-sub n 1 0)) ) )
+            ($map ($range 0 20) (<- fib))
+        `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
+    });
+});

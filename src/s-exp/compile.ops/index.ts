@@ -470,8 +470,8 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         let compFnBody = '';
         checkParamsLength('compileToken:+', args, 1);
         _$_vars[ctx.varsCount] = r[1];
-        compFnBody += `(_$_vars[${String(ctx.varsCount++)}].concat(
-            ${args.map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
+        compFnBody += `(_$_vars[${String(ctx.varsCount++)}].concat(${
+            args.map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
         return compFnBody;
     });
 

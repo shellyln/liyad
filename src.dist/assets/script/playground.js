@@ -66,7 +66,20 @@ const exampleCodes = [
 (tarai 9 6 0)`},
 
 //// [4] ////
-{name: "Example5: Fibonacci number (compile)",
+{name: "Example5: tarai (count)",
+ code:
+`($local (c) ($capture (c)
+    ($$defun tarai(x y z)
+        ($set c (+ c 1))
+        ($if (<= x y)
+            y
+            ($self ($self (- x 1) y z)
+                   ($self (- y 1) z x)
+                   ($self (- z 1) x y))))
+    ($list (tarai 13 6 0) c) ))`},
+
+//// [5] ////
+{name: "Example6: Fibonacci number (compile)",
  code:
 `($local ()
     ($let fib-sub (=> (n a b)
@@ -80,8 +93,8 @@ const exampleCodes = [
 
 ($map ($range 0 10000) (<- fib))`},
 
-//// [5] ////
-{name: "Example6: Fibonacci number (interpret)",
+//// [6] ////
+{name: "Example7: Fibonacci number (interpret)",
  code:
 `($local ()
     ($let fib-sub (-> (n a b)
@@ -94,6 +107,36 @@ const exampleCodes = [
         ($defun fib (n) (fib-sub n 1 0)) ) )
 
 ($map ($range 0 20) (<- fib))`},
+
+//// [7] ////
+{name: "Example8: Factorial (compile)",
+ code:
+`($local ()
+    ($let fac-sub (=> (n a)
+        ($if (< n 2)
+            ($cond (=== n 1) a
+                   (=== n 0) 1
+                   true      0)
+            ($self (- n 1) (* n a)) )) )
+    ($capture (fac-sub)
+        ($$defun fac (n) (fac-sub n 1)) ))
+
+($map ($range 0 10000) (<- fac))`},
+
+//// [8] ////
+{name: "Example9: Factorial (interpret)",
+ code:
+`($local ()
+    ($let fac-sub (-> (n a)
+        ($if (< n 2)
+            ($cond (=== n 1) a
+                   (=== n 0) 1
+                   true      0)
+            ($self (- n 1) (* n a)) )) )
+    ($capture (fac-sub)
+        ($defun fac (n) (fac-sub n 1)) ))
+
+($map ($range 0 20) (<- fac))`},
 
 ];
 

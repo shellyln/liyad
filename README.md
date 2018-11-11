@@ -26,9 +26,18 @@ $ npm install liyad --save
 or download from [release](https://github.com/shellyln/liyad/releases) page.
 
 
+## Install CLI
+
+See [liyad-cli](https://github.com/shellyln/liyad-cli) .
+
+```bash
+$ npm install -g liyad-cli
+$ liyad
+```
+
 ## Playground
 
-https://shellyln.github.io/liyad/playground.html
+[https://shellyln.github.io/liyad/playground.html](https://shellyln.github.io/liyad/playground.html)
 
 ----
 

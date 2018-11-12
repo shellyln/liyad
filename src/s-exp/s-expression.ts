@@ -253,6 +253,19 @@ export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplat
         return exec(state, startup.concat(ast));
     };
     (f as any).repl = () => {
+        const execSync = (stat: SxParserState, s: SxToken[]) => {
+            if (config.enableEvaluate) {
+                for (let i = 0; i < s.length; i++) {
+                    s[i] = evaluate(stat, s[i]);
+                }
+            }
+
+            if (config.returnMultipleRoot) {
+                return s.length === 1 ? s[0] : s;
+            } else {
+                return s[s.length - 1];
+            }
+        };
         const state = initState(config, Object.assign({}, globalScope), '');
         exec(state, startup.slice(0));
         const fRepl: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray | string, ...values: any[]) => {
@@ -261,7 +274,7 @@ export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplat
         }) as any;
         const fReplSync: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
             resetState(state, strings, values);
-            return exec(state, parse(state));
+            return execSync(state, parse(state));
         }) as any;
         (fRepl as any).sync = fReplSync;
         return fRepl;

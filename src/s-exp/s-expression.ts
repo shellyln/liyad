@@ -111,10 +111,15 @@ function resetState(state: SxParserState, strings: TemplateStringsArray | string
 
 
 
+interface SExpressionRepl<R = SxToken> {
+    (strings: TemplateStringsArray | string, ...values: any[]): R;
+    sync: (strings: TemplateStringsArray | string, ...values: any[]) => R;
+}
+
 interface SExpressionTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): R;
     evaluateAST: (ast: SxToken[]) => R;
-    repl: () => (strings: TemplateStringsArray | string, ...values: any[]) => R;
+    repl: () => SExpressionRepl<R>;
     setGlobals: (globals: object) => SExpressionTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
@@ -152,13 +157,14 @@ export function SExpression(conf?: SxParserConfig): SExpressionTemplateFn {
         const state = initState(config, Object.assign({}, globalScope), '');
         return exec(state, startup.concat(ast));
     };
-    f.repl = () => {
+    (f as any).repl = () => {
         const state = initState(config, Object.assign({}, globalScope), '');
         exec(state, startup.slice(0));
         const fRepl: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
             resetState(state, strings, values);
             return exec(state, parse(state));
         }) as any;
+        (fRepl as any).sync = fRepl;
         return fRepl;
     };
     f.setGlobals = (globals: object) => {
@@ -196,11 +202,15 @@ export function SExpression(conf?: SxParserConfig): SExpressionTemplateFn {
 }
 
 
+interface SExpressionAsyncRepl<R = SxToken> {
+    (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
+    sync: (strings: TemplateStringsArray | string, ...values: any[]) => Promise<R>;
+}
 
 interface SExpressionAsyncTemplateFn<R = SxToken> {
     (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
     evaluateAST: (ast: SxToken[]) => Promise<R>;
-    repl: () => (strings: TemplateStringsArray | string, ...values: any[]) => Promise<R>;
+    repl: () => SExpressionAsyncRepl<R>;
     setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     appendGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
     setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
@@ -242,13 +252,18 @@ export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplat
         const state = initState(config, Object.assign({}, globalScope), '');
         return exec(state, startup.concat(ast));
     };
-    f.repl = () => {
+    (f as any).repl = () => {
         const state = initState(config, Object.assign({}, globalScope), '');
         exec(state, startup.slice(0));
         const fRepl: SExpressionAsyncTemplateFn = (async (strings: TemplateStringsArray | string, ...values: any[]) => {
             resetState(state, strings, values);
             return exec(state, parse(state));
         }) as any;
+        const fReplSync: SExpressionTemplateFn = ((strings: TemplateStringsArray | string, ...values: any[]) => {
+            resetState(state, strings, values);
+            return exec(state, parse(state));
+        }) as any;
+        (fRepl as any).sync = fReplSync;
         return fRepl;
     };
     f.setGlobals = (globals: object) => {

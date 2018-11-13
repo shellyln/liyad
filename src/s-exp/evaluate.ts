@@ -26,6 +26,19 @@ export function toNumber(x: any) {
 }
 
 
+export function resolveSplice(state: SxParserState, r: SxToken[]) {
+    if (state.config.enableSplice) {
+        for (let i = r.length - 1; i >= 0; i--) {
+            const symSplice = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.splice);
+            if (symSplice) {
+                r = r.slice(0, i).concat((r[i] as SxToken[])[1], r.slice(i + 1));
+            }
+        }
+    }
+    return r;
+}
+
+
 export function resolveMacro(state: SxParserState, x: SxSymbol): ((list: SxToken[]) => SxToken) | false {
     const macroInfo = state.macroMap.get(x.symbol);
     if (macroInfo) {
@@ -220,12 +233,8 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             if (r.length === 0) {
                 return r;
             }
-            for (let i = r.length - 1; i >= 0; i--) {
-                const symSplice = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.splice);
-                if (symSplice) {
-                    r = r.slice(0, i).concat((r[i] as SxToken[])[1], r.slice(i + 1));
-                }
-            }
+
+            r = resolveSplice(state, r);
 
             const sym = isSymbol(r[0]);
             if (sym) {

@@ -6,7 +6,8 @@
 import { SxParserState,
          SxToken,
          isSymbol }           from '../types';
-import { resolveMacro,
+import { resolveSplice,
+         resolveMacro,
          resolveValueSymbol,
          getScope }           from '../evaluate';
 import { setEvaluationCount } from '../errors';
@@ -20,6 +21,7 @@ export function applyMacros(state: SxParserState, tok: SxToken) {
             if (r.length === 0) {
                 break;
             }
+            r = resolveSplice(state, r);
             const sym = isSymbol(r[0]);
             if (sym) {
                 const m = resolveMacro(state, sym);

@@ -525,6 +525,7 @@ interface SxParserConfig {
     enableEvaluate: boolean;
     enableHereDoc: boolean;
     enableSpread: boolean;
+    enableSplice: boolean;
     enableShorthands: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;

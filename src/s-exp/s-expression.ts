@@ -65,6 +65,7 @@ export const defaultConfig: SxParserConfig = {
     enableEvaluate: true,
     enableHereDoc: true,
     enableSpread: true,
+    enableSplice: true,
     enableShorthands: true,
     enableTailCallOptimization: true,
     stripComments: false,

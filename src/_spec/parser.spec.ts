@@ -373,3 +373,34 @@ describe("compiler", function() {
         `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
     });
 });
+
+
+describe("shorthands", function() {
+    it("shorthands 1", function() {
+        expect(lisp`
+            ($let foo (#
+                (bar)
+                (baz (#)) ))
+            (::foo:bar= 7)
+            (::foo:baz:boo= 13)
+            ($list ::foo:bar ::foo:baz:boo)
+        `).toEqual([7, 13]);
+    });
+    it("shorthands 2", function() {
+        class X {
+            public x: number;
+            constructor() {
+                this.x = 3;
+            }
+            public mul(y: number, z: number) {
+                return this.x * y * z;
+            }
+        }
+        expect(lisp`
+            ($let foo (#
+                (bar)
+                (baz ${new X()}) ))
+            (::foo:baz@mul 5 7)
+        `).toEqual(105);
+    });
+});

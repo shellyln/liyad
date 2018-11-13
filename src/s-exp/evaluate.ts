@@ -220,6 +220,13 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             if (r.length === 0) {
                 return r;
             }
+            for (let i = r.length - 1; i >= 0; i--) {
+                const symSplice = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.splice);
+                if (symSplice) {
+                    r = r.slice(0, i).concat((r[i] as SxToken[])[1], r.slice(i + 1));
+                }
+            }
+
             const sym = isSymbol(r[0]);
             if (sym) {
                 const m = resolveMacro(state, sym);

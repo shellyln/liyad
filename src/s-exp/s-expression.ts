@@ -25,6 +25,7 @@ export const defaultReservedNames: SxReservedNames = {
     eval: '$eval',
     quote: '$quote',
     spread: '$spread',
+    splice: '$splice',
 
     car: '$car',
     cdr: '$cdr',
@@ -50,6 +51,7 @@ export const defaultReservedNames: SxReservedNames = {
     defvar: '$clisp-defvar',
     setq: '$clisp-setq',
     set: '$set',
+    call: '$call',
 
     not: '$not',
     and: '$and',
@@ -63,6 +65,7 @@ export const defaultConfig: SxParserConfig = {
     enableEvaluate: true,
     enableHereDoc: true,
     enableSpread: true,
+    enableShorthands: true,
     enableTailCallOptimization: true,
     stripComments: false,
     wrapExternalValue: true,

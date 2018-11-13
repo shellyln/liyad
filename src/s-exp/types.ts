@@ -38,6 +38,7 @@ export interface SxReservedNames {
     eval: string;
     quote: string;
     spread: string;
+    splice: string;
 
     car: string;
     cdr: string;
@@ -63,6 +64,7 @@ export interface SxReservedNames {
     defvar: string;
     setq: string;
     set: string;
+    call: string;
 
     not: string;
     and: string;
@@ -76,6 +78,7 @@ export interface SxParserConfig {
     enableEvaluate: boolean;
     enableHereDoc: boolean;
     enableSpread: boolean;
+    enableShorthands: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     wrapExternalValue: boolean;

@@ -424,6 +424,65 @@ and is to be:
 
 ----
 
+### Splice macro
+
+```lisp
+($list 1 2 3 4 ($splice (5 6 7 8)) 9 10)
+```
+
+is equivalent to:
+```lisp
+($list 1 2 3 4 5 6 7 8 9 10)
+```
+
+```lisp
+(($splice ($call x add)) 5 7)
+```
+
+is equivalent to:
+```lisp
+($call x add 5 7)
+```
+
+----
+
+### Shorthands
+
+#### $set
+
+```lisp
+(::foo:bar:baz= 7)
+```
+
+is equivalent to:
+```lisp
+($set ("foo" "bar" "baz") 7)
+```
+
+#### $get
+
+```lisp
+($list ::foo:bar:baz)
+```
+
+is equivalent to:
+```lisp
+($list ($get "foo" "bar" "baz"))
+```
+
+#### $call
+
+```lisp
+(::foo:bar@baz 3 5 7)
+```
+
+is equivalent to:
+```lisp
+($call ($get "foo" "bar") baz 3 5 7)
+```
+
+----
+
 
 ### Rest parameter
 
@@ -466,6 +525,7 @@ interface SxParserConfig {
     enableEvaluate: boolean;
     enableHereDoc: boolean;
     enableSpread: boolean;
+    enableShorthands: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     wrapExternalValue: boolean;

@@ -1191,3 +1191,42 @@ export const $consoleError = (state: SxParserState, name: string) => (...args: a
     return null;
 };
 export const $$consoleError = $consoleError(null as any, null as any);
+
+
+export const $consoleTrace = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-trace expr1 ... exprN)
+    //  -> S expr  : null
+    console.trace(...args);
+    return null;
+};
+export const $$consoleTrace = $consoleTrace(null as any, null as any);
+
+
+export const $consoleTime = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-time)
+    // S expression: ($console-time label)
+    //  -> S expr  : null
+    console.time(...args);
+    return null;
+};
+export const $$consoleTime = $consoleTime(null as any, null as any);
+
+
+export const $consoleTimeEnd = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-time-end)
+    // S expression: ($console-time-end label)
+    //  -> S expr  : null
+    console.timeEnd(...args);
+    return null;
+};
+export const $$consoleTimeEnd = $consoleTimeEnd(null as any, null as any);
+
+
+export const $consoleTimeLog = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($console-time-log label)
+    // S expression: ($console-time-log label value ... value)
+    //  -> S expr  : null
+    (console as any).timeLog(...args);
+    return null;
+};
+export const $$consoleTimeLog = $consoleTimeLog(null as any, null as any);

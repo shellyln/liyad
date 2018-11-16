@@ -200,6 +200,18 @@ export const funcs: SxFuncInfo[] = [{
 }, {
     name: '$console-error',
     fn: ops.$consoleError,
+}, {
+    name: '$console-trace',
+    fn: ops.$consoleTrace,
+}, {
+    name: '$console-time',
+    fn: ops.$consoleTime,
+}, {
+    name: '$console-time-end',
+    fn: ops.$consoleTimeEnd,
+}, {
+    name: '$console-time-log',
+    fn: ops.$consoleTimeLog,
 }];
 
 

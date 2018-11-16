@@ -4550,3 +4550,39 @@ describe("operator.core.$console-error", function() {
         expect(lisp`($console-error "hello" "world" 11)`).toEqual(null);
     });
 });
+
+
+describe("operator.core.$console-trace", function() {
+    it("$console-trace -> null", function() {
+        expect(lisp`($console-trace)`).toEqual(null);
+    });
+    it("$console-trace a -> null", function() {
+        expect(lisp`($console-trace undefined)`).toEqual(null);
+    });
+    it("$console-trace a -> null", function() {
+        expect(lisp`($console-trace "hello")`).toEqual(null);
+    });
+    it("$console-trace a b c -> null", function() {
+        expect(lisp`($console-trace "hello" "world" 11)`).toEqual(null);
+    });
+});
+
+
+describe("operator.core.$console-time", function() {
+    it("$console-time -> null", function() {
+        expect(lisp`
+            ($console-time)
+            ($console-time-log)
+            ($console-time-log)
+            ($console-time-end)
+        `).toEqual(null);
+    });
+    it("$console-time a -> null", function() {
+        expect(lisp`
+            ($console-time "hello")
+            ($console-time-log "hello" 11)
+            ($console-time-log "hello" 13)
+            ($console-time-end "hello")
+        `).toEqual(null);
+    });
+});

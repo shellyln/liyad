@@ -209,6 +209,34 @@ export const $tail = (state: SxParserState, name: string) => (...args: any[]) =>
 export const $$tail = $tail(null as any, null as any);
 
 
+export const $push = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($push list value)
+    //  -> S expr  : list
+    checkParamsLength('$push', args, 2, 2);
+
+    if (typeof Array.isArray(args[0])) {
+        args[0].push(args[1]);
+        return args[0];
+    }
+    throw new Error(`[SX] $push: Invalid argument type: args[1] is not array.`);
+};
+export const $$push = $push(null as any, null as any);
+
+
+export const $pop = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($pop list)
+    //  -> S expr  : value
+    checkParamsLength('$pop', args, 1, 1);
+
+    if (typeof Array.isArray(args[0])) {
+        const v = args[0].pop();
+        return v;
+    }
+    throw new Error(`[SX] $pop: Invalid argument type: args[1] is not array.`);
+};
+export const $$pop = $pop(null as any, null as any);
+
+
 // tslint:disable-next-line:variable-name
 export const $__at = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__at index listOrString)
@@ -405,7 +433,7 @@ export const $$orderBy = $orderBy(null as any, null as any);
 
 export const $where = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($where (-> (v index array) ... boolean) (x1 ... xN))
-    //  -> S expr  : ((x1 ... ) ... ( ... xN))
+    //  -> S expr  : (x'1 ... x'M)
     checkParamsLength('$where', args, 2, 2);
 
     const {car, cdr} = $$firstAndSecond(...args);

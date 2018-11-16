@@ -45,6 +45,12 @@ export const funcs: SxFuncInfo[] = [{
     name: '$tail',
     fn: ops.$tail,
 }, {
+    name: '$push',
+    fn: ops.$push,
+}, {
+    name: '$pop',
+    fn: ops.$pop,
+}, {
     name: '$__at',
     fn: ops.$__at,
 }, {

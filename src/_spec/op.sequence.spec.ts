@@ -763,6 +763,61 @@ describe("operator.core.$tail", function() {
 });
 
 
+describe("operator.core.$push", function() {
+    it("$push -> throw", function() {
+        expect(() => lisp`($push)`).toThrow();
+    });
+    it("$push -> throw", function() {
+        expect(() => lisp`($push ($list))`).toThrow();
+    });
+    it("$push -> throw", function() {
+        expect(() => lisp`($push "" 3)`).toThrow();
+    });
+    it("$push -> list", function() {
+        expect(lisp`($push ($list) 3)`).toEqual([3]);
+    });
+    it("$push -> list", function() {
+        expect(lisp`($push ($push ($list) 3) 5)`).toEqual([3, 5]);
+    });
+    it("$push -> list", function() {
+        expect(lisp`
+            ($let x ($list))
+            ($push ($push x 3) 5)
+            ($get x)
+        `).toEqual([3, 5]);
+    });
+});
+
+
+describe("operator.core.$pop", function() {
+    it("$pop -> throw", function() {
+        expect(() => lisp`($pop)`).toThrow();
+    });
+    it("$pop -> throw", function() {
+        expect(() => lisp`($pop ($list) 3)`).toThrow();
+    });
+    it("$pop -> throw", function() {
+        expect(() => lisp`($pop "")`).toThrow();
+    });
+    it("$pop -> list", function() {
+        expect(lisp`($pop ($list))`).toEqual((void 0) as any);
+    });
+    it("$pop -> list", function() {
+        expect(lisp`($pop ($list 3))`).toEqual(3);
+    });
+    it("$pop -> value", function() {
+        expect(lisp`($pop ($list 3 5))`).toEqual(5);
+    });
+    it("$pop -> value", function() {
+        expect(lisp`
+            ($let x ($list 3 5))
+            ($pop x)
+            ($get x)
+        `).toEqual([3]);
+    });
+});
+
+
 describe("operator.core.$[]", function() {
     it("$[] -> throw", function() {
         expect(() => lisp`($[)`).toThrow();

@@ -404,3 +404,22 @@ describe("shorthands", function() {
         `).toEqual(105);
     });
 });
+
+
+describe("string literal", function() {
+    it("string literal 1", function() {
+        expect(lisp`
+            ($last "a\\nb\\tc")
+        `).toEqual("a\nb\tc");
+    });
+    it("string literal 2", function() {
+        expect(lisp`
+            ($last @"a\\nb\\tc")
+        `).toEqual("a\\nb\\tc");
+    });
+    it("string literal 3", function() {
+        expect(lisp`
+            ($last @123)
+        `).toEqual("@123");
+    });
+});

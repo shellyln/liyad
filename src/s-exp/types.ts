@@ -80,6 +80,7 @@ export interface SxParserConfig {
     enableSpread: boolean;
     enableSplice: boolean;
     enableShorthands: boolean;
+    enableVerbatimStringLiteral: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     wrapExternalValue: boolean;

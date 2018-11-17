@@ -509,6 +509,29 @@ is to be:
 ]
 ```
 
+----
+
+### Verbatim string literal
+
+Verbatim string literal
+```lisp
+($last @"c:\documents\files\u0066.txt")
+```
+
+is to be:
+```json
+"c:\\documents\\files\\u0066.txt"
+```
+
+Normal string literal
+```lisp
+($last "c:\documents\files\u0066.txt")
+```
+
+is to be:
+```json
+"c:documents\filesf.txt"
+```
 
 ----
 
@@ -527,6 +550,7 @@ interface SxParserConfig {
     enableSpread: boolean;
     enableSplice: boolean;
     enableShorthands: boolean;
+    enableVerbatimStringLiteral: boolean;
     enableTailCallOptimization: boolean;
     stripComments: boolean;
     wrapExternalValue: boolean;

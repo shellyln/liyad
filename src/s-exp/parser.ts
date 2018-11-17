@@ -151,7 +151,7 @@ function getChar(state: SxParserState, virtualEof?: string[], disableEscape?: bo
 }
 
 
-function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxChar[] {
+function lookAheads(state: SxParserState, n: number, virtualEof?: string[], disableEscape?: boolean): SxChar[] {
     const index = state.index;
     const pos = state.pos;
     const line = state.line;
@@ -159,7 +159,7 @@ function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxC
 
     try {
         for (let i = 0; i < n; i++) {
-            chs.push(getChar(state, virtualEof));
+            chs.push(getChar(state, virtualEof, disableEscape));
         }
     } finally {
         state.index = index;
@@ -171,14 +171,14 @@ function lookAheads(state: SxParserState, n: number, virtualEof?: string[]): SxC
 }
 
 
-function lookAhead(state: SxParserState, virtualEof?: string[]): SxChar {
+function lookAhead(state: SxParserState, virtualEof?: string[], disableEscape?: boolean): SxChar {
     const index = state.index;
     const pos = state.pos;
     const line = state.line;
     let ch: SxChar;
 
     try {
-        ch = getChar(state, virtualEof);
+        ch = getChar(state, virtualEof, disableEscape);
     } finally {
         state.index = index;
         state.pos = pos;
@@ -300,7 +300,8 @@ function parseSymbol(state: SxParserState, virtualEof?: string[]): SxSymbol | nu
 function parseStringOrComment(
         state: SxParserState, eof: string[],
         valuesStartSeq: string | null ,
-        valuesStopChar: string
+        valuesStopChar: string,
+        disableEscape: boolean
     ): { strings: string[], values: any[] } {
 
     const eofSeqs = valuesStartSeq ? [...eof, valuesStartSeq] : eof;
@@ -309,15 +310,15 @@ function parseStringOrComment(
 
     for (;;) {
         let s = '';
-        let ch = lookAhead(state, eofSeqs);
+        let ch = lookAhead(state, eofSeqs, disableEscape);
 
         while (! isEOF(ch)) {
             if (typeof ch === 'string') {
-                getChar(state, eofSeqs);
+                getChar(state, eofSeqs, disableEscape);
                 s += ch;
             } else {
                 if (typeof ch === 'object' && Object.prototype.hasOwnProperty.call(ch, 'value')) {
-                    getChar(state, eofSeqs);
+                    getChar(state, eofSeqs, disableEscape);
                     const v = (ch as SxExternalValue).value;
                     s += String(ch);
                 } else {
@@ -325,10 +326,10 @@ function parseStringOrComment(
                 }
             }
 
-            ch = lookAhead(state, eofSeqs);
+            ch = lookAhead(state, eofSeqs, disableEscape);
         }
 
-        getChar(state, eofSeqs);
+        getChar(state, eofSeqs, disableEscape);
 
         if ((ch as SxEof).eof === true) {
             throw new ScriptTerminationError('parseStringOrComment');
@@ -347,8 +348,8 @@ function parseStringOrComment(
 }
 
 
-function parseString(state: SxParserState): string {
-    return parseStringOrComment(state, ['"'], null, ')').strings[0];
+function parseString(state: SxParserState, disableEscape: boolean): string {
+    return parseStringOrComment(state, ['"'], null, ')', disableEscape).strings[0];
 }
 
 
@@ -359,7 +360,7 @@ function parseHereDoc(state: SxParserState, symbol: SxSymbol, attrs: SxToken[] |
         q.push(attrs);
     }
 
-    const inner =  parseStringOrComment(state, ['"""'], '%%%(', ')');
+    const inner = parseStringOrComment(state, ['"""'], '%%%(', ')', false);
     for (let i = 0; i < inner.strings.length; i++) {
         q.push(inner.strings[i]);
         if (i < inner.values.length) {
@@ -373,14 +374,14 @@ function parseHereDoc(state: SxParserState, symbol: SxSymbol, attrs: SxToken[] |
 
 function parseSingleLineComment(state: SxParserState): SxComment | ' ' {
     return {
-        comment: parseStringOrComment(state, ['\r', '\n'], null, ')').strings[0]
+        comment: parseStringOrComment(state, ['\r', '\n'], null, ')', false).strings[0]
     };
 }
 
 
 function parseMultiLineComment(state: SxParserState): SxComment | ' ' {
     return {
-        comment: parseStringOrComment(state, ['|#'], null, ')').strings[0]
+        comment: parseStringOrComment(state, ['|#'], null, ')', false).strings[0]
     };
 }
 
@@ -417,6 +418,22 @@ function parseOneToken(state: SxParserState): SxToken {
                 } else {
                     skipWhitespaces(state);
                     return {dotted: parseOneToken(state)};
+                }
+            }
+
+        case ';':
+            getChar(state);
+            return parseSingleLineComment(state);
+
+        case '#':
+            {
+                const aheads = lookAheads(state, 2);
+                if (aheads[1] === '|') {
+                    getChar(state);
+                    getChar(state);
+                    return parseMultiLineComment(state);
+                } else {
+                    return parseSymbol(state);
                 }
             }
 
@@ -471,25 +488,20 @@ function parseOneToken(state: SxParserState): SxToken {
 
                     return parseHereDoc(state, sym, attrs);
                 } else {
-                    return parseString(state);
+                    return parseString(state, false);
                 }
             }
 
-        case ';':
-            getChar(state);
-            return parseSingleLineComment(state);
-
-        case '#':
-            {
+        case '@':
+            if (state.config.enableVerbatimStringLiteral) {
                 const aheads = lookAheads(state, 2);
-                if (aheads[1] === '|') {
+                if (aheads[1] === '"') {
                     getChar(state);
                     getChar(state);
-                    return parseMultiLineComment(state);
-                } else {
-                    return parseSymbol(state);
+                    return parseString(state, true);
                 }
             }
+            // FALL_THRU
 
         default:
             if (typeof ch !== 'string') {

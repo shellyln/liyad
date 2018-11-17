@@ -1270,6 +1270,63 @@ export const $datetimeToIsoString = (state: SxParserState, name: string) => (...
 export const $$datetimeToIsoString = $datetimeToIsoString(null as any, null as any);
 
 
+export const $datetimeToComponents = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime-to-components number)
+    //  -> S expr  : list
+    checkParamsLength('$datetimeToComponents', args, 1, 1);
+
+    const n = $$first(...args);
+    if (typeof n !== 'number') {
+        throw new Error(`[SX] $datetimeToComponents: Invalid argument(s): args[0] is not number.`);
+    }
+    const dt = new Date(n);
+    if (Number.isNaN(dt.getTime())) {
+        throw new Error(`[SX] $datetimeToComponents: Invalid datetime: ${n}.`);
+    }
+    return ([
+        dt.getUTCFullYear(),
+        dt.getUTCMonth() + 1,
+        dt.getUTCDate(),
+        dt.getUTCHours(),
+        dt.getUTCMinutes(),
+        dt.getUTCSeconds(),
+        dt.getUTCMilliseconds(),
+        0, // TZ
+        dt.getUTCDay(),
+    ]);
+};
+export const $$datetimeToComponents = $datetimeToComponents(null as any, null as any);
+
+
+export const $datetimeToComponentsLc = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime-to-components-lc number)
+    //  -> S expr  : list
+    checkParamsLength('$datetimeToComponentsLc', args, 1, 1);
+
+    const n = $$first(...args);
+    if (typeof n !== 'number') {
+        throw new Error(`[SX] $datetimeToComponentsLc: Invalid argument(s): args[0] is not number.`);
+    }
+    const dt = new Date(n);
+    if (Number.isNaN(dt.getTime())) {
+        throw new Error(`[SX] $datetimeToComponentsLc: Invalid datetime: ${n}.`);
+    }
+    return ([
+        dt.getFullYear(),
+        dt.getMonth() + 1,
+        dt.getDate(),
+        dt.getHours(),
+        dt.getMinutes(),
+        dt.getSeconds(),
+        dt.getMilliseconds(),
+        dt.getTimezoneOffset(), // time difference between UTC time and local time, in minutes.
+                                // If your time zone is GMT+2, -120 will be returned.
+        dt.getDay(),
+    ]);
+};
+export const $$datetimeToComponentsLc = $datetimeToComponentsLc(null as any, null as any);
+
+
 export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($console-log expr1 ... exprN)
     //  -> S expr  : null

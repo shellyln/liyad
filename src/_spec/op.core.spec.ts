@@ -4635,8 +4635,6 @@ describe("operator.core.$datetime", function() {
     it("$datetime -> number", function() {
         expect(lisp`($datetime 2000 1 1)`).toEqual(new Date('2000-01-01').getTime());
     });
-
-
     it("$datetime -> number", function() {
         expect(lisp`($datetime 2010 1 1)`).toEqual(new Date('2010-01-01T00:00:00Z').getTime());
     });
@@ -4678,6 +4676,55 @@ describe("operator.core.$datetime", function() {
     });
     it("$datetime -> number", function() {
         expect(lisp`($datetime 2010 12 31 23 59 59 999)`).toEqual(new Date('2010-12-31T23:59:59.999Z').getTime());
+    });
+});
+
+
+describe("operator.core.$datetime-to-iso-string", function() {
+    it("$datetime-to-iso-string -> throw", function() {
+        expect(() => lisp`($datetime-to-iso-string)`).toThrow();
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 1 1))`).toEqual('2000-01-01T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31))`).toEqual('2000-12-31T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 1 1 1))`).toEqual('0001-01-01T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 1 12 31))`).toEqual('0001-12-31T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 0 1 1))`).toEqual('0000-01-01T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 0 12 31))`).toEqual('0000-12-31T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime -1 1 1))`).toEqual('-000001-01-01T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime -1 12 31))`).toEqual('-000001-12-31T00:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23))`).toEqual('2000-12-31T23:00:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23 59))`).toEqual('2000-12-31T23:59:00.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23 58 59))`).toEqual('2000-12-31T23:58:59.000Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23 58 59 1))`).toEqual('2000-12-31T23:58:59.001Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23 58 59 999))`).toEqual('2000-12-31T23:58:59.999Z');
+    });
+    it("$datetime-to-iso-string -> string", function() {
+        expect(lisp`($datetime-to-iso-string ($datetime 2000 12 31 23 58 59 1234))`).toEqual('2000-12-31T23:58:59.123Z');
     });
 });
 

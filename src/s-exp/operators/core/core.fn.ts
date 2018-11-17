@@ -1252,6 +1252,24 @@ export const $datetime = (state: SxParserState, name: string) => (...args: any[]
 export const $$datetime = $datetime(null as any, null as any);
 
 
+export const $datetimeToIsoString = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime-to-iso-string number)
+    //  -> S expr  : string
+    checkParamsLength('$datetimeToIsoString', args, 1, 1);
+
+    const n = $$first(...args);
+    if (typeof n !== 'number') {
+        throw new Error(`[SX] $datetimeToIsoString: Invalid argument(s): args[0] is not number.`);
+    }
+    const dt = new Date(n);
+    if (Number.isNaN(dt.getTime())) {
+        throw new Error(`[SX] $datetimeToIsoString: Invalid datetime: ${n}.`);
+    }
+    return dt.toISOString();
+};
+export const $$datetimeToIsoString = $datetimeToIsoString(null as any, null as any);
+
+
 export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($console-log expr1 ... exprN)
     //  -> S expr  : null

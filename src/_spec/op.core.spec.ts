@@ -4883,6 +4883,34 @@ describe("operator.core.$datetime-to-components-lc", function() {
 });
 
 
+describe("operator.core.$match", function() {
+    it("$match -> ", function() {
+        expect(() => lisp`($match)`).toThrow();
+    });
+    it("$match -> ", function() {
+        expect(() => lisp`($match @"[a-z]+\\d+[a-z]+")`).toThrow();
+    });
+    it("$match -> ", function() {
+        expect(() => lisp`($match @"[a-z]+\\d+[a-z]+" "" "" "")`).toThrow();
+    });
+    it("$match -> ", function() {
+        expect((lisp`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abc1234def")
+        ` as string[]).slice(0)).toEqual(['abc1234def', '1234']);
+    });
+    it("$match -> ", function() {
+        expect(lisp`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abC1234Def")
+        `).toEqual(null);
+    });
+    it("$match -> ", function() {
+        expect((lisp`
+            ($match @"[a-z]+(\\d+)[a-z]+" "i" "abC1234Def")
+        ` as string[]).slice(0)).toEqual(['abC1234Def', '1234']);
+    });
+});
+
+
 describe("operator.core.$console-log", function() {
     it("$console-log -> null", function() {
         expect(lisp`($console-log)`).toEqual(null);

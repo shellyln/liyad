@@ -216,6 +216,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$json-parse',
     fn: ops.$jsonParse,
 }, {
+    name: '$match',
+    fn: ops.$match,
+}, {
     name: '$console-log',
     fn: ops.$consoleLog,
 }, {

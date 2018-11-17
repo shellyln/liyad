@@ -1376,15 +1376,21 @@ export const $datetimeToComponentsLc = (state: SxParserState, name: string) => (
 export const $$datetimeToComponentsLc = $datetimeToComponentsLc(null as any, null as any);
 
 
-/*
 export const $match = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($match pattern-str string)
+    // S expression: ($match pattern-str options-str string)
     //  -> S expr  : array
-    const m = new RegExp('', '');
-    return null;
+    checkParamsLength('$match', args, 2, 3);
+
+    if (args.length === 2) {
+        const m = new RegExp(args[0]);
+        return m.exec(args[1]);
+    } else {
+        const m = new RegExp(args[0], args[1]);
+        return m.exec(args[2]);
+    }
 };
 export const $$match = $match(null as any, null as any);
-*/
 
 
 export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {

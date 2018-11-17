@@ -1218,7 +1218,7 @@ export const $datetime = (state: SxParserState, name: string) => (...args: any[]
     if (year >= 0) {
         s += String(year).padStart(4, '0');
     } else {
-        s += String(-year).padStart(6, '0');
+        s += '-' + String(-year).padStart(6, '0');
     }
     // month1
     s += '-' + String(Number(args[1])).padStart(2, '0');

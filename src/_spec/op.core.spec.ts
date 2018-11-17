@@ -4635,6 +4635,50 @@ describe("operator.core.$datetime", function() {
     it("$datetime -> number", function() {
         expect(lisp`($datetime 2000 1 1)`).toEqual(new Date('2000-01-01').getTime());
     });
+
+
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 1 1)`).toEqual(new Date('2010-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 12 31)`).toEqual(new Date('2010-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2000 1 1)`).toEqual(new Date('2000-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2000 12 31)`).toEqual(new Date('2000-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 1 1 1)`).toEqual(new Date('0001-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 1 12 31)`).toEqual(new Date('0001-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 0 1 1)`).toEqual(new Date('0000-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 0 12 31)`).toEqual(new Date('0000-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime -1 1 1)`).toEqual(new Date('-000001-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime -1 12 31)`).toEqual(new Date('-000001-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 12 31 23 59)`).toEqual(new Date('2010-12-31T23:59Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 12 31 23 59 59)`).toEqual(new Date('2010-12-31T23:59:59Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 12 31 23 59 59 9000)`).toEqual(new Date('2010-12-31T23:59:59.900Z').getTime());
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2010 12 31 23 59 59 999)`).toEqual(new Date('2010-12-31T23:59:59.999Z').getTime());
+    });
 });
 
 
@@ -4690,16 +4734,16 @@ describe("operator.core.$console-time", function() {
     it("$console-time -> null", function() {
         expect(lisp`
             ($console-time)
-            ($console-time-log)
-            ($console-time-log)
+            ;; ($console-time-log)  ;; console.timeLog: Node>=10
+            ;; ($console-time-log)
             ($console-time-end)
         `).toEqual(null);
     });
     it("$console-time a -> null", function() {
         expect(lisp`
             ($console-time "hello")
-            ($console-time-log "hello" 11)
-            ($console-time-log "hello" 13)
+            ;; ($console-time-log "hello" 11)  ;; console.timeLog: Node>=10
+            ;; ($console-time-log "hello" 13)
             ($console-time-end "hello")
         `).toEqual(null);
     });

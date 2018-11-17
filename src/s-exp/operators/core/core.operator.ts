@@ -201,6 +201,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$datetime',
     fn: ops.$datetime,
 }, {
+    name: '$datetime-lc',
+    fn: ops.$datetimeLc,
+}, {
     name: '$datetime-to-iso-string',
     fn: ops.$datetimeToIsoString,
 }, {

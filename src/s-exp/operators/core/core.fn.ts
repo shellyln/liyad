@@ -1192,7 +1192,7 @@ export const $datetimeFromIso = (state: SxParserState, name: string) => (...args
     if (typeof s !== 'string') {
         throw new Error(`[SX] $datetimeFromIso: Invalid argument(s): args[0] is not string.`);
     }
-    if (!s.match(/^((-[0-9]{6,})|[0-9]{4,})-([0-1][0-9])-([0-3][0-9])(T([0-2][0-9])(:([0-6][0-9])(:([0-6][0-9])(.[0-9]{1,})?)?)?(Z|[-+][0-9]{2}([:]?[0-6][0-9])?)?)?$/)) {
+    if (!s.match(/^(?:(?:-[0-9]{6,})|[0-9]{4,})-(?:[0-1][0-9])-(?:[0-3][0-9])(?:T(?:[0-2][0-9])(?:[:](?:[0-6][0-9])(?:[:](?:[0-6][0-9])(?:.[0-9]{1,})?)?)?(?:Z|[-+][0-9]{2}(?:[:]?[0-6][0-9])?)?)?$/)) {
         throw new Error(`[SX] $datetimeFromIso: Invalid datetime (pattern unmatched): ${s}.`);
     }
     const dt = new Date(s).getTime();
@@ -1250,6 +1250,55 @@ export const $datetime = (state: SxParserState, name: string) => (...args: any[]
     return dt;
 };
 export const $$datetime = $datetime(null as any, null as any);
+
+
+export const $datetimeLc = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime-lc year month1-12 day)
+    // S expression: ($datetime-lc year month1-12 day hours)
+    // S expression: ($datetime-lc year month1-12 day hours minutes)
+    // S expression: ($datetime-lc year month1-12 day hours minutes seconds)
+    // S expression: ($datetime-lc year month1-12 day hours minutes seconds milliseconds)
+    //  -> S expr  : number
+    checkParamsLength('$datetimeLc', args, 3, 7);
+
+    let s = '';
+    const year = Number(args[0]);
+    if (year >= 0) {
+        s += String(year).padStart(4, '0');
+    } else {
+        s += '-' + String(-year).padStart(6, '0');
+    }
+    // month1
+    s += '-' + String(Number(args[1])).padStart(2, '0');
+    // day
+    s += '-' + String(Number(args[2])).padStart(2, '0');
+    // hours
+    if (args.length >= 4) {
+        s += 'T' + String(Number(args[3])).padStart(2, '0');
+        // minutes
+        if (args.length >= 5) {
+            s += ':' + String(Number(args[4])).padStart(2, '0');
+        } else {
+            s += ':00';
+        }
+        // seconds
+        if (args.length >= 6) {
+            s += ':' + String(Number(args[5])).padStart(2, '0');
+        }
+        // milliseconds
+        if (args.length >= 7) {
+            s += '.' + String(Number(args[6])).padStart(3, '0').slice(0, 3);
+        }
+    } else {
+        s += 'T00:00:00.000';
+    }
+    const dt = new Date(s).getTime();
+    if (Number.isNaN(dt)) {
+        throw new Error(`[SX] $datetimeLc: Invalid datetime: ${s}.`);
+    }
+    return dt;
+};
+export const $$datetimeLc = $datetimeLc(null as any, null as any);
 
 
 export const $datetimeToIsoString = (state: SxParserState, name: string) => (...args: any[]) => {
@@ -1319,8 +1368,8 @@ export const $datetimeToComponentsLc = (state: SxParserState, name: string) => (
         dt.getMinutes(),
         dt.getSeconds(),
         dt.getMilliseconds(),
-        dt.getTimezoneOffset(), // time difference between UTC time and local time, in minutes.
-                                // If your time zone is GMT+2, -120 will be returned.
+        -dt.getTimezoneOffset(), // time difference between local time and UTC time, in minutes.
+                                 // If your time zone is UTC+2:00, +120 will be returned.
         dt.getDay(),
     ]);
 };

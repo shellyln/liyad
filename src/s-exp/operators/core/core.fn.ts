@@ -1175,6 +1175,83 @@ export const $jsonParse = (state: SxParserState, name: string) => (...args: any[
 export const $$jsonParse = $jsonParse(null as any, null as any);
 
 
+export const $now = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($now)
+    //  -> S expr  : number
+    return Date.now();
+};
+export const $$now = $now(null as any, null as any);
+
+
+export const $datetimeFromIso = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime-from-iso str)
+    //  -> S expr  : number
+    checkParamsLength('$datetimeFromIso', args, 1, 1);
+
+    const s = $$first(...args);
+    if (typeof s !== 'string') {
+        throw new Error(`[SX] $datetimeFromIso: Invalid argument(s): args[0] is not string.`);
+    }
+    if (!s.match(/^((-[0-9]{6,})|[0-9]{4,})-([0-1][0-9])-([0-3][0-9])(T([0-2][0-9])(:([0-6][0-9])(:([0-6][0-9])(.[0-9]{1,})?)?)?(Z|[-+][0-9]{2}([:]?[0-6][0-9])?)?)?$/)) {
+        throw new Error(`[SX] $datetimeFromIso: Invalid datetime (pattern unmatched): ${s}.`);
+    }
+    const dt = new Date(s).getTime();
+    if (Number.isNaN(dt)) {
+        throw new Error(`[SX] $datetimeFromIso: Invalid datetime: ${s}.`);
+    }
+    return dt;
+};
+export const $$datetimeFromIso = $datetimeFromIso(null as any, null as any);
+
+
+export const $datetime = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($datetime year month1-12 day)
+    // S expression: ($datetime year month1-12 day hours)
+    // S expression: ($datetime year month1-12 day hours minutes)
+    // S expression: ($datetime year month1-12 day hours minutes seconds)
+    // S expression: ($datetime year month1-12 day hours minutes seconds milliseconds)
+    //  -> S expr  : number
+    checkParamsLength('$datetime', args, 3, 7);
+
+    let s = '';
+    const year = Number(args[0]);
+    if (year >= 0) {
+        s += String(year).padStart(4, '0');
+    } else {
+        s += String(-year).padStart(6, '0');
+    }
+    // month1
+    s += '-' + String(Number(args[1])).padStart(2, '0');
+    // day
+    s += '-' + String(Number(args[2])).padStart(2, '0');
+    // hours
+    if (args.length >= 4) {
+        s += 'T' + String(Number(args[3])).padStart(2, '0');
+        // minutes
+        if (args.length >= 5) {
+            s += ':' + String(Number(args[4])).padStart(2, '0');
+        } else {
+            s += ':00';
+        }
+        // seconds
+        if (args.length >= 6) {
+            s += ':' + String(Number(args[5])).padStart(2, '0');
+        }
+        // milliseconds
+        if (args.length >= 7) {
+            s += '.' + String(Number(args[6])).padStart(3, '0').slice(0, 3);
+        }
+        s += 'Z';
+    }
+    const dt = new Date(s).getTime();
+    if (Number.isNaN(dt)) {
+        throw new Error(`[SX] $datetime: Invalid datetime: ${s}.`);
+    }
+    return dt;
+};
+export const $$datetime = $datetime(null as any, null as any);
+
+
 export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($console-log expr1 ... exprN)
     //  -> S expr  : null

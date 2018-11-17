@@ -4520,6 +4520,124 @@ describe("operator.core.$json-parse", function() {
 });
 
 
+describe("operator.core.$now", function() {
+    it("$now -> number", function() {
+        expect(typeof lisp`($now)`).toEqual('number');
+    });
+});
+
+
+describe("operator.core.$datetime-from-iso", function() {
+    const tzoffset = new Date('2010-01-01T00:00:00').getTime() - new Date('2010-01-01T00:00:00Z').getTime();
+    it("$datetime-from-iso -> throw", function() {
+        expect(() => lisp`($datetime-from-iso)`).toThrow();
+    });
+    it("$datetime-from-iso -> throw", function() {
+        expect(() => lisp`($datetime-from-iso "2000-01-01" 1)`).toThrow();
+    });
+    it("$datetime-from-iso -> throw", function() {
+        expect(() => lisp`($datetime-from-iso "1-01-01")`).toThrow();
+    });
+    it("$datetime-from-iso -> throw", function() {
+        expect(() => lisp`($datetime-from-iso "-0001-01-01")`).toThrow();
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-01-01")`).toEqual(new Date('2010-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31")`).toEqual(new Date('2010-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2000-01-01")`).toEqual(new Date('2000-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2000-12-31")`).toEqual(new Date('2000-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "0001-01-01")`).toEqual(new Date('0001-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "0001-12-31")`).toEqual(new Date('0001-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "0000-01-01")`).toEqual(new Date('0000-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "0000-12-31")`).toEqual(new Date('0000-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "-000001-01-01")`).toEqual(new Date('-000001-01-01T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "-000001-12-31")`).toEqual(new Date('-000001-12-31T00:00:00Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T00:00")`).toEqual(new Date('2010-12-31T00:00Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59")`).toEqual(new Date('2010-12-31T23:59Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59Z")`).toEqual(new Date('2010-12-31T23:59Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T00:00:00")`).toEqual(new Date('2010-12-31T00:00:00Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59")`).toEqual(new Date('2010-12-31T23:59:59Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59Z")`).toEqual(new Date('2010-12-31T23:59:59Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T00:00:00.0")`).toEqual(new Date('2010-12-31T00:00:00.000Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.9")`).toEqual(new Date('2010-12-31T23:59:59.900Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.9Z")`).toEqual(new Date('2010-12-31T23:59:59.900Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T00:00:00.000")`).toEqual(new Date('2010-12-31T00:00:00.000Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999")`).toEqual(new Date('2010-12-31T23:59:59.999Z').getTime() + tzoffset);
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999Z")`).toEqual(new Date('2010-12-31T23:59:59.999Z').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(() => lisp`($datetime-from-iso "2010-12-31T23:59:59.999+07")`).toThrow();
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(() => lisp`($datetime-from-iso "2010-12-31T23:59:59.999-07")`).toThrow();
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999+0715")`).toEqual(new Date('2010-12-31T23:59:59.999+07:15').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999-0715")`).toEqual(new Date('2010-12-31T23:59:59.999-07:15').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999+07:15")`).toEqual(new Date('2010-12-31T23:59:59.999+0715').getTime());
+    });
+    it("$datetime-from-iso -> number", function() {
+        expect(lisp`($datetime-from-iso "2010-12-31T23:59:59.999-07:15")`).toEqual(new Date('2010-12-31T23:59:59.999-0715').getTime());
+    });
+});
+
+
+describe("operator.core.$datetime", function() {
+    it("$datetime -> throw", function() {
+        expect(() => lisp`($datetime)`).toThrow();
+    });
+    it("$datetime -> number", function() {
+        expect(lisp`($datetime 2000 1 1)`).toEqual(new Date('2000-01-01').getTime());
+    });
+});
+
+
 describe("operator.core.$console-log", function() {
     it("$console-log -> null", function() {
         expect(lisp`($console-log)`).toEqual(null);

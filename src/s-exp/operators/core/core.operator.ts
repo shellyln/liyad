@@ -192,6 +192,24 @@ export const funcs: SxFuncInfo[] = [{
     name: '$json-stringify',
     fn: ops.$jsonStringify,
 }, {
+    name: '$now',
+    fn: ops.$now,
+}, {
+    name: '$datetime-from-iso',
+    fn: ops.$datetimeFromIso,
+}, {
+    name: '$datetime',
+    fn: ops.$datetime,
+}, {
+    name: '$datetime-to-iso-string',
+    fn: ops.$datetimeToIsoString,
+}, {
+    name: '$datetime-to-components',
+    fn: ops.$datetimeToComponents,
+}, {
+    name: '$datetime-to-components-lc',
+    fn: ops.$datetimeToComponentsLc,
+}, {
     name: '$json-parse',
     fn: ops.$jsonParse,
 }, {

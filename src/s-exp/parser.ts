@@ -52,7 +52,7 @@ function lookCurrentLineHint(state: SxParserState): string {
 }
 
 
-function getChar(state: SxParserState, virtualEof?: string[]): SxChar {
+function getChar(state: SxParserState, virtualEof?: string[], disableEscape?: boolean): SxChar {
     if (state.strings.length <= state.index) {
         return {eof: true};
     }
@@ -86,7 +86,7 @@ function getChar(state: SxParserState, virtualEof?: string[]): SxChar {
             state.line++;
         }
 
-        if (ch === '\\') {
+        if ((! disableEscape) && ch === '\\') {
             if (state.strings[state.index].length <= state.pos) {
                 throw new Error(`[SX] getChar: Invalid syntax at: ${lookCurrentLineHint(state)}.`);
             }
@@ -205,7 +205,10 @@ function parseNumber(state: SxParserState, virtualEof?: string[]): number {
 
     while (! isEOF(ch)) {
         if (typeof ch === 'string') {
-            if (/^[0-9\+\-\.EeInfinityNaN]+$/.test(s + ch)) {
+            if (/^0[XxOoBb][0-9]*$/.test(s + ch)) {
+                getChar(state, virtualEof);
+                s += ch;
+            } else if (/^[0-9\+\-\.EeInfinityNaN]+$/.test(s + ch)) {
                 getChar(state, virtualEof);
                 s += ch;
             } else {
@@ -218,7 +221,7 @@ function parseNumber(state: SxParserState, virtualEof?: string[]): number {
         ch = lookAhead(state, virtualEof);
     }
 
-    if (! /^([\+\-]?\d*\.?\d+(?:[Ee][\+\-]?\d+)?)|([\+\-]Infinity)|(NaN)$/.test(s)) {
+    if (! /^([\+\-]?\d*\.?\d+(?:[Ee][\+\-]?\d+)?)|(0[XxOoBb][0-9]+)|([\+\-]Infinity)|(NaN)$/.test(s)) {
         throw new Error(`[SX] parseNumber: Invalid syntax at: ${lookCurrentLineHint(state)}.`);
     }
     return Number(s);

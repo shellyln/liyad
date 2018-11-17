@@ -332,6 +332,9 @@ export const S = (() => {
 
 export const L = (() => {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
+    config.reservedNames = Object.assign({}, config.reservedNames, {
+        Template: '$concat',
+    });
 
     config = installCore(config);
     config = installArithmetic(config);
@@ -350,6 +353,9 @@ export const lisp = L;
 // tslint:disable-next-line:variable-name
 export const L_async = (() => {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
+    config.reservedNames = Object.assign({}, config.reservedNames, {
+        Template: '$concat',
+    });
 
     config = installCore(config);
     config = installArithmetic(config);
@@ -370,6 +376,9 @@ export const lisp_async = L_async;
 
 export const LM = (() => {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
+    config.reservedNames = Object.assign({}, config.reservedNames, {
+        Template: '$concat',
+    });
 
     config = installCore(config);
     config = installArithmetic(config);
@@ -386,6 +395,9 @@ export const LM = (() => {
 // tslint:disable-next-line:variable-name
 export const LM_async = (() => {
     let config: SxParserConfig = Object.assign({}, defaultConfig);
+    config.reservedNames = Object.assign({}, config.reservedNames, {
+        Template: '$concat',
+    });
 
     config = installCore(config);
     config = installArithmetic(config);

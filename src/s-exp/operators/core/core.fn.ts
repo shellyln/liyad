@@ -1192,7 +1192,7 @@ export const $datetimeFromIso = (state: SxParserState, name: string) => (...args
     if (typeof s !== 'string') {
         throw new Error(`[SX] $datetimeFromIso: Invalid argument(s): args[0] is not string.`);
     }
-    if (!s.match(/^(?:(?:-[0-9]{6,})|[0-9]{4,})-(?:[0-1][0-9])-(?:[0-3][0-9])(?:T(?:[0-2][0-9])(?:[:](?:[0-6][0-9])(?:[:](?:[0-6][0-9])(?:.[0-9]{1,})?)?)?(?:Z|[-+][0-9]{2}(?:[:]?[0-6][0-9])?)?)?$/)) {
+    if (! /^(?:(?:-[0-9]{6,})|[0-9]{4,})-(?:[0-1][0-9])-(?:[0-3][0-9])(?:T(?:[0-2][0-9])(?:[:](?:[0-6][0-9])(?:[:](?:[0-6][0-9])(?:.[0-9]{1,})?)?)?(?:Z|[-+][0-9]{2}(?:[:]?[0-6][0-9])?)?)?$/.test(s)) {
         throw new Error(`[SX] $datetimeFromIso: Invalid datetime (pattern unmatched): ${s}.`);
     }
     const dt = new Date(s).getTime();
@@ -1374,6 +1374,17 @@ export const $datetimeToComponentsLc = (state: SxParserState, name: string) => (
     ]);
 };
 export const $$datetimeToComponentsLc = $datetimeToComponentsLc(null as any, null as any);
+
+
+/*
+export const $match = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($match pattern-str string)
+    //  -> S expr  : array
+    const m = new RegExp('', '');
+    return null;
+};
+export const $$match = $match(null as any, null as any);
+*/
 
 
 export const $consoleLog = (state: SxParserState, name: string) => (...args: any[]) => {

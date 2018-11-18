@@ -235,7 +235,7 @@ export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplat
             for (let i = 0; i < s.length; i++) {
                 s[i] = evaluate(state, s[i]);
 
-                if (typeof s[i] === 'object' && typeof (s[i] as any).then === 'function') {
+                if (typeof s[i] === 'object' && s[i] !== null && typeof (s[i] as any).then === 'function') {
                     s[i] = await s[i];
                 }
             }

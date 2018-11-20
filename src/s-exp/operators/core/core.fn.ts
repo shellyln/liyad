@@ -49,10 +49,10 @@ export const $cdr = (state: SxParserState, name: string) => (...args: any[]) => 
 
     const car = $$first(...args);
     if (! Array.isArray(car)) {
-        throw new Error(`[SX] $car: Invalid argument(s): args[0] is not array.`);
+        throw new Error(`[SX] $cdr: Invalid argument(s): args[0] is not array.`);
     }
     if (car.length === 0) {
-        throw new Error(`[SX] $car: Invalid argument(s): args[0] is nil.`);
+        throw new Error(`[SX] $cdr: Invalid argument(s): args[0] is nil.`);
     }
     return car.slice(1);
 };
@@ -77,6 +77,7 @@ export const $cons = (state: SxParserState, name: string) => (...args: any[]) =>
     }
 
     if (Array.isArray(cdr)) {
+        cdr = cdr.slice(0);
         cdr.unshift(car);
         return cdr;
     } else {

@@ -106,6 +106,51 @@ describe("operator.core.$cons", function() {
     it("$cons (a b) (c d) -> ((a b) c d)", function() {
         expect(lisp`($cons '(3 5) '(7 11))`).toEqual([[3, 5], 7, 11]);
     });
+    it("$cons ", function() {
+        expect(lisp`
+            ($let ZERO nil)
+            ($defun SUCC (x) ($cons 0 x))
+            ($defun PRED (x) ($cdr x))
+            ($let ONE (SUCC ZERO))
+            ($last ZERO)
+        `).toEqual([]);
+    });
+    it("$cons ", function() {
+        expect(lisp`
+            ($let ZERO nil)
+            ($defun SUCC (x) ($cons 0 x))
+            ($defun PRED (x) ($cdr x))
+            ($let ONE (SUCC ZERO))
+            ($defun ADD (x y)
+                ($if (== y ZERO)
+                    x
+                    ($self (SUCC x) (PRED y)) ))
+            ($defun MUL_sub (x y p)
+                ($if (== (PRED y) (PRED ONE))
+                    x
+                    ($self (ADD x p) (PRED y) p) ))
+            ($defun MUL (x y)
+                ($if ($or (== x ZERO) (== y ZERO))
+                    ZERO
+                    (MUL_sub x y x) ))
+            ($list
+                ($length (ADD ZERO ZERO))
+                ($length (ADD ZERO ONE))
+                ($length (ADD ONE ZERO))
+                ($length (ADD ONE ONE))
+                ($length (ADD (SUCC ONE) ONE))
+                ($length (ADD (SUCC ONE) (SUCC (SUCC ONE))))
+                ($length (ADD (SUCC (SUCC ONE)) (SUCC ONE)))
+                ($length (MUL ZERO ZERO))
+                ($length (MUL ZERO ONE))
+                ($length (MUL ONE ZERO))
+                ($length (MUL ONE ONE))
+                ($length (MUL (SUCC ONE) ONE))
+                ($length (MUL (SUCC ONE) (SUCC (SUCC ONE))))
+                ($length (MUL (SUCC (SUCC ONE)) (SUCC ONE)))
+            )
+        `).toEqual([0, 1, 1, 2, 3, 5, 5, 0, 0, 0, 1, 2, 6, 6]);
+    });
 });
 
 

@@ -24,6 +24,7 @@ import installConcurrent    from './operators/concurrent';
 export const defaultReservedNames: SxReservedNames = {
     eval: '$eval',
     quote: '$quote',
+    unquote: '$unquote',
     spread: '$spread',
     splice: '$splice',
 

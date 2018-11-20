@@ -49,10 +49,10 @@ export const $cdr = (state: SxParserState, name: string) => (...args: any[]) => 
 
     const car = $$first(...args);
     if (! Array.isArray(car)) {
-        throw new Error(`[SX] $car: Invalid argument(s): args[0] is not array.`);
+        throw new Error(`[SX] $cdr: Invalid argument(s): args[0] is not array.`);
     }
     if (car.length === 0) {
-        throw new Error(`[SX] $car: Invalid argument(s): args[0] is nil.`);
+        throw new Error(`[SX] $cdr: Invalid argument(s): args[0] is nil.`);
     }
     return car.slice(1);
 };
@@ -77,6 +77,7 @@ export const $cons = (state: SxParserState, name: string) => (...args: any[]) =>
     }
 
     if (Array.isArray(cdr)) {
+        cdr = cdr.slice(0);
         cdr.unshift(car);
         return cdr;
     } else {
@@ -1025,6 +1026,36 @@ export const $ge = (state: SxParserState, name: string) => (...args: any[]) => {
     return toNumber(car) >= toNumber(cdr);
 };
 export const $$ge = $ge(null as any, null as any);
+
+
+export const $gensym = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($gensym)
+    // S expression: ($gensym symbol)
+    //  -> S expr  : symbol
+    checkParamsLength('$gensym', args, 0, 1);
+
+    const varBaseName = `$__tempvar__$$ec${state.evalCount++}$$_`;
+    const tempVarSym = ({symbol: `${varBaseName}_$gensym`});
+    if (args.length === 1) {
+        const a = isSymbol(args[0]);
+        if (a) {
+            $__let(state, '')(a, tempVarSym);
+        } else {
+            throw new Error(`[SX] $gensym: Invalid argument(s): item(s) of args[0] is not symbol.`);
+        }
+    }
+    return tempVarSym;
+};
+
+
+export const $isSymbol = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-symbol x)
+    //  -> S expr  : boolean
+    checkParamsLength('$isSymbol', args, 1, 1);
+
+    return (isSymbol(args[0]) ? true : false);
+};
+export const $$isSymbol = $isSymbol(null as any, null as any);
 
 
 export const $isList = (state: SxParserState, name: string) => (...args: any[]) => {

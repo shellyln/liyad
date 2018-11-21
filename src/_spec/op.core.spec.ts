@@ -117,20 +117,24 @@ describe("operator.core.$cons", function() {
     });
     it("$cons ", function() {
         expect(lisp`
-            ($let ZERO nil)
             ($defun SUCC (x) ($cons 0 x))
             ($defun PRED (x) ($cdr x))
-            ($let ONE (SUCC ZERO))
+            ($defun TIMES (n f x)
+                ($if (=== n 0)
+                    x
+                    ($self (- n 1) f (f x)) ))
+            ($let   ZERO nil)
+            ($let   ONE (SUCC ZERO))
             ($defun ADD (x y)
                 ($if (== y ZERO)
                     x
                     ($self (SUCC x) (PRED y)) ))
             ($defun MUL_sub (x y p)
-                ($if (== (PRED y) (PRED ONE))
+                ($if (== (PRED y) (PRED ONE))  ;; (== nil nil) -> true
                     x
                     ($self (ADD x p) (PRED y) p) ))
             ($defun MUL (x y)
-                ($if ($or (== x ZERO) (== y ZERO))
+                ($if (== y ZERO)
                     ZERO
                     (MUL_sub x y x) ))
             ($list
@@ -148,8 +152,12 @@ describe("operator.core.$cons", function() {
                 ($length (MUL (SUCC ONE) ONE))
                 ($length (MUL (SUCC ONE) (SUCC (SUCC ONE))))
                 ($length (MUL (SUCC (SUCC ONE)) (SUCC ONE)))
+                ($length (TIMES 0 (<- SUCC) ZERO))
+                ($length (TIMES 1 (<- SUCC) ZERO))
+                ($length (TIMES 2 (<- SUCC) ZERO))
+                ($length (TIMES 13 (<- SUCC) ZERO))
             )
-        `).toEqual([0, 1, 1, 2, 3, 5, 5, 0, 0, 0, 1, 2, 6, 6]);
+        `).toEqual([0, 1, 1, 2, 3, 5, 5, 0, 0, 0, 1, 2, 6, 6, 0, 1, 2, 13]);
     });
 });
 

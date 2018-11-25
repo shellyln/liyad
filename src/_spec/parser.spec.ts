@@ -406,6 +406,30 @@ describe("shorthands", function() {
 });
 
 
+describe("splice", function() {
+    it("splice 1", function() {
+        expect(lisp`
+            ($list 1 2 3 ($splice (4 5)) 6 7)
+        `).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    });
+    it("splice 2", function() {
+        expect(lisp`
+            ($list 1 2 3 ($splice 4 5) 6 7)
+        `).toEqual([1, 2, 3, 4, 6, 7]);
+    });
+    it("splice 3", function() {
+        expect(lisp`
+            ($list 1 2 3 ($quote ($splice (4 5))) 6 7)
+        `).toEqual([1, 2, 3, 4, 6, 7]);
+    });
+    it("splice 4", function() {
+        expect(lisp`
+            ($list 1 2 3 '($splice (4 5)) 6 7)
+        `).toEqual([1, 2, 3, 4, 6, 7]);
+    });
+});
+
+
 describe("string literal", function() {
     it("string literal 1", function() {
         expect(lisp`

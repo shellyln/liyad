@@ -192,7 +192,7 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
         const tail = fnBody[fnBody.length - 1];
         if (tail && tail[0].symbol === state.config.reservedNames.if) {
             // S expression: ($if cond t-expr f-expr)
-            if (tail[3][0].symbol === state.config.reservedNames.self) {
+            if (Array.isArray(tail[3]) && tail[3][0].symbol === state.config.reservedNames.self) {
                 // S expression (recursive):
                 //     (                                 ;; fnBody
                 //         expr1 ... exprN-1             ;; front

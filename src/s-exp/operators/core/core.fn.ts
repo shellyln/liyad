@@ -446,6 +446,16 @@ export const $__refun = (state: SxParserState, name: string) => (...args: any[])
 };
 
 
+// tslint:disable-next-line:variable-name
+export const $__defmacro = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__defmacro 'name '(sym1 ... symN) 'expr ... 'expr)
+    //  -> S expr  : fn
+    checkParamsLength('$__defmacro', args, 3);
+
+    return null;
+};
+
+
 export const $apply = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($apply fn arg1 ... argN)
     //  -> S expr  : fn'

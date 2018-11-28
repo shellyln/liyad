@@ -108,22 +108,24 @@ describe("operator.core.$cons", function() {
     });
     it("$cons ", function() {
         expect(lisp`
-            ($let ZERO nil)
+            ($defun NUMERAL (x) x)
             ($defun SUCC (x) ($cons 0 x))
             ($defun PRED (x) ($cdr x))
-            ($let ONE (SUCC ZERO))
+            ($let   ZERO (NUMERAL nil))
+            ($let   ONE (SUCC ZERO))
             ($last ZERO)
         `).toEqual([]);
     });
     it("$cons ", function() {
         expect(lisp`
+            ($defun NUMERAL (x) x)
             ($defun SUCC (x) ($cons 0 x))
             ($defun PRED (x) ($cdr x))
             ($defun TIMES (n f x)
                 ($if (=== n 0)
                     x
                     ($self (- n 1) f (f x)) ))
-            ($let   ZERO nil)
+            ($let   ZERO (NUMERAL nil))
             ($let   ONE (SUCC ZERO))
             ($defun ADD (x y)
                 ($if (== y ZERO)
@@ -158,6 +160,47 @@ describe("operator.core.$cons", function() {
                 ($length (TIMES 13 (<- SUCC) ZERO))
             )
         `).toEqual([0, 1, 1, 2, 3, 5, 5, 0, 0, 0, 1, 2, 6, 6, 0, 1, 2, 13]);
+    });
+    it("$cons ", function() {
+        expect(lisp`
+            ($let   FALSE   ((-> (x y) y) ($cons 0 FALSE) nil))
+            ($let   TRUE    ((-> (x y) x) ($cons 0 FALSE) nil))
+            ($defun AND     (x y) ($if (!= x FALSE) y FALSE))
+            ($defun OR      (x y) ($if (!= x FALSE) TRUE  y))
+            ($defun NOT     (x)   ($if (!= x FALSE) FALSE TRUE))
+            ($defun XOR     (x y) ($if (!= x FALSE) (NOT y) y))
+            ($list
+                (AND FALSE FALSE)
+                (AND TRUE FALSE)
+                (AND FALSE TRUE)
+                (AND TRUE TRUE)
+                (OR  FALSE FALSE)
+                (OR  TRUE FALSE)
+                (OR  FALSE TRUE)
+                (OR  TRUE TRUE)
+                (NOT TRUE)
+                (NOT FALSE)
+                (XOR FALSE FALSE)
+                (XOR TRUE FALSE)
+                (XOR FALSE TRUE)
+                (XOR TRUE TRUE)
+            )
+        `).toEqual([
+            [],
+            [],
+            [],
+            [0],
+            [],
+            [0],
+            [0],
+            [0],
+            [],
+            [0],
+            [],
+            [0],
+            [0],
+            [],
+        ]);
     });
 });
 

@@ -26,6 +26,24 @@ export function toNumber(x: any) {
 }
 
 
+export function resolveUnquote(state: SxParserState, r: SxToken[]) {
+    for (let i = 0; i < r.length; i++) {
+        const symUnquote = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.unquote);
+        if (symUnquote) {
+            r = r.slice(0, i).concat([evaluate(state, (r[i] as SxToken[])[1])], r.slice(i + 1));
+        }
+        const symSplice = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.splice);
+        if (symSplice) {
+            const x = (r[i] as SxToken[])[1];
+            if (Array.isArray(x) && isSymbol(x[0], state.config.reservedNames.unquote)) {
+                r = r.slice(0, i).concat([{symbol: state.config.reservedNames.splice}, evaluate(state, x[1])], r.slice(i + 1));
+            }
+        }
+    }
+    return resolveSplice(state, r);
+}
+
+
 export function resolveSplice(state: SxParserState, r: SxToken[]) {
     if (state.config.enableSplice) {
         for (let i = r.length - 1; i >= 0; i--) {
@@ -174,7 +192,7 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
         const tail = fnBody[fnBody.length - 1];
         if (tail && tail[0].symbol === state.config.reservedNames.if) {
             // S expression: ($if cond t-expr f-expr)
-            if (tail[3][0].symbol === state.config.reservedNames.self) {
+            if (Array.isArray(tail[3]) && tail[3][0].symbol === state.config.reservedNames.self) {
                 // S expression (recursive):
                 //     (                                 ;; fnBody
                 //         expr1 ... exprN-1             ;; front
@@ -262,6 +280,13 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             if (sym) {
                 if (sym.symbol === state.config.reservedNames.quote) {
                     return r.slice(1, 2)[0];
+                }
+                if (sym.symbol === state.config.reservedNames.backquote) {
+                    r = r.slice(1, 2)[0];
+                    if (Array.isArray(r)) {
+                        r = resolveUnquote(state, r);
+                    }
+                    return r;
                 }
                 if (sym.symbol === state.config.reservedNames.eval) {
                     return evaluate(state, r[1]);

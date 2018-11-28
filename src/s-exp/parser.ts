@@ -12,8 +12,10 @@ import { SxParserState,
          SxToken,
          SxChar,
          quote,
+         backquote,
          wrapByUnquote,
          spread,
+         splice,
          ScriptTerminationError } from './types';
 
 
@@ -400,11 +402,22 @@ function parseOneToken(state: SxParserState): SxToken {
             getChar(state);
             return parseList(state, ')', []);
 
-        case "'": case "`":
+        case "'": case "`": case ',':
             {
                 getChar(state);
+                const ahead = lookAhead(state);
+                let isSpliceUnquote = false;
+                if (ch === ',' && ahead === '@') {
+                    getChar(state);
+                    isSpliceUnquote = true;
+                }
                 skipWhitespaces(state);
-                return (ch === "'" ? quote : wrapByUnquote)(state, parseOneToken(state));
+                const ret = (ch === "'" ?
+                        quote :
+                        (ch === "`" ? backquote : wrapByUnquote))
+                    (state, parseOneToken(state)
+                );
+                return (isSpliceUnquote ? splice(state, ret) : ret);
             }
 
         case ".":
@@ -615,7 +628,7 @@ export function parse(state: SxParserState) {
                             r.push(t);
                         }
                     } else {
-                        r.push((ch === "'" ? quote : wrapByUnquote)(state, t));
+                        r.push((ch === "'" ? quote : backquote)(state, t));
                         break;
                     }
                 }

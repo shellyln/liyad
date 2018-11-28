@@ -37,6 +37,7 @@ export interface SxScope {
 export interface SxReservedNames {
     eval: string;
     quote: string;
+    backquote: string;
     unquote: string;
     spread: string;
     splice: string;
@@ -194,6 +195,22 @@ export function isQuoted(state: SxParserState, x: any) {
 }
 
 
+export function backquote(state: SxParserState, x: any) {
+    return [{symbol: state.config.reservedNames.backquote}, x];
+}
+
+
+export function isBackquoted(state: SxParserState, x: any) {
+    if (Array.isArray(x) && 0 < x.length) {
+        const q = isSymbol(x);
+        if (q && q.symbol === state.config.reservedNames.backquote) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 export function wrapByUnquote(state: SxParserState, x: any) {
     return [{symbol: state.config.reservedNames.unquote}, x];
 }
@@ -212,6 +229,11 @@ export function isUnquoted(state: SxParserState, x: any) {
 
 export function spread(state: SxParserState, x: any) {
     return [{symbol: state.config.reservedNames.spread}, x];
+}
+
+
+export function splice(state: SxParserState, x: any) {
+    return [{symbol: state.config.reservedNames.splice}, x];
 }
 
 

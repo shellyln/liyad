@@ -78,6 +78,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__refun',
     fn: ops.$__refun,
 }, {
+    name: '$__defmacro',
+    fn: ops.$__defmacro,
+}, {
     name: '$apply',
     fn: ops.$apply,
 }, {

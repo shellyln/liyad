@@ -182,6 +182,15 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$defmacro',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($defmacro name (sym1 ... symN) expr ... expr)
+        //  -> S expr  : ($__defmacro 'name '(sym1 ... symN) 'expr ... 'expr)
+        return [{symbol: '$__defmacro'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '$call',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: ($call thisArg symbol arg1 ... argN)

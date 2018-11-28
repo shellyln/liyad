@@ -452,6 +452,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     //  -> S expr  : fn
     checkParamsLength('$__defmacro', args, 3);
 
+    return null;
 };
 
 

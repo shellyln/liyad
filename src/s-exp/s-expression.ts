@@ -342,6 +342,7 @@ export const L = (() => {
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
 
     config.stripComments = true;
 
@@ -386,6 +387,7 @@ export const LM = (() => {
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
 
     config.stripComments = true;
     config.returnMultipleRoot = true;
@@ -421,6 +423,7 @@ export function LSX<R = SxToken>(lsxConf: LsxConfig): SExpressionTemplateFn<R> {
     config = installCore(config);
     config = installArithmetic(config);
     config = installSequence(config);
+    config = installConcurrent(config);
     config = installJsx(config, lsxConf);
 
     config.stripComments = true;

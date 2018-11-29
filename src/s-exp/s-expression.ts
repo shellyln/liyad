@@ -10,7 +10,9 @@ import { SxMacroInfo,
          SxParserConfig,
          SxParserState,
          SxToken,
-         LsxConfig }        from './types';
+         LsxConfig,
+         SExpressionTemplateFn,
+         SExpressionAsyncTemplateFn } from './types';
 import { parse }            from './parser';
 import { evaluate }         from './evaluate';
 import installCore          from './operators/core';
@@ -118,23 +120,6 @@ function resetState(state: SxParserState, strings: TemplateStringsArray | string
 
 
 
-interface SExpressionRepl<R = SxToken> {
-    (strings: TemplateStringsArray | string, ...values: any[]): R;
-    sync: (strings: TemplateStringsArray | string, ...values: any[]) => R;
-}
-
-interface SExpressionTemplateFn<R = SxToken> {
-    (strings: TemplateStringsArray | string, ...values: any[]): R;
-    evaluateAST: (ast: SxToken[]) => R;
-    repl: () => SExpressionRepl<R>;
-    setGlobals: (globals: object) => SExpressionTemplateFn<R>;
-    appendGlobals: (globals: object) => SExpressionTemplateFn<R>;
-    setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
-    setStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
-    appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionTemplateFn<R>;
-    appendStartupAST: (ast: SxToken[]) => SExpressionTemplateFn<R>;
-    install: (installer: (config: SxParserConfig) => SxParserConfig) => SExpressionTemplateFn<R>;
-}
 
 export function SExpression(conf?: SxParserConfig): SExpressionTemplateFn {
     let config = conf || Object.assign({}, defaultConfig);
@@ -208,24 +193,6 @@ export function SExpression(conf?: SxParserConfig): SExpressionTemplateFn {
     return f;
 }
 
-
-interface SExpressionAsyncRepl<R = SxToken> {
-    (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
-    sync: (strings: TemplateStringsArray | string, ...values: any[]) => Promise<R>;
-}
-
-interface SExpressionAsyncTemplateFn<R = SxToken> {
-    (strings: TemplateStringsArray | string, ...values: any[]): Promise<R>;
-    evaluateAST: (ast: SxToken[]) => Promise<R>;
-    repl: () => SExpressionAsyncRepl<R>;
-    setGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
-    appendGlobals: (globals: object) => SExpressionAsyncTemplateFn<R>;
-    setStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
-    setStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
-    appendStartup: (strings: TemplateStringsArray | string, ...values: any[]) => SExpressionAsyncTemplateFn<R>;
-    appendStartupAST: (ast: SxToken[]) => SExpressionAsyncTemplateFn<R>;
-    install: (installer: (config: SxParserConfig) => SxParserConfig) => SExpressionAsyncTemplateFn<R>;
-}
 
 export function SExpressionAsync(conf?: SxParserConfig): SExpressionAsyncTemplateFn {
     let config = conf || Object.assign({}, defaultConfig);

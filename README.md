@@ -697,6 +697,45 @@ function LSX_async<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsAr
 * returns : Template literal function.
 * `lsxConf` : LSX config.
 
+
+### `runScriptTags`
+Run script tags.
+
+```ts
+function runScriptTags(lisp: SExpressionTemplateFn | SExpressionAsyncTemplateFn, globals?: object, contentType = 'text/lisp')
+```
+
+* returns : Evaluation result.
+* `lisp` : Evaluater function.
+* `globals` : Global variables.
+* `contentType` : Content type attribute of script tags.
+
+Usage:
+```html
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <script type="text/lisp">
+        ($local (c) ($capture (c)
+            ($$defun tarai(x y z)
+                ($set c (+ c 1))
+                ($if (<= x y)
+                    y
+                    ($self ($self (- x 1) y z)
+                        ($self (- y 1) z x)
+                        ($self (- z 1) x y))))
+        ($list ($datetime-to-iso-string ($now)) (tarai 13 6 0) c) ))
+    </script>
+    <script src="liyad.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(event) {
+            document.querySelector('body').innerText = JSON.stringify(liyad.runScriptTags(liyad.lisp, {}));
+        });
+    </script>
+</head>
+<body></body>
+```
+
 ----
 
 

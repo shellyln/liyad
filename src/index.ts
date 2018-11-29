@@ -4,6 +4,7 @@
 
 
 export * from './s-exp/s-expression';
+export * from './s-exp/browser';
 
 
 export { default as installCore }         from './s-exp/operators/core';

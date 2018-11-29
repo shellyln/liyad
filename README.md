@@ -702,7 +702,10 @@ function LSX_async<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsAr
 Run script tags.
 
 ```ts
-function runScriptTags(lisp: SExpressionTemplateFn | SExpressionAsyncTemplateFn, globals?: object, contentType = 'text/lisp')
+function runScriptTags(
+    lisp: SExpressionTemplateFn | SExpressionAsyncTemplateFn,
+    globals?: object,
+    contentType = 'text/lisp')
 ```
 
 * returns : Evaluation result.
@@ -716,6 +719,8 @@ Usage:
 <head>
     <meta charset="utf-8">
     <script type="text/lisp">
+        ($local ((body (::document@querySelector "body")))
+            ($set (body innerText) "Hello, Lisp! ") )
         ($local (c) ($capture (c)
             ($$defun tarai(x y z)
                 ($set c (+ c 1))
@@ -728,8 +733,13 @@ Usage:
     </script>
     <script src="liyad.min.js"></script>
     <script>
+        // Since the above lisp code refers to the body element,
+        // you need to enclose the lisp evaluation with addEventListener.
         document.addEventListener('DOMContentLoaded', function(event) {
-            document.querySelector('body').innerText = JSON.stringify(liyad.runScriptTags(liyad.lisp, {}));
+            const result = JSON.stringify(
+                liyad.runScriptTags(liyad.lisp, {window, document}));
+            const body = document.querySelector('body');
+            setTimeout(() => body.innerText = body.innerText + result, 30);
         });
     </script>
 </head>

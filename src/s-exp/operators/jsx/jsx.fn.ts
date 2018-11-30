@@ -4,9 +4,9 @@
 
 
 import { SxParserState,
-         SxToken,
-         quote,
-         isSymbol }          from '../../types';
+         SxToken }           from '../../types';
+import { isSymbol,
+         quote }             from '../../ast';
 import { evaluate,
          getScope }          from '../../evaluate';
 import { checkParamsLength } from '../../errors';

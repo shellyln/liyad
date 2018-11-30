@@ -6,10 +6,10 @@
 import { SxParserState,
          SxSymbol,
          SxToken,
-         isSymbol,
-         quote,
          FatalError,
          CapturedScopes }     from '../../types';
+import { isSymbol,
+         quote }              from '../../ast';
 import { evaluate,
          resolveValueSymbolScope,
          collectCapturedVariables,

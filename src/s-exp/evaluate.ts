@@ -10,8 +10,8 @@ import { SxParserState,
          SxDottedFragment,
          SxToken,
          SxScope,
-         isSymbol,
          CapturedScopes }     from './types';
+import { isSymbol }           from './ast';
 import { setEvaluationCount } from './errors';
 
 

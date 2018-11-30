@@ -11,12 +11,12 @@ import { SxParserState,
          SxComment,
          SxToken,
          SxChar,
-         quote,
+         ScriptTerminationError } from './types';
+import { quote,
          backquote,
          wrapByUnquote,
          spread,
-         splice,
-         ScriptTerminationError } from './types';
+         splice }                 from './ast';
 
 
 

@@ -8,8 +8,8 @@ import { SxParserState,
          SxToken,
          SxFuncInfo,
          CompilerOperator,
-         CompilerContext,
-         isSymbol }                   from './types';
+         CompilerContext  }           from './types';
+import { isSymbol }                   from './ast';
 import { getCapturedScopes,
          optimizeTailCall }           from './evaluate';
 import { applyMacros,

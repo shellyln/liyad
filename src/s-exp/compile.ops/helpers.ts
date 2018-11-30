@@ -4,8 +4,8 @@
 
 
 import { SxParserState,
-         SxToken,
-         isSymbol }           from '../types';
+         SxToken }            from '../types';
+import { isSymbol }           from '../ast';
 import { resolveSplice,
          resolveMacro,
          resolveValueSymbol,

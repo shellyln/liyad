@@ -4,8 +4,8 @@
 
 
 import { SxMacroInfo,
-         SxParserState,
-         isSymbol } from '../../types';
+         SxParserState } from '../../types';
+import { isSymbol }      from '../../ast';
 
 
 

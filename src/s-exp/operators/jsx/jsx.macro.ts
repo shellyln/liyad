@@ -4,8 +4,8 @@
 
 
 import { SxMacroInfo,
-         SxParserState,
-         quote } from '../../types';
+         SxParserState } from '../../types';
+import { quote }         from '../../ast';
 
 
 

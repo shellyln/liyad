@@ -4,9 +4,9 @@
 
 
 import { SxMacroInfo,
-         SxParserState,
-         quote,
-         isSymbol }          from '../../types';
+         SxParserState }     from '../../types';
+import { isSymbol,
+         quote }             from '../../ast';
 import { checkParamsLength } from '../../errors';
 
 

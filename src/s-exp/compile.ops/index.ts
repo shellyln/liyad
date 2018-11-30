@@ -6,8 +6,8 @@
 import { SxParserState,
          SxSymbol,
          SxToken,
-         CompilerContext,
-         isSymbol }                   from '../types';
+         CompilerContext }            from '../types';
+import { isSymbol }                   from '../ast';
 import { checkParamsLength }          from '../errors';
 import { stripQuote,
          stripQuoteOrPass,

@@ -61,6 +61,11 @@ export const defaultReservedNames: SxReservedNames = {
     and: '$and',
     or: '$or',
 
+    isSymbol: '$is-symbol',
+    gensym: '$gensym',
+    raise: '$raise',
+    catch: '$catch',
+
     Template: 'Template',
 };
 

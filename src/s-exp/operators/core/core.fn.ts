@@ -452,7 +452,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     //  -> S expr  : fn
     checkParamsLength('$__defmacro', args, 3);
 
-    const formalArgs: SxSymbol[] = args[0];
+    let formalArgs: SxSymbol[] = args[0];
     if (! Array.isArray(formalArgs)) {
         throw new Error(`[SX] $__defmacro: Invalid argument(s): args[0] is not array.`);
     }
@@ -475,18 +475,34 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     const fnBody = args.slice(1);
     const capturedScopes = getCapturedScopes(state);
 
-    const fn = (...actualArgs: any[]) => {
+    const fn = (...aArgs: any[]) => {
+        let actualArgs = aArgs.slice(0);
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
-            throw new Error(`[SX] macro call: Actual args too short: actual ${
+            throw new Error(`[SX] macro call (${name}): Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
         const extra: SxToken[] = [];
-        for (let i = 0; i < formalArgs.length; i++) {
-            const nm = formalArgs[i].symbol;
+        for (let i = formalArgs.length - (lastIsSpread ? 2 : 1); i >= 0; i--) {
+            let nm = formalArgs[i].symbol;
             if (nm.startsWith('!')) {
-                //
+                formalArgs[i].symbol = formalArgs[i].symbol.slice(1);
+                nm = formalArgs[i].symbol;
+
+                if (isSymbol(actualArgs[i])) {
+                    extra.push([{symbol: state.config.reservedNames.gensym}, {symbol: nm}]);
+                } else {
+                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}) is not symbol.`);
+                }
             } else if (nm.startsWith('<') && nm.startsWith('>')) {
-                //
+                formalArgs[i].symbol = formalArgs[i].symbol.slice(1, -1);
+                nm = formalArgs[i].symbol;
+
+                if (isSymbol(actualArgs[i], nm)) {
+                    formalArgs = formalArgs.slice(0, Math.max(i - 1, 0)).concat(formalArgs.slice(i + 1));
+                    actualArgs = actualArgs.slice(0, Math.max(i - 1, 0)).concat(actualArgs.slice(i + 1));
+                } else {
+                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}) is not symbol.`);
+                }
             }
         }
         return $__scope(state, name, capturedScopes)(false, false, [
@@ -1105,6 +1121,8 @@ export const $__gensym = (state: SxParserState, name: string) => (...args: any[]
         const a = isSymbol(args[0]);
         if (a) {
             $__let(state, '')(a, tempVarSym);
+        } else if (typeof args[0] === 'string') {
+            $__let(state, '')(a, {symbol: args[0]});
         } else {
             throw new Error(`[SX] $__gensym: Invalid argument(s): item(s) of args[0] is not symbol.`);
         }
@@ -1113,16 +1131,23 @@ export const $__gensym = (state: SxParserState, name: string) => (...args: any[]
 };
 
 
-// tslint:disable-next-line:variable-name
-export const $__isSymbol = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($__is-symbol x)
+export const $isSymbol = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-symbol x)
+    // S expression: ($is-symbol x name)
     //  -> S expr  : boolean
-    checkParamsLength('$__isSymbol', args, 1, 1);
+    checkParamsLength('$isSymbol', args, 1, 2);
 
-    return (isSymbol(args[0]) ? true : false);
+    if (args.length === 1) {
+        return (isSymbol(args[0]) ? true : false);
+    } else {
+        if (typeof args[1] === 'string') {
+            return (isSymbol(args[0], args[1]) ? true : false);
+        } else {
+            throw new Error(`[SX] $isSymbol: Invalid argument(s): item(s) of args[1] is not string.`);
+        }
+    }
 };
-// tslint:disable-next-line:variable-name
-export const $$__isSymbol = $__isSymbol(null as any, null as any);
+export const $$isSymbol = $isSymbol(null as any, null as any);
 
 
 export const $isList = (state: SxParserState, name: string) => (...args: any[]) => {

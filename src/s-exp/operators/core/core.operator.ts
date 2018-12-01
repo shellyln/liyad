@@ -165,8 +165,8 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__gensym',
     fn: ops.$__gensym,
 }, {
-    name: '$__is-symbol',
-    fn: ops.$__isSymbol,
+    name: '$is-symbol',
+    fn: ops.$isSymbol,
 }, {
     name: '$is-list',
     fn: ops.$isList,

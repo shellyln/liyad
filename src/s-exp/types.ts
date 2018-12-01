@@ -83,6 +83,11 @@ export interface SxReservedNames {
     and: string;
     or: string;
 
+    isSymbol: string;
+    gensym: string;
+    raise: string;
+    catch: string;
+
     Template: string;
 }
 

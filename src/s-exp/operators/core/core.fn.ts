@@ -452,7 +452,61 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     //  -> S expr  : fn
     checkParamsLength('$__defmacro', args, 3);
 
-    return null;
+    const formalArgs: SxSymbol[] = args[0];
+    if (! Array.isArray(formalArgs)) {
+        throw new Error(`[SX] $__defmacro: Invalid argument(s): args[0] is not array.`);
+    }
+
+    let lastIsSpread = false;
+    for (let i = 0; i < formalArgs.length; i++) {
+        const fa = formalArgs[i];
+        if (i === formalArgs.length - 1 && state.config.enableSpread &&
+            Array.isArray(fa) && isSymbol(fa[0], state.config.reservedNames.spread)) {
+            if (! isSymbol(fa[1])) {
+                throw new Error(`[SX] $__defmacro: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
+            }
+            formalArgs[i] = fa[1];
+            lastIsSpread = true;
+        } else if (! isSymbol(fa)) {
+            throw new Error(`[SX] $__defmacro: Invalid formal argument(s): item(s) of args[${i}] is not symbol.`);
+        }
+    }
+
+    const fnBody = args.slice(1);
+    const capturedScopes = getCapturedScopes(state);
+
+    const fn = (...actualArgs: any[]) => {
+        if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
+            throw new Error(`[SX] macro call: Actual args too short: actual ${
+                actualArgs.length} / formal ${formalArgs.length}.`);
+        }
+        const extra: SxToken[] = [];
+        for (let i = 0; i < formalArgs.length; i++) {
+            const nm = formalArgs[i].symbol;
+            if (nm.startsWith('!')) {
+                //
+            } else if (nm.startsWith('<') && nm.startsWith('>')) {
+                //
+            }
+        }
+        return $__scope(state, name, capturedScopes)(false, false, [
+            [state.config.reservedNames.self, fn],
+            ...(formalArgs.map((x: SxSymbol, index) => [
+                x.symbol,
+                quote(state,
+                    (lastIsSpread && index === formalArgs.length - 1) ?
+                        actualArgs.slice(index) : actualArgs[index]
+                )
+            ])),
+        ], ...extra, ...fnBody);
+    };
+
+    state.macroMap.set(name, {
+        name,
+        fn: (st, nm) => (list) => fn(list.slice(1)),
+    });
+
+    return fn;
 };
 
 
@@ -1038,11 +1092,12 @@ export const $ge = (state: SxParserState, name: string) => (...args: any[]) => {
 export const $$ge = $ge(null as any, null as any);
 
 
-export const $gensym = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($gensym)
-    // S expression: ($gensym symbol)
+// tslint:disable-next-line:variable-name
+export const $__gensym = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__gensym)
+    // S expression: ($__gensym name)
     //  -> S expr  : symbol
-    checkParamsLength('$gensym', args, 0, 1);
+    checkParamsLength('$__gensym', args, 0, 1);
 
     const varBaseName = `$__tempvar__$$ec${state.evalCount++}$$_`;
     const tempVarSym = ({symbol: `${varBaseName}_$gensym`});
@@ -1051,21 +1106,23 @@ export const $gensym = (state: SxParserState, name: string) => (...args: any[]) 
         if (a) {
             $__let(state, '')(a, tempVarSym);
         } else {
-            throw new Error(`[SX] $gensym: Invalid argument(s): item(s) of args[0] is not symbol.`);
+            throw new Error(`[SX] $__gensym: Invalid argument(s): item(s) of args[0] is not symbol.`);
         }
     }
     return tempVarSym;
 };
 
 
-export const $isSymbol = (state: SxParserState, name: string) => (...args: any[]) => {
-    // S expression: ($is-symbol x)
+// tslint:disable-next-line:variable-name
+export const $__isSymbol = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($__is-symbol x)
     //  -> S expr  : boolean
-    checkParamsLength('$isSymbol', args, 1, 1);
+    checkParamsLength('$__isSymbol', args, 1, 1);
 
     return (isSymbol(args[0]) ? true : false);
 };
-export const $$isSymbol = $isSymbol(null as any, null as any);
+// tslint:disable-next-line:variable-name
+export const $$__isSymbol = $__isSymbol(null as any, null as any);
 
 
 export const $isList = (state: SxParserState, name: string) => (...args: any[]) => {

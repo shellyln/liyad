@@ -1548,6 +1548,10 @@ describe("operator.core.$refun", function() {
 });
 
 
+describe("operator.core.$defmacro", function() {
+});
+
+
 describe("operator.core.$apply", function() {
     it("$apply", function() {
         expect(() => lisp`

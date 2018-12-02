@@ -3864,6 +3864,14 @@ describe("operator.core.>=", function() {
 });
 
 
+describe("operator.core.$gensym", function() {
+});
+
+
+describe("operator.core.$is-symbol", function() {
+});
+
+
 describe("operator.core.$is-list", function() {
     it("$is-list -> throw", function() {
         expect(() => lisp`($is-list)`).toThrow();

@@ -491,17 +491,17 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
                 if (isSymbol(actualArgs[i])) {
                     extra.push([{symbol: state.config.reservedNames.gensym}, {symbol: nm}]);
                 } else {
-                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}) is not symbol.`);
+                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}: ${nm}) is not symbol.`);
                 }
             } else if (nm.startsWith('<') && nm.startsWith('>')) {
                 formalArgs[i].symbol = formalArgs[i].symbol.slice(1, -1);
                 nm = formalArgs[i].symbol;
 
                 if (isSymbol(actualArgs[i], nm)) {
-                    formalArgs = formalArgs.slice(0, Math.max(i - 1, 0)).concat(formalArgs.slice(i + 1));
-                    actualArgs = actualArgs.slice(0, Math.max(i - 1, 0)).concat(actualArgs.slice(i + 1));
+                    formalArgs = formalArgs.slice(0, i).concat(formalArgs.slice(i + 1));
+                    actualArgs = actualArgs.slice(0, i).concat(actualArgs.slice(i + 1));
                 } else {
-                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}) is not symbol.`);
+                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}: ${nm}) is not expected symbol.`);
                 }
             }
         }

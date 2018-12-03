@@ -3864,6 +3864,10 @@ describe("operator.core.>=", function() {
 });
 
 
+describe("operator.core.$symbol", function() {
+});
+
+
 describe("operator.core.$gensym", function() {
 });
 

@@ -1108,6 +1108,21 @@ export const $ge = (state: SxParserState, name: string) => (...args: any[]) => {
 export const $$ge = $ge(null as any, null as any);
 
 
+export const $symbol = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($symbol)
+    // S expression: ($symbol name)
+    //  -> S expr  : symbol
+    checkParamsLength('$symbol', args, 1, 1);
+
+    if (typeof args[0] === 'string') {
+        return {symbol: args[0]};
+    } else {
+        throw new Error(`[SX] $symbol: Invalid argument(s): item(s) of args[0] is not string.`);
+    }
+};
+export const $$symbol = $symbol(null as any, null as any);
+
+
 // tslint:disable-next-line:variable-name
 export const $__gensym = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__gensym)

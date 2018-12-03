@@ -162,6 +162,9 @@ export const funcs: SxFuncInfo[] = [{
     name: '>=',
     fn: ops.$ge,
 }, {
+    name: '$symbol',
+    fn: ops.$symbol,
+}, {
     name: '$__gensym',
     fn: ops.$__gensym,
 }, {

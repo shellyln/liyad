@@ -447,3 +447,47 @@ describe("string literal", function() {
         `).toEqual("@123");
     });
 });
+
+
+describe("$eval", function() {
+    it("$eval 1a", function() {
+        expect(lisp`
+            ($eval '(+ 1 2))
+        `).toEqual(3);
+    });
+    it("$eval 1b", function() {
+        expect(lisp`
+            ($eval ($quote (+ 1 2)))
+        `).toEqual(3);
+    });
+    it("$eval 2a", function() {
+        expect(lisp`
+            ($eval \`(+ 1 2))
+        `).toEqual(3);
+    });
+    it("$eval 2b", function() {
+        expect(lisp`
+            ($eval ($backquote (+ 1 2)))
+        `).toEqual(3);
+    });
+    it("$eval 3a", function() {
+        expect(lisp`
+            '(+ 1 2)
+        `).toEqual([{ symbol: '+' }, 1, 2 ]);
+    });
+    it("$eval 3b", function() {
+        expect(lisp`
+            ($quote (+ 1 2))
+        `).toEqual([{ symbol: '+' }, 1, 2 ]);
+    });
+    it("$eval 4a", function() {
+        expect(lisp`
+            \`(+ 1 2)
+        `).toEqual([{ symbol: '+' }, 1, 2 ]);
+    });
+    it("$eval 4b", function() {
+        expect(lisp`
+            ($backquote (+ 1 2))
+        `).toEqual([{ symbol: '+' }, 1, 2 ]);
+    });
+});

@@ -289,7 +289,18 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
                     return r;
                 }
                 if (sym.symbol === state.config.reservedNames.eval) {
-                    return evaluate(state, r[1]);
+                    let z = r.slice(1, 2)[0];
+                    if (Array.isArray(z)) {
+                        const sym2 = isSymbol((z as any)[0]);
+                        if (sym2) {
+                            if (sym2.symbol === state.config.reservedNames.quote) {
+                                z = evaluate(state, z);
+                            } else if (sym2.symbol === state.config.reservedNames.backquote) {
+                                z = evaluate(state, z);
+                            }
+                        }
+                    }
+                    return evaluate(state, z);
                 }
             }
 

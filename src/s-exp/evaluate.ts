@@ -190,9 +190,9 @@ export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], f
     if (Array.isArray(fnBody[fnBody.length - 1])) {
         const front = fnBody.slice(0, fnBody.length - 1);
         const tail = fnBody[fnBody.length - 1];
-        if (tail && tail[0].symbol === state.config.reservedNames.if) {
+        if (tail && (typeof tail[0] === 'object') && tail[0].symbol === state.config.reservedNames.if) {
             // S expression: ($if cond t-expr f-expr)
-            if (Array.isArray(tail[3]) && tail[3][0].symbol === state.config.reservedNames.self) {
+            if (Array.isArray(tail[3]) && (typeof tail[3][0] === 'object') && tail[3][0].symbol === state.config.reservedNames.self) {
                 // S expression (recursive):
                 //     (                                 ;; fnBody
                 //         expr1 ... exprN-1             ;; front

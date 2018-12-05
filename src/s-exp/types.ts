@@ -9,6 +9,10 @@ export type SxMacro = (state: SxParserState, name: string) => (list: SxToken[]) 
 export interface SxMacroInfo {
     name: string;
     fn: SxMacro;
+
+    // TODO: overloading
+    // formalArgs?: SxToken[];
+    // next?: SxMacroInfo;
 }
 
 
@@ -17,6 +21,10 @@ export type SxFunc = (state: SxParserState, name: string) => (...args: any[]) =>
 export interface SxFuncInfo {
     name: string;
     fn: SxFunc;
+
+    // TODO: overloading
+    // formalArgs?: SxToken[];
+    // next?: SxFuncInfo;
 }
 
 
@@ -74,6 +82,11 @@ export interface SxReservedNames {
     not: string;
     and: string;
     or: string;
+
+    isSymbol: string;
+    gensym: string;
+    raise: string;
+    catch: string;
 
     Template: string;
 }

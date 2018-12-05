@@ -1,6 +1,7 @@
 
 
 import { S, lisp, LM, LSX } from '../';
+import { isSymbol } from '../s-exp/ast';
 
 
 
@@ -1545,6 +1546,84 @@ describe("operator.core.$refun", function() {
             (fn 3 5)
         `).toEqual(8);
     });
+});
+
+
+describe("operator.core.$defmacro", function() {
+    it("$defmacro 0a", function() {
+        expect(lisp`
+            ($let x 3)
+            ($let y 5)
+            ($let z 7)
+            ($backquote (* ,x ,y ,z))
+        `).toEqual([{symbol: '*'}, 3, 5, 7]);
+    });
+    it("$defmacro 0b", function() {
+        expect(lisp`
+            ($let x 3)
+            ($let y 5)
+            ($let z 7)
+            \`(* ,x ,y ,z)
+        `).toEqual([{symbol: '*'}, 3, 5, 7]);
+    });
+    it("$defmacro 0c", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($backquote (* ,x ,y ,z))
+        `).toEqual([{symbol: '*'}, [3, 5], [7, 11], [13, 17]]);
+    });
+    it("$defmacro 0d", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            \`(* ,x ,y ,z)
+        `).toEqual([{symbol: '*'}, [3, 5], [7, 11], [13, 17]]);
+    });
+    it("$defmacro 0e", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($backquote (* ,@x ,@y ,@z))
+        `).toEqual([{symbol: '*'}, 3, 5, 7, 11, 13, 17]);
+    });
+    it("$defmacro 0f", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            \`(* ,@x ,@y ,@z)
+        `).toEqual([{symbol: '*'}, 3, 5, 7, 11, 13, 17]);
+    });
+    it("$defmacro 0g", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($eval \`(* ,@x ,@y ,@z))
+        `).toEqual(3 * 5 * 7 * 11 * 13 * 17);
+    });
+    /*
+    it("$defmacro 1a", function() {
+        expect(lisp`
+            ($defmacro foo (x y z)
+                ($backquote (* ,x ,y ,z))
+            )
+            (foo (+ 1 2) (+ 2 3) (+ 3 4))
+        `).toEqual(3 * 5 * 7);
+    });
+    it("$defmacro 1b", function() {
+        expect(lisp`
+            ($defmacro foo (x y z)
+                \`(* ,x ,y ,z)
+            )
+            (foo (+ 1 2) (+ 2 3) (+ 3 4))
+        `).toEqual(3 * 5 * 7);
+    });
+    */
 });
 
 
@@ -3856,6 +3935,165 @@ describe("operator.core.>=", function() {
     });
     it(">= -Infinity 0 -> false", function() {
         expect(lisp`(>= -Infinity 0)`).toEqual(false);
+    });
+});
+
+
+describe("operator.core.$symbol", function() {
+    it("$symbol -> throw", function() {
+        expect(() => lisp`($symbol)`).toThrow();
+    });
+    it("$symbol 1", function() {
+        expect(lisp`
+            ($symbol "foo")
+        `).toEqual({symbol: 'foo'});
+    });
+    it("$symbol 2", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($symbol "foo")
+        `).toEqual({symbol: 'foo'});
+    });
+    it("$symbol 3", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($eval ($symbol "foo"))
+        `).toEqual(3);
+    });
+    it("$symbol 4", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($get ($symbol "foo"))
+        `).toEqual({symbol: 'foo'});
+    });
+    it("$symbol 5", function() {
+        expect(lisp`
+            ($let foo 7)
+            ($get ($eval ($symbol "foo")))
+        `).toEqual(7);
+    });
+    it("$symbol 6", function() {
+        expect(lisp`
+            ($let foo 11)
+            ($list ($eval ($symbol "foo")))
+        `).toEqual([11]);
+    });
+    it("$symbol 7", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($eval ($eval ($symbol "foo")))
+        `).toEqual(3);
+    });
+    it("$symbol 8", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($__get ($symbol "foo"))
+        `).toEqual(3);
+    });
+});
+
+
+describe("operator.core.$gensym", function() {
+    it("$gensym -> throw", function() {
+        expect(() => lisp`($gensym foo bar)`).toThrow();
+    });
+    it("$gensym 1", function() {
+        const v = lisp`
+            ($gensym)
+        `;
+        expect(isSymbol(v) && true).toEqual(true as any);
+    });
+});
+
+
+describe("operator.core.$is-symbol", function() {
+    it("$is-symbol -> throw", function() {
+        expect(() => lisp`($is-symbol)`).toThrow();
+    });
+    it("$is-symbol -> throw", function() {
+        expect(() => lisp`($is-symbol 1 2)`).toThrow();
+    });
+    it("$is-symbol 1", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol ($symbol "foo"))
+        `).toEqual(true);
+    });
+    it("$is-symbol 2", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol foo)
+        `).toEqual(false);
+    });
+    it("$is-symbol 3", function() {
+        expect(lisp`
+            ($is-symbol foo)
+        `).toEqual(false);
+    });
+    it("$is-symbol 4", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol 'foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 5", function() {
+        expect(lisp`
+            ($is-symbol 'foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6a", function() {
+        expect(lisp`
+            ($let foo ($symbol "bar"))
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6b", function() {
+        expect(lisp`
+            ($let foo ($gensym))
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6c", function() {
+        expect(lisp`
+            ($gensym foo)
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6d", function() {
+        expect(lisp`
+            ($gensym "foo")
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 7", function() {
+        expect(lisp`
+            ($is-symbol null)
+        `).toEqual(false);
+    });
+    it("$is-symbol 8", function() {
+        expect(lisp`
+            ($is-symbol nil)
+        `).toEqual(false);
+    });
+    it("$is-symbol 9", function() {
+        expect(lisp`
+            ($is-symbol undefined)
+        `).toEqual(false);
+    });
+    it("$is-symbol 10", function() {
+        expect(lisp`
+            ($is-symbol 5)
+        `).toEqual(false);
+    });
+    it("$is-symbol 11", function() {
+        expect(lisp`
+            ($is-symbol "")
+        `).toEqual(false);
+    });
+    it("$is-symbol 12", function() {
+        expect(lisp`
+            ($is-symbol '(7))
+        `).toEqual(false);
     });
 });
 

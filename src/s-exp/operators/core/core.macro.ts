@@ -395,6 +395,17 @@ export const macros: SxMacroInfo[] = [{
         ];
     },
 }, {
+    name: '$gensym',
+    fn: (state: SxParserState, name: string) => (list) => {
+        // S expression: ($gensym)
+        // S expression: ($gensym name)
+        //  -> S expr  : ($__gensym 'name)
+        return [
+            {symbol: '$__gensym'},
+            ...(list.slice(1).map(x => quote(state, x))),
+        ];
+    },
+}, {
     name: '#',
     fn: (state: SxParserState, name: string) => (list) => {
         // S expression: (# (name value...)...)

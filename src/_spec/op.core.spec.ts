@@ -3958,7 +3958,7 @@ describe("operator.core.$symbol", function() {
         expect(lisp`
             ($let foo 3)
             ($eval ($symbol "foo"))
-        `).toEqual({symbol: 'foo'});
+        `).toEqual(3);
     });
     it("$symbol 4", function() {
         expect(lisp`
@@ -3970,19 +3970,19 @@ describe("operator.core.$symbol", function() {
         expect(lisp`
             ($let foo 7)
             ($get ($eval ($symbol "foo")))
-        `).toEqual({symbol: 'foo'});
+        `).toEqual(7);
     });
     it("$symbol 6", function() {
         expect(lisp`
             ($let foo 11)
             ($list ($eval ($symbol "foo")))
-        `).toEqual([{symbol: 'foo'}]);
+        `).toEqual([11]);
     });
     it("$symbol 7", function() {
         expect(lisp`
             ($let foo 3)
             ($eval ($eval ($symbol "foo")))
-        `).toEqual({symbol: 'foo'});
+        `).toEqual(3);
     });
     it("$symbol 8", function() {
         expect(lisp`

@@ -1,6 +1,7 @@
 
 
 import { S, lisp, LM, LSX } from '../';
+import { isSymbol } from '../s-exp/ast';
 
 
 
@@ -3869,9 +3870,10 @@ describe("operator.core.$symbol", function() {
         expect(() => lisp`($symbol)`).toThrow();
     });
     it("$symbol 1", function() {
-        expect(lisp`($symbol "foo")`).toEqual({symbol: 'foo'});
+        expect(lisp`
+            ($symbol "foo")
+        `).toEqual({symbol: 'foo'});
     });
-/*
     it("$symbol 2", function() {
         expect(lisp`
             ($let foo 3)
@@ -3882,33 +3884,32 @@ describe("operator.core.$symbol", function() {
         expect(lisp`
             ($let foo 3)
             ($eval ($symbol "foo"))
-        `).toEqual(3);
+        `).toEqual({symbol: 'foo'});
     });
     it("$symbol 4", function() {
         expect(lisp`
             ($let foo 5)
             ($get ($symbol "foo"))
-        `).toEqual(5);
+        `).toEqual({symbol: 'foo'});
     });
     it("$symbol 5", function() {
         expect(lisp`
             ($let foo 7)
             ($get ($eval ($symbol "foo")))
-        `).toEqual(7);
+        `).toEqual({symbol: 'foo'});
     });
     it("$symbol 6", function() {
         expect(lisp`
             ($let foo 11)
             ($list ($eval ($symbol "foo")))
-        `).toEqual([11]);
+        `).toEqual([{symbol: 'foo'}]);
     });
     it("$symbol 7", function() {
         expect(lisp`
             ($let foo 3)
             ($eval ($eval ($symbol "foo")))
-        `).toEqual(3);
+        `).toEqual({symbol: 'foo'});
     });
-*/
     it("$symbol 8", function() {
         expect(lisp`
             ($let foo 3)
@@ -3919,12 +3920,106 @@ describe("operator.core.$symbol", function() {
 
 
 describe("operator.core.$gensym", function() {
+    it("$gensym -> throw", function() {
+        expect(() => lisp`($gensym foo bar)`).toThrow();
+    });
+    it("$gensym 1", function() {
+        const v = lisp`
+            ($gensym)
+        `;
+        expect(isSymbol(v) && true).toEqual(true as any);
+    });
 });
 
 
 describe("operator.core.$is-symbol", function() {
     it("$is-symbol -> throw", function() {
         expect(() => lisp`($is-symbol)`).toThrow();
+    });
+    it("$is-symbol -> throw", function() {
+        expect(() => lisp`($is-symbol 1 2)`).toThrow();
+    });
+    it("$is-symbol 1", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol ($symbol "foo"))
+        `).toEqual(true);
+    });
+    it("$is-symbol 2", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol foo)
+        `).toEqual(false);
+    });
+    it("$is-symbol 3", function() {
+        expect(lisp`
+            ($is-symbol foo)
+        `).toEqual(false);
+    });
+    it("$is-symbol 4", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($is-symbol 'foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 5", function() {
+        expect(lisp`
+            ($is-symbol 'foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6a", function() {
+        expect(lisp`
+            ($let foo ($symbol "bar"))
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6b", function() {
+        expect(lisp`
+            ($let foo ($gensym))
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6c", function() {
+        expect(lisp`
+            ($gensym foo)
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 6d", function() {
+        expect(lisp`
+            ($gensym "foo")
+            ($is-symbol foo)
+        `).toEqual(true);
+    });
+    it("$is-symbol 7", function() {
+        expect(lisp`
+            ($is-symbol null)
+        `).toEqual(false);
+    });
+    it("$is-symbol 8", function() {
+        expect(lisp`
+            ($is-symbol nil)
+        `).toEqual(false);
+    });
+    it("$is-symbol 9", function() {
+        expect(lisp`
+            ($is-symbol undefined)
+        `).toEqual(false);
+    });
+    it("$is-symbol 10", function() {
+        expect(lisp`
+            ($is-symbol 5)
+        `).toEqual(false);
+    });
+    it("$is-symbol 11", function() {
+        expect(lisp`
+            ($is-symbol "")
+        `).toEqual(false);
+    });
+    it("$is-symbol 12", function() {
+        expect(lisp`
+            ($is-symbol '(7))
+        `).toEqual(false);
     });
 });
 

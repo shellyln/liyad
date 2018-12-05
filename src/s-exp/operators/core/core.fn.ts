@@ -1137,7 +1137,7 @@ export const $__gensym = (state: SxParserState, name: string) => (...args: any[]
         if (a) {
             $__let(state, '')(a, tempVarSym);
         } else if (typeof args[0] === 'string') {
-            $__let(state, '')(a, {symbol: args[0]});
+            $__let(state, '')({symbol: args[0]}, tempVarSym);
         } else {
             throw new Error(`[SX] $__gensym: Invalid argument(s): item(s) of args[0] is not symbol.`);
         }

@@ -452,9 +452,10 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     //  -> S expr  : fn
     checkParamsLength('$__defmacro', args, 3);
 
-    let formalArgs: SxSymbol[] = args[0];
+    const car: SxSymbol = $$first(...args);
+    let formalArgs: SxSymbol[] = args[1];
     if (! Array.isArray(formalArgs)) {
-        throw new Error(`[SX] $__defmacro: Invalid argument(s): args[0] is not array.`);
+        throw new Error(`[SX] $__defmacro: Invalid argument(s): args[1] is not array.`);
     }
 
     let lastIsSpread = false;
@@ -478,7 +479,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     const fn = (...aArgs: any[]) => {
         let actualArgs = aArgs.slice(0);
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
-            throw new Error(`[SX] macro call (${name}): Actual args too short: actual ${
+            throw new Error(`[SX] macro call (${car.symbol}): Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
         const extra: SxToken[] = [];
@@ -491,7 +492,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
                 if (isSymbol(actualArgs[i])) {
                     extra.push([{symbol: state.config.reservedNames.gensym}, {symbol: nm}]);
                 } else {
-                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}: ${nm}) is not symbol.`);
+                    throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not symbol.`);
                 }
             } else if (nm.startsWith('<') && nm.startsWith('>')) {
                 formalArgs[i].symbol = formalArgs[i].symbol.slice(1, -1);
@@ -501,7 +502,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
                     formalArgs = formalArgs.slice(0, i).concat(formalArgs.slice(i + 1));
                     actualArgs = actualArgs.slice(0, i).concat(actualArgs.slice(i + 1));
                 } else {
-                    throw new Error(`[SX] macro call (${name}): Actual arg(${i}: ${nm}) is not expected symbol.`);
+                    throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not expected symbol.`);
                 }
             }
         }
@@ -517,9 +518,9 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
         ], ...extra, ...fnBody);
     };
 
-    state.macroMap.set(name, {
-        name,
-        fn: (st, nm) => (list) => fn(list.slice(1)),
+    state.macroMap.set(car.symbol, {
+        name: car.symbol,
+        fn: (st, nm) => (list) => fn(...(list.slice(1))),
     });
 
     return fn;

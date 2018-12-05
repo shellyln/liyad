@@ -1550,6 +1550,80 @@ describe("operator.core.$refun", function() {
 
 
 describe("operator.core.$defmacro", function() {
+    it("$defmacro 0a", function() {
+        expect(lisp`
+            ($let x 3)
+            ($let y 5)
+            ($let z 7)
+            ($backquote (* ,x ,y ,z))
+        `).toEqual([{symbol: '*'}, 3, 5, 7]);
+    });
+    it("$defmacro 0b", function() {
+        expect(lisp`
+            ($let x 3)
+            ($let y 5)
+            ($let z 7)
+            \`(* ,x ,y ,z)
+        `).toEqual([{symbol: '*'}, 3, 5, 7]);
+    });
+    it("$defmacro 0c", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($backquote (* ,x ,y ,z))
+        `).toEqual([{symbol: '*'}, [3, 5], [7, 11], [13, 17]]);
+    });
+    it("$defmacro 0d", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            \`(* ,x ,y ,z)
+        `).toEqual([{symbol: '*'}, [3, 5], [7, 11], [13, 17]]);
+    });
+    it("$defmacro 0e", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($backquote (* ,@x ,@y ,@z))
+        `).toEqual([{symbol: '*'}, 3, 5, 7, 11, 13, 17]);
+    });
+    it("$defmacro 0f", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            \`(* ,@x ,@y ,@z)
+        `).toEqual([{symbol: '*'}, 3, 5, 7, 11, 13, 17]);
+    });
+    /*
+    it("$defmacro 0g", function() {
+        expect(lisp`
+            ($let x '(3 5))
+            ($let y '(7 11))
+            ($let z '(13 17))
+            ($eval \`(* ,@x ,@y ,@z))
+        `).toEqual(3 * 5 * 7 * 11 * 13 * 17);
+    });
+    it("$defmacro 1a", function() {
+        expect(lisp`
+            ($defmacro foo (x y z)
+                ($backquote (* ,x ,y ,z))
+            )
+            (foo (+ 1 2) (+ 2 3) (+ 3 4))
+        `).toEqual(3 * 5 * 7);
+    });
+    it("$defmacro 1b", function() {
+        expect(lisp`
+            ($defmacro foo (x y z)
+                \`(* ,x ,y ,z)
+            )
+            (foo (+ 1 2) (+ 2 3) (+ 3 4))
+        `).toEqual(3 * 5 * 7);
+    });
+    */
 });
 
 

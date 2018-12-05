@@ -3865,6 +3865,56 @@ describe("operator.core.>=", function() {
 
 
 describe("operator.core.$symbol", function() {
+    it("$symbol -> throw", function() {
+        expect(() => lisp`($symbol)`).toThrow();
+    });
+    it("$symbol 1", function() {
+        expect(lisp`($symbol "foo")`).toEqual({symbol: 'foo'});
+    });
+/*
+    it("$symbol 2", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($symbol "foo")
+        `).toEqual({symbol: 'foo'});
+    });
+    it("$symbol 3", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($eval ($symbol "foo"))
+        `).toEqual(3);
+    });
+    it("$symbol 4", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($get ($symbol "foo"))
+        `).toEqual(5);
+    });
+    it("$symbol 5", function() {
+        expect(lisp`
+            ($let foo 7)
+            ($get ($eval ($symbol "foo")))
+        `).toEqual(7);
+    });
+    it("$symbol 6", function() {
+        expect(lisp`
+            ($let foo 11)
+            ($list ($eval ($symbol "foo")))
+        `).toEqual([11]);
+    });
+    it("$symbol 7", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($eval ($eval ($symbol "foo")))
+        `).toEqual(3);
+    });
+*/
+    it("$symbol 8", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($__get ($symbol "foo"))
+        `).toEqual(3);
+    });
 });
 
 
@@ -3873,6 +3923,9 @@ describe("operator.core.$gensym", function() {
 
 
 describe("operator.core.$is-symbol", function() {
+    it("$is-symbol -> throw", function() {
+        expect(() => lisp`($is-symbol)`).toThrow();
+    });
 });
 
 

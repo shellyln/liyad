@@ -32,6 +32,10 @@ export function resolveUnquote(state: SxParserState, r: SxToken[]) {
         if (symUnquote) {
             r = r.slice(0, i).concat([evaluate(state, (r[i] as SxToken[])[1])], r.slice(i + 1));
         }
+        if (Array.isArray(r[i])) {
+            r = r.slice(0);
+            r[i] = resolveUnquote(state, r[i] as SxToken[]);
+        }
         const symSplice = Array.isArray(r[i]) && isSymbol((r[i] as SxToken[])[0], state.config.reservedNames.splice);
         if (symSplice) {
             const x = (r[i] as SxToken[])[1];

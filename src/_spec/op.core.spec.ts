@@ -1622,6 +1622,27 @@ describe("operator.core.$defmacro", function() {
             (foo (+ 1 2) (+ 2 3) (+ 3 4))
         `).toEqual(3 * 5 * 7);
     });
+    it("$defmacro 2", function() {
+        expect(lisp`
+            ($defmacro FOR (i <FROM> s <TO> e ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM 1 TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toEqual([6, 106, 'p', 'i', 's', 'e']);
+    });
 });
 
 

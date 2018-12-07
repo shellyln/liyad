@@ -1606,7 +1606,6 @@ describe("operator.core.$defmacro", function() {
             ($eval \`(* ,@x ,@y ,@z))
         `).toEqual(3 * 5 * 7 * 11 * 13 * 17);
     });
-    /*
     it("$defmacro 1a", function() {
         expect(lisp`
             ($defmacro foo (x y z)
@@ -1623,7 +1622,6 @@ describe("operator.core.$defmacro", function() {
             (foo (+ 1 2) (+ 2 3) (+ 3 4))
         `).toEqual(3 * 5 * 7);
     });
-    */
 });
 
 

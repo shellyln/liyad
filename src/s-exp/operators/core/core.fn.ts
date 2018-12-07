@@ -473,7 +473,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
         }
     }
 
-    const fnBody = args.slice(1);
+    const fnBody = args.slice(2);
     const capturedScopes = getCapturedScopes(state);
 
     const fn = (...aArgs: any[]) => {

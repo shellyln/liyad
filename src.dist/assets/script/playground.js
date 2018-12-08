@@ -138,6 +138,25 @@ const exampleCodes = [
 
 ($map ($range 0 20) (<- fac))`},
 
+//// [9] ////
+{name: "Example10: Macro",
+ code:
+`($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
+    \`($last
+        ($local ((,i ,s))
+            ($while (<= ,i ,e)
+                ,@body
+                ($set ,i (+ ,i 1)) ))))
+
+
+($let c1   0)
+($let c2 100)
+(FOR p [ FROM (+ 1) TO (+ 6 -3) ]
+    ($set c1 (+ c1 p))
+    ($set c2 (+ c2 p)) )
+
+($list c1 c2 p i s e)`}
+
 ];
 
 

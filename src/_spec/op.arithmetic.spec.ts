@@ -1658,3 +1658,411 @@ describe("operator.core.$sign", function() {
         expect(lisp`($sign "a")`).toEqual(NaN);
     });
 });
+
+
+describe("operator.core.$incl", function() {
+    it("$incl -> throw", function() {
+        expect(() => lisp`($incl)`).toThrow();
+    });
+    it("$incl -> throw", function() {
+        expect(() => lisp`
+            ($incl 1)
+        `).toThrow();
+    });
+    it("$incl -> throw", function() {
+        expect(() => lisp`
+            ($incl "a")
+        `).toThrow();
+    });
+    it("$incl -> throw", function() {
+        expect(() => lisp`
+            ($incl foo)
+        `).toThrow();
+    });
+    it("$incl -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($incl foo 1)
+        `).toThrow();
+    });
+    it("$incl", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($incl foo)
+        `).toEqual(4);
+    });
+    it("$incl", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($incl foo)
+            ($get foo)
+        `).toEqual(6);
+    });
+    it("$incl", function() {
+        expect(lisp`
+            ($let foo "5")
+            ($incl foo)
+            ($get foo)
+        `).toEqual(6);
+    });
+});
+
+
+describe("operator.core.++", function() {
+    it("++ -> throw", function() {
+        expect(() => lisp`(++)`).toThrow();
+    });
+    it("++ -> throw", function() {
+        expect(() => lisp`
+            (++ 1)
+        `).toThrow();
+    });
+    it("++ -> throw", function() {
+        expect(() => lisp`
+            (++ "a")
+        `).toThrow();
+    });
+    it("++ -> throw", function() {
+        expect(() => lisp`
+            (++ foo)
+        `).toThrow();
+    });
+    it("++ -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (++ foo 1)
+        `).toThrow();
+    });
+    it("++", function() {
+        expect(lisp`
+            ($let foo 3)
+            (++ foo)
+        `).toEqual(4);
+    });
+    it("++", function() {
+        expect(lisp`
+            ($let foo 5)
+            (++ foo)
+            ($get foo)
+        `).toEqual(6);
+    });
+    it("++", function() {
+        expect(lisp`
+            ($let foo "5")
+            (++ foo)
+            ($get foo)
+        `).toEqual(6);
+    });
+});
+
+
+describe("operator.core.$decl", function() {
+    it("$decl -> throw", function() {
+        expect(() => lisp`($decl)`).toThrow();
+    });
+    it("$decl -> throw", function() {
+        expect(() => lisp`
+            ($decl 1)
+        `).toThrow();
+    });
+    it("$decl -> throw", function() {
+        expect(() => lisp`
+            ($decl "a")
+        `).toThrow();
+    });
+    it("$decl -> throw", function() {
+        expect(() => lisp`
+            ($decl foo)
+        `).toThrow();
+    });
+    it("$decl -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($decl foo 1)
+        `).toThrow();
+    });
+    it("$decl", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($decl foo)
+        `).toEqual(2);
+    });
+    it("$decl", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($decl foo)
+            ($get foo)
+        `).toEqual(4);
+    });
+    it("$decl", function() {
+        expect(lisp`
+            ($let foo "5")
+            ($decl foo)
+            ($get foo)
+        `).toEqual(4);
+    });
+});
+
+
+describe("operator.core.--", function() {
+    it("-- -> throw", function() {
+        expect(() => lisp`(--)`).toThrow();
+    });
+    it("-- -> throw", function() {
+        expect(() => lisp`
+            (-- 1)
+        `).toThrow();
+    });
+    it("-- -> throw", function() {
+        expect(() => lisp`
+            (-- "a")
+        `).toThrow();
+    });
+    it("-- -> throw", function() {
+        expect(() => lisp`
+            (-- foo)
+        `).toThrow();
+    });
+    it("-- -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (-- foo 1)
+        `).toThrow();
+    });
+    it("--", function() {
+        expect(lisp`
+            ($let foo 3)
+            (-- foo)
+        `).toEqual(2);
+    });
+    it("--", function() {
+        expect(lisp`
+            ($let foo 5)
+            (-- foo)
+            ($get foo)
+        `).toEqual(4);
+    });
+    it("--", function() {
+        expect(lisp`
+            ($let foo "5")
+            (-- foo)
+            ($get foo)
+        `).toEqual(4);
+    });
+});
+
+
+describe("operator.core.$incln", function() {
+    it("$incln -> throw", function() {
+        expect(() => lisp`($incln)`).toThrow();
+    });
+    it("$incln -> throw", function() {
+        expect(() => lisp`
+            ($incln 1)
+        `).toThrow();
+    });
+    it("$incln -> throw", function() {
+        expect(() => lisp`
+            ($incln "a")
+        `).toThrow();
+    });
+    it("$incln -> throw", function() {
+        expect(() => lisp`
+            ($incln foo 7)
+        `).toThrow();
+    });
+    it("$incln -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($incln foo)
+        `).toThrow();
+    });
+    it("$incln -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($incln foo 7 11)
+        `).toThrow();
+    });
+    it("$incln", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($incln foo 7)
+        `).toEqual(10);
+    });
+    it("$incln", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($incln foo 7)
+            ($get foo)
+        `).toEqual(12);
+    });
+    it("$incln", function() {
+        expect(lisp`
+            ($let foo "5")
+            ($incln foo 7)
+            ($get foo)
+        `).toEqual(12);
+    });
+});
+
+
+describe("operator.core.+=", function() {
+    it("+= -> throw", function() {
+        expect(() => lisp`(+=)`).toThrow();
+    });
+    it("+= -> throw", function() {
+        expect(() => lisp`
+            (+= 1)
+        `).toThrow();
+    });
+    it("+= -> throw", function() {
+        expect(() => lisp`
+            (+= "a")
+        `).toThrow();
+    });
+    it("+= -> throw", function() {
+        expect(() => lisp`
+            (+= foo 7)
+        `).toThrow();
+    });
+    it("+= -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (+= foo)
+        `).toThrow();
+    });
+    it("+= -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (+= foo 7 11)
+        `).toThrow();
+    });
+    it("+=", function() {
+        expect(lisp`
+            ($let foo 3)
+            (+= foo 7)
+        `).toEqual(10);
+    });
+    it("+=", function() {
+        expect(lisp`
+            ($let foo 5)
+            (+= foo 7)
+            ($get foo)
+        `).toEqual(12);
+    });
+    it("+=", function() {
+        expect(lisp`
+            ($let foo "5")
+            (+= foo 7)
+            ($get foo)
+        `).toEqual(12);
+    });
+});
+
+
+describe("operator.core.$decln", function() {
+    it("$decln -> throw", function() {
+        expect(() => lisp`($decln)`).toThrow();
+    });
+    it("$decln -> throw", function() {
+        expect(() => lisp`
+            ($decln 1)
+        `).toThrow();
+    });
+    it("$decln -> throw", function() {
+        expect(() => lisp`
+            ($decln "a")
+        `).toThrow();
+    });
+    it("$decln -> throw", function() {
+        expect(() => lisp`
+            ($decln foo 7)
+        `).toThrow();
+    });
+    it("$decln -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($decln foo)
+        `).toThrow();
+    });
+    it("$decln -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            ($decln foo 7 11)
+        `).toThrow();
+    });
+    it("$decln", function() {
+        expect(lisp`
+            ($let foo 3)
+            ($decln foo 7)
+        `).toEqual(-4);
+    });
+    it("$decln", function() {
+        expect(lisp`
+            ($let foo 5)
+            ($decln foo 7)
+            ($get foo)
+        `).toEqual(-2);
+    });
+    it("$decln", function() {
+        expect(lisp`
+            ($let foo "5")
+            ($decln foo 7)
+            ($get foo)
+        `).toEqual(-2);
+    });
+});
+
+
+describe("operator.core.-=", function() {
+    it("-= -> throw", function() {
+        expect(() => lisp`(-=)`).toThrow();
+    });
+    it("-= -> throw", function() {
+        expect(() => lisp`
+            (-= 1)
+        `).toThrow();
+    });
+    it("-= -> throw", function() {
+        expect(() => lisp`
+            (-= "a")
+        `).toThrow();
+    });
+    it("-= -> throw", function() {
+        expect(() => lisp`
+            (-= foo 7)
+        `).toThrow();
+    });
+    it("-= -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (-= foo)
+        `).toThrow();
+    });
+    it("-= -> throw", function() {
+        expect(() => lisp`
+            ($let foo 3)
+            (-= foo 7 11)
+        `).toThrow();
+    });
+    it("-=", function() {
+        expect(lisp`
+            ($let foo 3)
+            (-= foo 7)
+        `).toEqual(-4);
+    });
+    it("-=", function() {
+        expect(lisp`
+            ($let foo 5)
+            (-= foo 7)
+            ($get foo)
+        `).toEqual(-2);
+    });
+    it("-=", function() {
+        expect(lisp`
+            ($let foo "5")
+            (-= foo 7)
+            ($get foo)
+        `).toEqual(-2);
+    });
+});

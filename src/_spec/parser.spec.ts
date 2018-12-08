@@ -469,6 +469,120 @@ describe("compiler", function() {
             (fn 13 6 1)
         `).toEqual(20);
     });
+    it("compiler 5a", function() {
+        // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2
+        expect(lisp`
+            ($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
+                `($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1)) ))))
+
+            ($$defun foo ()
+                ($let c1   0)
+                ($let c2 100)
+                (FOR p [ FROM (+ 1) TO (+ 6 -3) ]
+                    ($set c1 (+ c1 p))
+                    ($set c2 (+ c2 p)) )
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, "p", "i", "s", "e"]);
+    });
+    it("compiler 5a2", function() {
+        // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2
+        expect(lisp`
+            ($$defun foo ()
+                ($let c1   0)
+                ($let c2 100)
+                ($last
+                    ($local ((p (+ 1)))
+                        ($while (<= p (+ 6 -3))
+                            ($set c1 (+ c1 p))
+                            ($set c2 (+ c2 p))
+                            ($set p (+ p 1)) )))
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, "p", "i", "s", "e"]);
+    });
+    it("compiler 5b", function() {
+        // TypeError: (intermediate value)(intermediate value) is not a function
+        expect(lisp`
+            ($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
+                `($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1)) ))))
+
+            ($let c1   0)
+            ($let c2 100)
+            ($$defun foo ()
+                (FOR p [ FROM (+ 1) TO (+ 6 -3) ]
+                    ($set c1 (+ c1 p))
+                    ($set c2 (+ c2 p)) )
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, "p", "i", "s", "e"]);
+    });
+    it("compiler 5b2", function() {
+        // TypeError: (intermediate value)(intermediate value) is not a function
+        expect(lisp`
+            ($let c1   0)
+            ($let c2 100)
+            ($$defun foo ()
+                ($last
+                    ($local ((p (+ 1)))
+                        ($while (<= p (+ 6 -3))
+                            ($set c1 (+ c1 p))
+                            ($set c2 (+ c2 p))
+                            ($set p (+ p 1)) )))
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, "p", "i", "s", "e"]);
+    });
+    it("compiler 5b3", function() {
+        // TypeError: (intermediate value)(intermediate value) is not a function
+        expect(lisp`
+            ($let c1   0)
+            ($let c2 100)
+            ($let p (+ 1))
+            ($defun foo ()
+                ($while (<= p (+ 6 -3))
+                    ($set c1 (+ c1 p))
+                    ($set c2 (+ c2 p))
+                    ($set p (+ p 1)) )
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, 4, "i", "s", "e"]);
+    });
+    it("compiler 5b4", function() {
+        // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2.
+        expect(lisp`
+            ($$defun foo ()
+                ($let c1   0)
+                ($let c2 100)
+                ($let p (+ 1))
+                ($while (<= p (+ 6 -3))
+                    ($set c1 (+ c1 p))
+                    ($set c2 (+ c2 p))
+                    ($set p (+ p 1)) )
+
+                ($list c1 c2 p i s e) )
+
+            (foo)
+        `).toEqual([6, 106, "p", "i", "s", "e"]);
+    });
     it("compiler 999", function() {
         expect(lisp`
             (+ 0)

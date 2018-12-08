@@ -372,6 +372,109 @@ describe("compiler", function() {
             ($map ($range 0 20) (<- fib))
         `).toEqual([0, 2, 3, 7, 13, 23, 39, 65, 107, 175, 285, 463, 751, 1217, 1971, 3191, 5165, 8359, 13527, 21889, 35419]);
     });
+
+    // TODO: generated code don't check actual arguments length.
+    // it("compiler 3a", function() {
+    //     expect(() => lisp`
+    //         ($$defun foo (a b ...c)
+    //             ($list ($list a) ($list b) c)
+    //         )
+    //         (foo 1)
+    //     `).toThrow();
+    // });
+    it("compiler 3b", function() {
+        expect(lisp`
+            ($$defun foo (a b ...c)
+                ($list ($list a) ($list b) c)
+            )
+            (foo 1 2)
+        `).toEqual([[1], [2], []]);
+    });
+
+    /*
+    // TODO: compiler bugs
+    it("compiler 3c", function() {
+        expect(lisp`
+            ($$defun foo (a b ...c)
+                ($list ($list a) ($list b) c)
+            )
+            (foo 1 2 3)
+        `).toEqual([[1], [2], [3]]);
+    });
+    it("compiler 3d", function() {
+        expect(lisp`
+            ($$defun foo (a b ...c)
+                ($list ($list a) ($list b) c)
+            )
+            (foo 1 2 3 4)
+        `).toEqual([[1], [2], [3, 4]]);
+    });
+    it("compiler 4a", function() {
+        expect(lisp`
+            ($let fn (-> (...a) ($concat ...a)) )
+            (fn "a" "b")
+        `).toEqual('ab');
+    });
+    it("compiler 4b", function() {
+        // Expected [ Object({ symbol: '$spread' }), Object({ symbol: 'a' }), 'a', 'b' ] to equal 'ab'.
+        // (function(...a0){"strict";var x0;return((_$_vars[1].concat(...((a0)))))})
+        // _$_vars: length===2
+        // _$_vars[1]: [{"symbol":"$spread"},{"symbol":"a"}]
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a)) )
+            (fn "a" "b")
+        `).toEqual('ab');
+    });
+    it("compiler 4c", function() {
+        expect(lisp`
+            ($defun fn (...a) ($concat ...a))
+            (fn "a" "b")
+        `).toEqual('ab');
+    });
+    it("compiler 4d", function() {
+        // Expected [ Object({ symbol: '$spread' }), Object({ symbol: 'a' }), 'a', 'b' ] to equal 'ab'.
+        // (function(...a0){"strict";var x0;return((_$_vars[1].concat(...((a0)))))})
+        // _$_vars: length===2
+        // _$_vars[1]: [{"symbol":"$spread"},{"symbol":"a"}]
+        expect(lisp`
+            ($$defun fn (...a) ($concat ...a))
+            (fn "a" "b")
+        `).toEqual('ab');
+    });
+    it("compiler 4d2", function() {
+        // TypeError: _$_vars[1].concat is not a function
+        // (function(a0,a1){"strict";var x0;return((_$_vars[1].concat((a0),(a1))))})
+        // _$_vars: length===2
+        // _$_vars[1]: {symbol: "a"}
+        expect(lisp`
+            ($$defun fn (a b) ($concat a b))
+            (fn "a" "b")
+        `).toEqual('ab');
+    });
+    it("compiler 4e", function() {
+        expect(lisp`
+            ($defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(20);
+    });
+    it("compiler 4f", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(20);
+    });
+    it("compiler 999", function() {
+        expect(lisp`
+            (+ 0)
+        `).toEqual(0);
+    });
+    */
 });
 
 

@@ -1643,6 +1643,219 @@ describe("operator.core.$defmacro", function() {
             ($list c1 c2 p i s e)
         `).toEqual([6, 106, 'p', 'i', 's', 'e']);
     });
+    it("$defmacro 2b", function() {
+        expect(lisp`
+            ($defmacro FOR (i <FROM> s <TO> e ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM (+ 1) TO (+ 6 -3)
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toEqual([6, 106, 'p', 'i', 's', 'e']);
+    });
+    it("$defmacro 3a", function() {
+        expect(lisp`
+            ($defmacro FOR (!i <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM 1 TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toEqual([6, 106, 'p', 'i', 's', 'e']);
+    });
+    it("$defmacro 3b", function() {
+        expect(() => lisp`
+            ($defmacro FOR (!i <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p from 1 TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3b2", function() {
+        expect(() => lisp`
+            ($defmacro FOR (i:symbol <FROM> s:number <TO> e:number ...body:any)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p from 1 TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3c", function() {
+        expect(() => lisp`
+            ($defmacro FOR (!i <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM (+ 1) TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3d", function() {
+        expect(() => lisp`
+            ($defmacro FOR (!i <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM 1 to 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3e", function() {
+        expect(() => lisp`
+            ($defmacro FOR (!i <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM 1 TO (+ 3)
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3f", function() {
+        expect(() => lisp`
+            ($defmacro FOR (i:symbol <FROM> s:number <TO> e:number ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR "p" FROM 1 TO 3
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toThrow();
+    });
+    it("$defmacro 3g", function() {
+        expect(lisp`
+            ($defmacro FOR (i:symbol <FROM> s:number <TO> e:function ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM 1 TO (+ 3)
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e)
+        `).toEqual([6, 106, 'p', 'i', 's', 'e']);
+    });
+    it("$defmacro 4", function() {
+        expect(lisp`
+            ($defmacro foo (x:string y:string z:string)
+                ($backquote ($concat ,x ,y ,z))
+            )
+            (foo "aaa" "bbb" "ccc")
+        `).toEqual('aaabbbccc');
+    });
+    it("$defmacro 4b", function() {
+        expect(() => lisp`
+            ($defmacro foo (x:string y:string z:string)
+                ($backquote ($concat ,x ,y ,z))
+            )
+            (foo 1 "bbb" "ccc")
+        `).toThrow();
+    });
+    it("$defmacro 4c", function() {
+        expect(() => lisp`
+            ($defmacro foo (x:string y:string z:string)
+                ($backquote ($concat ,x ,y ,z))
+            )
+            (foo "aaa" "bbb" 3)
+        `).toThrow();
+    });
 });
 
 

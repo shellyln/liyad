@@ -25,7 +25,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     } = ctx;
 
 
-    ops.set('$quote', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.quote, function(r: SxToken[], args: SxToken[]) {
         let compFnBody = '';
         _$_vars[ctx.varsCount] = r[1];
         compFnBody += `(_$_vars[${String(ctx.varsCount++)}])`;
@@ -33,7 +33,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$self', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.self, function(r: SxToken[], args: SxToken[]) {
         let compFnBody = '';
         compFnBody += `((_$_vars[0])(${
             args.map(x => compileToken([stripQuoteOrPass(state, x)], 0)).join(',')}))`;
@@ -241,7 +241,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$raise', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.raise, function(r: SxToken[], args: SxToken[]) {
         // S expression: ($raise 'expr)
         //  -> S expr  : -
         let compFnBody = '';
@@ -350,7 +350,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$not', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.not, function(r: SxToken[], args: SxToken[]) {
         // S expression: ($not any)
         //  -> S expr  : boolean
         let compFnBody = '';
@@ -487,7 +487,36 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:+', args, 1);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('+')})`;
+
+        /*
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            args.map((x, idx, arr) => {
+                if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                    //
+                } else {
+                    //
+                }
+            });
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('+')})`;
+        }
+        return compFnBody;
+        */
+
+        compFnBody += `(${args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                const w1 = compileToken(x, 1);
+                return `(${w1}.length>0?(${w1}.reduce((x,y)=>x+y)):0)`;
+            } else {
+                return compileToken(arr, idx);
+            }
+        }).join('+')})`;
         return compFnBody;
     });
 

@@ -495,7 +495,7 @@ describe("compiler", function() {
             (fn 13 6 1)
         `).toEqual(20);
     });
-    it("compiler 4f", function() {
+    it("compiler 4fa", function() {
         // SyntaxError: Unexpected token ...
         // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
@@ -504,6 +504,56 @@ describe("compiler", function() {
             )
             (fn 13 6 1)
         `).toEqual(20);
+    });
+    it("compiler 4fb", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6)
+        `).toEqual(19);
+    });
+    it("compiler 4fc", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(24);
+    });
+    it("compiler 4fd", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6 1)
+        `).toEqual(20);
+    });
+    it("compiler 4fe", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6)
+        `).toEqual(19);
+    });
+    it("compiler 4ff", function() {
+        // SyntaxError: Unexpected token ...
+        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(24);
     });
     it("compiler 5a", function() {
         // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2

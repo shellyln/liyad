@@ -472,7 +472,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         let w1 = '';
         if (Array.isArray(args[0]) && isSymbol((args[0] as any)[0], state.config.reservedNames.spread)) {
             const w0 = compileToken(args[0] as any, 1);
-            w1 = `(${w0}[0]).concat((${w0}.length>1?${w0}[1]:(typeof ${w0}==='string'?'':[])),`;
+            w1 = `(${w0}[0]).concat((${w0}.length>1?${w0}[1]:(typeof ${w0}[0]==='string'?'':[])),`;
         } else {
             w1 = `${compileToken(args as any, 0)}.concat(`;
         }

@@ -488,7 +488,6 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         let compFnBody = '';
         checkParamsLength('compileToken:+', args, 1);
 
-        /*
         let hasSpread = false;
         args.map((x, idx, arr) => {
             if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
@@ -496,27 +495,12 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
             }
         });
         if (hasSpread) {
-            args.map((x, idx, arr) => {
-                if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
-                    //
-                } else {
-                    //
-                }
-            });
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+            };return _$_rv.reduce((x,y)=>x+y);})())`;
         } else {
             compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('+')})`;
         }
-        return compFnBody;
-        */
-
-        compFnBody += `(${args.map((x, idx, arr) => {
-            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
-                const w1 = compileToken(x, 1);
-                return `(${w1}.length>0?(${w1}.reduce((x,y)=>x+y)):0)`;
-            } else {
-                return compileToken(arr, idx);
-            }
-        }).join('+')})`;
         return compFnBody;
     });
 
@@ -526,9 +510,22 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:-', args, 1);
-        compFnBody += `(${r.length > 2 ?
-            args.map((x, idx, arr) => compileToken(arr, idx)).join('-') :
-            `-(${String(compileToken(r, 1))})`})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return (_$_rv.length>1?(_$_rv.reduce((x,y)=>x-y)):(_$_rv.length>0?-_$_rv[0]:NaN));})())`;
+        } else {
+            compFnBody += `(${r.length > 2 ?
+                args.map((x, idx, arr) => compileToken(arr, idx)).join('-') :
+                `-(${String(compileToken(r, 1))})`})`;
+        }
         return compFnBody;
     });
 
@@ -538,7 +535,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:*', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('*')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x*y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('*')})`;
+        }
         return compFnBody;
     });
 
@@ -548,7 +558,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:**', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('**')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x**y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('**')})`;
+        }
         return compFnBody;
     });
 
@@ -558,7 +581,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:/', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('/')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x/y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('/')})`;
+        }
         return compFnBody;
     });
 
@@ -568,7 +604,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:%', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('%')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x%y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('%')})`;
+        }
         return compFnBody;
     });
 

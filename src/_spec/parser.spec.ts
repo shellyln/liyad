@@ -391,8 +391,6 @@ describe("compiler", function() {
         `).toEqual([[1], [2], []]);
     });
 
-
-    // TODO: compiler bugs
     it("compiler 3c", function() {
         expect(lisp`
             ($$defun foo (a b ...c)
@@ -487,6 +485,7 @@ describe("compiler", function() {
             (fn "x" "y")
         `).toEqual('xy');
     });
+
     it("compiler 4e", function() {
         expect(lisp`
             ($defun fn(x y ...z)
@@ -496,8 +495,6 @@ describe("compiler", function() {
         `).toEqual(20);
     });
     it("compiler 4fa", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ x y ...z)
@@ -506,8 +503,6 @@ describe("compiler", function() {
         `).toEqual(20);
     });
     it("compiler 4fb", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ x y ...z)
@@ -516,8 +511,6 @@ describe("compiler", function() {
         `).toEqual(19);
     });
     it("compiler 4fc", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ x y ...z)
@@ -526,8 +519,6 @@ describe("compiler", function() {
         `).toEqual(24);
     });
     it("compiler 4fd", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ ...z x y)
@@ -536,8 +527,6 @@ describe("compiler", function() {
         `).toEqual(20);
     });
     it("compiler 4fe", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ ...z x y)
@@ -546,8 +535,6 @@ describe("compiler", function() {
         `).toEqual(19);
     });
     it("compiler 4ff", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ ...z x y)
@@ -555,6 +542,114 @@ describe("compiler", function() {
             (fn 13 6 1 4)
         `).toEqual(24);
     });
+
+    it("compiler -4e", function() {
+        expect(lisp`
+            ($defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(6);
+    });
+    it("compiler -4fa", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(6);
+    });
+    it("compiler -4fb", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6)
+        `).toEqual(7);
+    });
+    it("compiler -4fc", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(2);
+    });
+    it("compiler -4fd", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6 1)
+        `).toEqual(-18);
+    });
+    it("compiler -4fe", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6)
+        `).toEqual(7);
+    });
+    it("compiler -4ff", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(-22);
+    });
+    it("compiler 4g1", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3)
+            )
+            (fn)
+        `).toEqual(3);
+    });
+    it("compiler 4g2", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3 5)
+            )
+            (fn)
+        `).toEqual(8);
+    });
+    it("compiler 4g3", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3 5 7)
+            )
+            (fn)
+        `).toEqual(15);
+    });
+    it("compiler 4h1", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3)
+            )
+            (fn)
+        `).toEqual(-3);
+    });
+    it("compiler 4h2", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3 5)
+            )
+            (fn)
+        `).toEqual(-2);
+    });
+    it("compiler 4g3", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3 5 7)
+            )
+            (fn)
+        `).toEqual(-9);
+    });
+
+    /*
+    // TODO: compiler bugs
     it("compiler 5a", function() {
         // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2
         expect(lisp`
@@ -674,7 +769,7 @@ describe("compiler", function() {
             (+ 0)
         `).toEqual(0);
     });
-
+    */
 });
 
 

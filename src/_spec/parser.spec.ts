@@ -391,8 +391,6 @@ describe("compiler", function() {
         `).toEqual([[1], [2], []]);
     });
 
-    /*
-    // TODO: compiler bugs
     it("compiler 3c", function() {
         expect(lisp`
             ($$defun foo (a b ...c)
@@ -412,45 +410,82 @@ describe("compiler", function() {
     it("compiler 4a", function() {
         expect(lisp`
             ($let fn (-> (...a) ($concat ...a)) )
-            (fn "a" "b")
-        `).toEqual('ab');
+            (fn "x" "y")
+        `).toEqual('xy');
     });
-    it("compiler 4b", function() {
-        // Expected [ Object({ symbol: '$spread' }), Object({ symbol: 'a' }), 'a', 'b' ] to equal 'ab'.
-        // (function(...a0){"strict";var x0;return((_$_vars[1].concat(...((a0)))))})
-        // _$_vars: length===2
-        // _$_vars[1]: [{"symbol":"$spread"},{"symbol":"a"}]
+    it("compiler 4b0a", function() {
         expect(lisp`
             ($let fn (=> (...a) ($concat ...a)) )
-            (fn "a" "b")
-        `).toEqual('ab');
+            (fn "x")
+        `).toEqual('x');
+    });
+    it("compiler 4b0a2", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a ...a)) )
+            (fn "x")
+        `).toEqual('xx');
+    });
+    it("compiler 4b0b", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a)) )
+            (fn ($list 3))
+        `).toEqual([3]);
+    });
+    it("compiler 4b0b", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a ...a)) )
+            (fn ($list 3))
+        `).toEqual([3, 3]);
+    });
+    it("compiler 4b1", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a)) )
+            (fn "x" "y")
+        `).toEqual('xy');
+    });
+    it("compiler 4b1a", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a)) )
+            (fn ($list 3) ($list 5))
+        `).toEqual([3, 5]);
+    });
+    it("compiler 4b2", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat ...a ...a)) )
+            (fn ($list 3) ($list 5))
+        `).toEqual([3, 5, 3, 5]);
+    });
+    it("compiler 4b3", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat "p")) )
+            (fn "x" "y")
+        `).toEqual('p');
+    });
+    it("compiler 4b4", function() {
+        expect(lisp`
+            ($let fn (=> (...a) ($concat "p" "q")) )
+            (fn "x" "y")
+        `).toEqual('pq');
     });
     it("compiler 4c", function() {
         expect(lisp`
             ($defun fn (...a) ($concat ...a))
-            (fn "a" "b")
-        `).toEqual('ab');
+            (fn "x" "y")
+        `).toEqual('xy');
     });
     it("compiler 4d", function() {
-        // Expected [ Object({ symbol: '$spread' }), Object({ symbol: 'a' }), 'a', 'b' ] to equal 'ab'.
-        // (function(...a0){"strict";var x0;return((_$_vars[1].concat(...((a0)))))})
-        // _$_vars: length===2
-        // _$_vars[1]: [{"symbol":"$spread"},{"symbol":"a"}]
         expect(lisp`
             ($$defun fn (...a) ($concat ...a))
-            (fn "a" "b")
-        `).toEqual('ab');
+            (fn "x" "y")
+        `).toEqual('xy');
     });
     it("compiler 4d2", function() {
-        // TypeError: _$_vars[1].concat is not a function
-        // (function(a0,a1){"strict";var x0;return((_$_vars[1].concat((a0),(a1))))})
-        // _$_vars: length===2
-        // _$_vars[1]: {symbol: "a"}
         expect(lisp`
             ($$defun fn (a b) ($concat a b))
-            (fn "a" "b")
-        `).toEqual('ab');
+            (fn "x" "y")
+        `).toEqual('xy');
     });
+
     it("compiler 4e", function() {
         expect(lisp`
             ($defun fn(x y ...z)
@@ -459,9 +494,7 @@ describe("compiler", function() {
             (fn 13 6 1)
         `).toEqual(20);
     });
-    it("compiler 4f", function() {
-        // SyntaxError: Unexpected token ...
-        // (function(a0,a1,...a2){"strict";var x0;return(((a0)+(a1)+...((a2))))})
+    it("compiler 4fa", function() {
         expect(lisp`
             ($$defun fn(x y ...z)
                 (+ x y ...z)
@@ -469,11 +502,159 @@ describe("compiler", function() {
             (fn 13 6 1)
         `).toEqual(20);
     });
+    it("compiler 4fb", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6)
+        `).toEqual(19);
+    });
+    it("compiler 4fc", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ x y ...z)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(24);
+    });
+    it("compiler 4fd", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6 1)
+        `).toEqual(20);
+    });
+    it("compiler 4fe", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6)
+        `).toEqual(19);
+    });
+    it("compiler 4ff", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (+ ...z x y)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(24);
+    });
+
+    it("compiler -4e", function() {
+        expect(lisp`
+            ($defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(6);
+    });
+    it("compiler -4fa", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1)
+        `).toEqual(6);
+    });
+    it("compiler -4fb", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6)
+        `).toEqual(7);
+    });
+    it("compiler -4fc", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- x y ...z)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(2);
+    });
+    it("compiler -4fd", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6 1)
+        `).toEqual(-18);
+    });
+    it("compiler -4fe", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6)
+        `).toEqual(7);
+    });
+    it("compiler -4ff", function() {
+        expect(lisp`
+            ($$defun fn(x y ...z)
+                (- ...z x y)
+            )
+            (fn 13 6 1 4)
+        `).toEqual(-22);
+    });
+    it("compiler 4g1", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3)
+            )
+            (fn)
+        `).toEqual(3);
+    });
+    it("compiler 4g2", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3 5)
+            )
+            (fn)
+        `).toEqual(8);
+    });
+    it("compiler 4g3", function() {
+        expect(lisp`
+            ($$defun fn()
+                (+ 3 5 7)
+            )
+            (fn)
+        `).toEqual(15);
+    });
+    it("compiler 4h1", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3)
+            )
+            (fn)
+        `).toEqual(-3);
+    });
+    it("compiler 4h2", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3 5)
+            )
+            (fn)
+        `).toEqual(-2);
+    });
+    it("compiler 4g3", function() {
+        expect(lisp`
+            ($$defun fn()
+                (- 3 5 7)
+            )
+            (fn)
+        `).toEqual(-9);
+    });
+
+    /*
+    // TODO: compiler bugs
     it("compiler 5a", function() {
         // Error: [SX] compileToken:$__let: Invalid argument length: expected: 1 / args: 2
         expect(lisp`
             ($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
-                `($last
+                \`($last
                     ($local ((,i ,s))
                         ($while (<= ,i ,e)
                             ,@body
@@ -513,7 +694,7 @@ describe("compiler", function() {
         // TypeError: (intermediate value)(intermediate value) is not a function
         expect(lisp`
             ($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
-                `($last
+                \`($last
                     ($local ((,i ,s))
                         ($while (<= ,i ,e)
                             ,@body
@@ -555,7 +736,7 @@ describe("compiler", function() {
             ($let c1   0)
             ($let c2 100)
             ($let p (+ 1))
-            ($defun foo ()
+            ($$defun foo ()
                 ($while (<= p (+ 6 -3))
                     ($set c1 (+ c1 p))
                     ($set c2 (+ c2 p))
@@ -581,7 +762,7 @@ describe("compiler", function() {
                 ($list c1 c2 p i s e) )
 
             (foo)
-        `).toEqual([6, 106, "p", "i", "s", "e"]);
+        `).toEqual([6, 106, 4, "i", "s", "e"]);
     });
     it("compiler 999", function() {
         expect(lisp`

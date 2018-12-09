@@ -77,7 +77,7 @@ function compileCore(state: SxParserState, formalArgs: SxSymbol[], lastIsSpread:
                             if (ops.has(sym.symbol)) {
                                 compFnBody += (ops.get(sym.symbol) as CompilerOperator)(r, args);
                             } else {
-                                if (sym.symbol === '$spread') {
+                                if (sym.symbol === state.config.reservedNames.spread) {
                                     compFnBody += `...(${
                                         args.map((x) => compileToken([stripQuoteOrPass(state, x)], 0)).join(',')})`;
                                 } else if (state.funcMap.has(sym.symbol)) {

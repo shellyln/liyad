@@ -25,7 +25,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     } = ctx;
 
 
-    ops.set('$quote', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.quote, function(r: SxToken[], args: SxToken[]) {
         let compFnBody = '';
         _$_vars[ctx.varsCount] = r[1];
         compFnBody += `(_$_vars[${String(ctx.varsCount++)}])`;
@@ -33,7 +33,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$self', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.self, function(r: SxToken[], args: SxToken[]) {
         let compFnBody = '';
         compFnBody += `((_$_vars[0])(${
             args.map(x => compileToken([stripQuoteOrPass(state, x)], 0)).join(',')}))`;
@@ -241,7 +241,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$raise', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.raise, function(r: SxToken[], args: SxToken[]) {
         // S expression: ($raise 'expr)
         //  -> S expr  : -
         let compFnBody = '';
@@ -295,7 +295,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($__let 'nameStrOrSymbol expr)
         //  -> S expr  : any
         let compFnBody = '';
-        checkParamsLength('compileToken:$__let', args, 1, 1);
+        checkParamsLength('compileToken:$__let', args, 2, 2);
         const quoted = stripQuote(state, r[1]);
         const name = isSymbol(quoted) ? quoted.symbol : (typeof quoted === 'string' ? quoted : null);
         if (typeof name !== 'string') {
@@ -314,7 +314,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($__set 'nameOrListOfNameOrIndex expr)
         //  -> S expr  : any
         let compFnBody = '';
-        checkParamsLength('compileToken:$__set', args, 2, 2);
+        checkParamsLength('compileToken:$__set', args, 2);
         const quoted = stripQuote(state, r[1]);
         const name = isSymbol(quoted) ?
             quoted.symbol :
@@ -350,7 +350,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
     });
 
 
-    ops.set('$not', function(r: SxToken[], args: SxToken[]) {
+    ops.set(state.config.reservedNames.not, function(r: SxToken[], args: SxToken[]) {
         // S expression: ($not any)
         //  -> S expr  : boolean
         let compFnBody = '';
@@ -468,10 +468,16 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($concat listOrString1 ... listOrStringN)
         //  -> S expr  : listOrString
         let compFnBody = '';
-        checkParamsLength('compileToken:+', args, 1);
-        _$_vars[ctx.varsCount] = r[1];
-        compFnBody += `(_$_vars[${String(ctx.varsCount++)}].concat(${
-            args.map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
+        checkParamsLength('compileToken:$concat', args, 1);
+        let w1 = '';
+        if (Array.isArray(args[0]) && isSymbol((args[0] as any)[0], state.config.reservedNames.spread)) {
+            const w0 = compileToken(args[0] as any, 1);
+            w1 = `(${w0}[0]).concat((${w0}.length>1?${w0}[1]:(typeof ${w0}[0]==='string'?'':[])),`;
+        } else {
+            w1 = `${compileToken(args as any, 0)}.concat(`;
+        }
+        compFnBody += `(${w1}${
+            args.slice(1).map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
         return compFnBody;
     });
 
@@ -481,7 +487,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:+', args, 1);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('+')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+            };return _$_rv.reduce((x,y)=>x+y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('+')})`;
+        }
         return compFnBody;
     });
 
@@ -491,9 +510,22 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:-', args, 1);
-        compFnBody += `(${r.length > 2 ?
-            args.map((x, idx, arr) => compileToken(arr, idx)).join('-') :
-            `-(${String(compileToken(r, 1))})`})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return (_$_rv.length>1?(_$_rv.reduce((x,y)=>x-y)):(_$_rv.length>0?-_$_rv[0]:NaN));})())`;
+        } else {
+            compFnBody += `(${r.length > 2 ?
+                args.map((x, idx, arr) => compileToken(arr, idx)).join('-') :
+                `-(${String(compileToken(r, 1))})`})`;
+        }
         return compFnBody;
     });
 
@@ -503,7 +535,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:*', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('*')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x*y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('*')})`;
+        }
         return compFnBody;
     });
 
@@ -513,7 +558,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:**', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('**')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x**y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('**')})`;
+        }
         return compFnBody;
     });
 
@@ -523,7 +581,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:/', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('/')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x/y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('/')})`;
+        }
         return compFnBody;
     });
 
@@ -533,7 +604,20 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         //  -> S expr  : number
         let compFnBody = '';
         checkParamsLength('compileToken:%', args, 2);
-        compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('%')})`;
+
+        let hasSpread = false;
+        args.map((x, idx, arr) => {
+            if (Array.isArray(x) && isSymbol((x as any)[0], state.config.reservedNames.spread)) {
+                hasSpread = true;
+            }
+        });
+        if (hasSpread) {
+            compFnBody += `((()=>{let _$_rv=[];${
+                args.map((x, idx, arr) => `_$_rv.push(${compileToken(arr, idx)})`).join(';')
+                };return _$_rv.reduce((x,y)=>x%y);})())`;
+        } else {
+            compFnBody += `(${args.map((x, idx, arr) => compileToken(arr, idx)).join('%')})`;
+        }
         return compFnBody;
     });
 

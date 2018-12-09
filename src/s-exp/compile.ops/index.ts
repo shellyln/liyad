@@ -295,7 +295,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($__let 'nameStrOrSymbol expr)
         //  -> S expr  : any
         let compFnBody = '';
-        checkParamsLength('compileToken:$__let', args, 1, 1);
+        checkParamsLength('compileToken:$__let', args, 2, 2);
         const quoted = stripQuote(state, r[1]);
         const name = isSymbol(quoted) ? quoted.symbol : (typeof quoted === 'string' ? quoted : null);
         if (typeof name !== 'string') {
@@ -314,7 +314,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($__set 'nameOrListOfNameOrIndex expr)
         //  -> S expr  : any
         let compFnBody = '';
-        checkParamsLength('compileToken:$__set', args, 2, 2);
+        checkParamsLength('compileToken:$__set', args, 2);
         const quoted = stripQuote(state, r[1]);
         const name = isSymbol(quoted) ?
             quoted.symbol :
@@ -468,10 +468,16 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
         // S expression: ($concat listOrString1 ... listOrStringN)
         //  -> S expr  : listOrString
         let compFnBody = '';
-        checkParamsLength('compileToken:+', args, 1);
-        _$_vars[ctx.varsCount] = r[1];
-        compFnBody += `(_$_vars[${String(ctx.varsCount++)}].concat(${
-            args.map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
+        checkParamsLength('compileToken:$concat', args, 1);
+        let w1 = '';
+        if (Array.isArray(args[0]) && isSymbol((args[0] as any)[0], state.config.reservedNames.spread)) {
+            const w0 = compileToken(args[0] as any, 1);
+            w1 = `(${w0}[0]).concat((${w0}.length>1?${w0}[1]:(typeof ${w0}==='string'?'':[])),`;
+        } else {
+            w1 = `${compileToken(args as any, 0)}.concat(`;
+        }
+        compFnBody += `(${w1}${
+            args.slice(1).map((x, idx, arr) => compileToken(arr, idx)).join(',')}))`;
         return compFnBody;
     });
 

@@ -12,6 +12,7 @@ export interface SxMacroInfo {
 
     // TODO: overloading
     // formalArgs?: SxToken[];
+    // lastIsSpread?: boolean;
     // next?: SxMacroInfo;
 }
 
@@ -24,6 +25,7 @@ export interface SxFuncInfo {
 
     // TODO: overloading
     // formalArgs?: SxToken[];
+    // lastIsSpread?: boolean;
     // next?: SxFuncInfo;
 }
 

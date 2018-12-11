@@ -19,7 +19,8 @@ import { evaluate,
          installScope,
          uninstallScope,
          optimizeTailCall,
-         toNumber }           from '../../evaluate';
+         toNumber,
+         matchMacroArgs }     from '../../evaluate';
 import { compileLambda }      from '../../compile';
 import { checkParamsLength }  from '../../errors';
 
@@ -409,6 +410,8 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
 
     const car: SxSymbol = $$first(...args);
     const fn = $__lambda(state, name)(...args.slice(1));
+
+    // TODO: overloading
     state.funcMap.set(car.symbol, {
         name: car.symbol,
         fn: (st, nm) => fn
@@ -479,72 +482,13 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     const capturedScopes = getCapturedScopes(state);
 
     const fn = (...aArgs: any[]) => {
-        let actualArgs = aArgs.slice(0);
-        if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
-            throw new Error(`[SX] macro call (${car.symbol}): Actual args too short: actual ${
-                actualArgs.length} / formal ${formalArgs.length}.`);
+        const matchResult = matchMacroArgs(state, car.symbol, formalArgs, lastIsSpread, aArgs.slice(0));
+        if (matchResult.error) {
+            throw new Error(matchResult.error);
         }
-        const extra: SxToken[] = [];
-        for (let i = formalArgs.length - (lastIsSpread ? 2 : 1); i >= 0; i--) {
-            let nm = formalArgs[i].symbol;
-            if (nm.startsWith('!')) {
-                formalArgs[i].symbol = formalArgs[i].symbol.slice(1);
-                nm = formalArgs[i].symbol;
+        formalArgs = matchResult.formalArgs as SxSymbol[];
+        const actualArgs = matchResult.actualArgs as any[];
 
-                if (! isSymbol(actualArgs[i])) {
-                    throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not symbol.`);
-                }
-            } else if (nm.startsWith('<') && nm.endsWith('>')) {
-                formalArgs[i].symbol = formalArgs[i].symbol.slice(1, -1);
-                nm = formalArgs[i].symbol;
-
-                if (isSymbol(actualArgs[i], nm)) {
-                    formalArgs = formalArgs.slice(0, i).concat(formalArgs.slice(i + 1));
-                    actualArgs = actualArgs.slice(0, i).concat(actualArgs.slice(i + 1));
-                } else {
-                    throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not expected symbol.`);
-                }
-            } else {
-                // TODO: refactor: extract to function.
-                const tpos = nm.lastIndexOf(':');
-                if (0 < tpos) {
-                    const tname = nm.slice(tpos + 1);
-                    switch (tname) {
-                    case 'number':
-                        if (typeof actualArgs[i] !== 'number') {
-                            throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not number.`);
-                        }
-                        break;
-                    case 'string':
-                        if (typeof actualArgs[i] !== 'string') {
-                            throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not string.`);
-                        }
-                        break;
-                    case 'function':
-                        if (! (Array.isArray(actualArgs[i]) && isSymbol(actualArgs[i][0]))) {
-                            throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not function.`);
-                        }
-                        break;
-                    case 'list':
-                        if (! Array.isArray(actualArgs[i])) {
-                            throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not list.`);
-                        }
-                        break;
-                    case 'symbol':
-                        if (! isSymbol(actualArgs[i])) {
-                            throw new Error(`[SX] macro call (${car.symbol}): Actual arg(${i}: ${nm}) is not symbol.`);
-                        }
-                        break;
-                    case 'any':
-                        break;
-                    default:
-                        throw new Error(`[SX] macro call (${car.symbol}): Formal arg(${i}: ${nm}) is unknown type ${tname}.`);
-                    }
-                    formalArgs[i].symbol = formalArgs[i].symbol.slice(0, tpos);
-                    nm = formalArgs[i].symbol;
-                }
-            }
-        }
         return $__scope(state, name, capturedScopes)(false, false, [
             [state.config.reservedNames.self, fn],
             ...(formalArgs.map((x: SxSymbol, index) => [
@@ -554,14 +498,14 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
                         actualArgs.slice(index) : actualArgs[index]
                 )
             ])),
-        ], ...extra, ...fnBody);
+        ], ...fnBody);
     };
 
+    // TODO: overloading
     state.macroMap.set(car.symbol, {
         name: car.symbol,
         fn: (st, nm) => (list) => fn(...(list.slice(1))),
     });
-
     return fn;
 };
 

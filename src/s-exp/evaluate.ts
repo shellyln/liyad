@@ -180,6 +180,79 @@ export function getGlobalScope(state: SxParserState) {
 }
 
 
+export function matchMacroArgs(
+        state: SxParserState, macroName: string,
+        formalArgs: SxSymbol[], lastIsSpread: boolean, actualArgs: any[]) {
+
+    formalArgs = formalArgs.slice(0);
+    actualArgs = actualArgs.slice(0);
+    if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
+        return ({ error: `[SX] macro call (${macroName}): Actual args too short: actual ${
+            actualArgs.length} / formal ${formalArgs.length}.` });
+    }
+    for (let i = formalArgs.length - (lastIsSpread ? 2 : 1); i >= 0; i--) {
+        let nm = formalArgs[i].symbol;
+        if (nm.startsWith('!')) {
+            formalArgs[i].symbol = formalArgs[i].symbol.slice(1);
+            nm = formalArgs[i].symbol;
+
+            if (! isSymbol(actualArgs[i])) {
+                return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not symbol.` });
+            }
+        } else if (nm.startsWith('<') && nm.endsWith('>')) {
+            formalArgs[i].symbol = formalArgs[i].symbol.slice(1, -1);
+            nm = formalArgs[i].symbol;
+
+            if (isSymbol(actualArgs[i], nm)) {
+                formalArgs = formalArgs.slice(0, i).concat(formalArgs.slice(i + 1));
+                actualArgs = actualArgs.slice(0, i).concat(actualArgs.slice(i + 1));
+            } else {
+                return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not expected symbol.` });
+            }
+        } else {
+            // TODO: refactor: extract to function.
+            const tpos = nm.lastIndexOf(':');
+            if (0 < tpos) {
+                const tname = nm.slice(tpos + 1);
+                switch (tname) {
+                case 'number':
+                    if (typeof actualArgs[i] !== 'number') {
+                        return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not number.` });
+                    }
+                    break;
+                case 'string':
+                    if (typeof actualArgs[i] !== 'string') {
+                        return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not string.` });
+                    }
+                    break;
+                case 'function':
+                    if (! (Array.isArray(actualArgs[i]) && isSymbol(actualArgs[i][0]))) {
+                        return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not function.` });
+                    }
+                    break;
+                case 'list':
+                    if (! Array.isArray(actualArgs[i])) {
+                        return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not list.` });
+                    }
+                    break;
+                case 'symbol':
+                    if (! isSymbol(actualArgs[i])) {
+                        return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not symbol.` });
+                    }
+                    break;
+                case 'any':
+                    break;
+                default:
+                    return ({ error: `[SX] macro call (${macroName}): Formal arg(${i}: ${nm}) is unknown type ${tname}.` });
+                }
+                formalArgs[i].symbol = formalArgs[i].symbol.slice(0, tpos);
+            }
+        }
+    }
+    return ({ formalArgs, actualArgs });
+}
+
+
 export function optimizeTailCall(state: SxParserState, formalArgs: SxSymbol[], fnBody: SxToken[]) {
     // S expression: ($__lambda '(sym1 ... symN) 'expr1 ... 'exprN)
     //    formalArgs: 'sym1 ... 'symN

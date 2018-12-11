@@ -414,7 +414,10 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
     // TODO: overloading
     state.funcMap.set(car.symbol, {
         name: car.symbol,
-        fn: (st, nm) => fn
+        fn: (st, nm) => fn,
+        // formalArgs: ,
+        // lastIsSpread: ,
+        // next: ,
     });
     return fn;
 };
@@ -428,9 +431,14 @@ export const $comp$__defun = (state: SxParserState, name: string) => (...args: a
 
     const car: SxSymbol = $$first(...args);
     const fn = $comp$__lambda(state, name)(...args.slice(1));
+
+    // TODO: overloading
     state.funcMap.set(car.symbol, {
         name: car.symbol,
-        fn: (st, nm) => fn
+        fn: (st, nm) => fn,
+        // formalArgs: ,
+        // lastIsSpread: ,
+        // next: ,
     });
     return fn;
 };
@@ -505,6 +513,9 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     state.macroMap.set(car.symbol, {
         name: car.symbol,
         fn: (st, nm) => (list) => fn(...(list.slice(1))),
+        // formalArgs: ,
+        // lastIsSpread: ,
+        // next: ,
     });
     return fn;
 };

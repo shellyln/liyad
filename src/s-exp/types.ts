@@ -149,6 +149,11 @@ export interface SxExternalValue {
 
 export interface SxSymbol {
     'symbol': string;
+
+    // TODO: debug info
+    // _fileName?: string;
+    // _line?: number;
+    // _col?: number;
 }
 
 export interface SxComment {

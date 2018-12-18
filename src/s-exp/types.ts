@@ -4,16 +4,16 @@
 
 
 
-export type SxMacro = (state: SxParserState, name: string) => (list: SxToken[]) => SxToken;
+export type SxMacro = (state: SxParserState, name: string, formalArgs?: SxSymbol[]) => (list: SxToken[]) => SxToken;
 
 export interface SxMacroInfo {
     name: string;
     fn: SxMacro;
 
     // TODO: overloading
-    // formalArgs?: SxToken[];
-    // lastIsSpread?: boolean;
-    // next?: SxMacroInfo;
+    formalArgs?: SxSymbol[];
+    lastIsSpread?: boolean;
+    next?: SxMacroInfo;
 }
 
 
@@ -24,7 +24,7 @@ export interface SxFuncInfo {
     fn: SxFunc;
 
     // TODO: overloading
-    // formalArgs?: SxToken[];
+    // formalArgs?: SxSymbol[];
     // lastIsSpread?: boolean;
     // next?: SxFuncInfo;
 }

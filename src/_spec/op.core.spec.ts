@@ -1856,7 +1856,6 @@ describe("operator.core.$defmacro", function() {
             (foo "aaa" "bbb" 3)
         `).toThrow();
     });
-    /*
     it("$defmacro 5a", function() {
         expect(lisp`
             ($defmacro FOR (i <FROM> s <TO> e <STEP> u ...body)
@@ -1888,7 +1887,6 @@ describe("operator.core.$defmacro", function() {
             ($list c1 c2 p i s e u)
         `).toEqual([12, 112, 'p', 'i', 's', 'e', 'u']);
     });
-    */
     it("$defmacro 5b", function() {
         expect(lisp`
             ($defmacro FOR (i <FROM> s <TO> e ...body)

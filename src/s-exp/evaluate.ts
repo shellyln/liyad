@@ -233,7 +233,6 @@ export function matchMacroArgs(
                 return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not expected symbol.` });
             }
         } else {
-            // TODO: refactor: extract to function.
             const tpos = nm.lastIndexOf(':');
             if (0 < tpos) {
                 const tname = nm.slice(tpos + 1);

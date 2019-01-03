@@ -503,18 +503,38 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
         ], ...fnBody);
     };
 
-    // TODO: overloading
-    const m = {
+    const m: SxMacroInfo = {
         name: car.symbol,
         fn: (st: SxParserState, nm: string, fArgs: SxSymbol[]) => (list: SxToken[]) => fn(fArgs)(...(list.slice(1))),
         formalArgs,
         lastIsSpread,
     };
     if (state.macroMap.has(car.symbol)) {
-        const prev = state.macroMap.get(car.symbol) as SxMacroInfo;
-        prev.next = m;
+        let curr = state.macroMap.get(car.symbol);
+        (curr as SxMacroInfo).next = m;
+        if (curr && curr.formalArgs) {
+            if (curr.formalArgs.length < formalArgs.length) {
+                state.macroMap.set(car.symbol, m);
+                m.next = curr;
+            } else {
+                let prev = curr;
+                curr = curr.next;
+                while (curr) {
+                    if (curr.formalArgs) {
+                        if (curr.formalArgs.length < formalArgs.length) {
+                            prev.next = m;
+                            m.next = curr;
+                            break;
+                        }
+                    }
+                    prev = curr;
+                    curr = curr.next;
+                }
+            }
+        }
+    } else {
+        state.macroMap.set(car.symbol, m);
     }
-    state.macroMap.set(car.symbol, m);
     return fn;
 };
 

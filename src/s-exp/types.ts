@@ -10,7 +10,6 @@ export interface SxMacroInfo {
     name: string;
     fn: SxMacro;
 
-    // TODO: overloading
     formalArgs?: SxSymbol[];
     lastIsSpread?: boolean;
     next?: SxMacroInfo;

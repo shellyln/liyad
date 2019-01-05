@@ -1930,6 +1930,68 @@ describe("operator.core.$defmacro", function() {
                     )
                 )
             )
+            ($defmacro FOR (i <FROM> s <TO> e ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM (+ 1) TO (+ 9 -2)
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e u)
+        `).toEqual([28, 128, 'p', 'i', 's', 'e', 'u']);
+    });
+    it("$defmacro 5d", function() {
+        expect(lisp`
+            ($defmacro FOR (i <FROM> s <TO> e ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i 1))
+                        )
+                    )
+                )
+            )
+            ($defmacro FOR (i <FROM> s <TO> e <STEP> u ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i ,u))
+                        )
+                    )
+                )
+            )
+            ($let c1 0)
+            ($let c2 100)
+            (FOR p FROM (+ 1) TO (+ 9 -2)
+                ($set c1 (+ c1 p))
+                ($set c2 (+ c2 p))
+            )
+            ($list c1 c2 p i s e u)
+        `).toEqual([28, 128, 'p', 'i', 's', 'e', 'u']);
+    });
+    it("$defmacro 5e", function() {
+        expect(lisp`
+            ($defmacro FOR (i <FROM> s <TO> e <STEP> u ...body)
+                \`($last
+                    ($local ((,i ,s))
+                        ($while (<= ,i ,e)
+                            ,@body
+                            ($set ,i (+ ,i ,u))
+                        )
+                    )
+                )
+            )
             #|($defmacro FOR (i <FROM> s <TO> e ...body)
                 \`($last
                     ($local ((,i ,s))

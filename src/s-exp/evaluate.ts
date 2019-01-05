@@ -10,7 +10,8 @@ import { SxParserState,
          SxDottedFragment,
          SxToken,
          SxScope,
-         CapturedScopes }     from './types';
+         CapturedScopes,
+         SxMacroInfo }        from './types';
 import { isSymbol }           from './ast';
 import { setEvaluationCount } from './errors';
 
@@ -54,13 +55,35 @@ export function resolveSplice(state: SxParserState, r: SxToken[]) {
 }
 
 
-export function resolveMacro(state: SxParserState, x: SxSymbol): ((list: SxToken[]) => SxToken) | false {
+export function resolveMacro(state: SxParserState, x: SxSymbol, r: SxToken[]) {
     const macroInfo = state.macroMap.get(x.symbol);
+    let lastErr = null;
     if (macroInfo) {
-        return macroInfo.fn(state, x.symbol);
-    } else {
-        return false;
+        let m: SxMacroInfo | undefined = macroInfo;
+        const r1 = r.slice(1);
+        while (m) {
+            if (m.formalArgs) {
+                const matchResult = matchMacroArgs(state, x.symbol, m.formalArgs, Boolean(m.lastIsSpread), r1);
+                if (! matchResult.error) {
+                    return {
+                        fn: m.fn(state, x.symbol, matchResult.formalArgs as SxSymbol[]),
+                        actualArgs: r.slice(0, 1).concat(matchResult.actualArgs as SxToken[]),
+                    };
+                }
+                lastErr = matchResult.error;
+                m = m.next;
+            } else {
+                return {
+                    fn: m.fn(state, x.symbol),
+                    actualArgs: r,
+                };
+            }
+        }
+        if (lastErr) {
+            throw new Error(lastErr);
+        }
     }
+    return false;
 }
 
 
@@ -182,7 +205,7 @@ export function getGlobalScope(state: SxParserState) {
 
 export function matchMacroArgs(
         state: SxParserState, macroName: string,
-        formalArgs: SxSymbol[], lastIsSpread: boolean, actualArgs: any[]) {
+        formalArgs: SxSymbol[], lastIsSpread: boolean, actualArgs: SxToken[]) {
 
     formalArgs = formalArgs.slice(0);
     actualArgs = actualArgs.slice(0);
@@ -210,7 +233,6 @@ export function matchMacroArgs(
                 return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not expected symbol.` });
             }
         } else {
-            // TODO: refactor: extract to function.
             const tpos = nm.lastIndexOf(':');
             if (0 < tpos) {
                 const tname = nm.slice(tpos + 1);
@@ -226,7 +248,7 @@ export function matchMacroArgs(
                     }
                     break;
                 case 'function':
-                    if (! (Array.isArray(actualArgs[i]) && isSymbol(actualArgs[i][0]))) {
+                    if (! (Array.isArray(actualArgs[i]) && isSymbol((actualArgs[i] as any)[0]))) {
                         return ({ error: `[SX] macro call (${macroName}): Actual arg(${i}: ${nm}) is not function.` });
                     }
                     break;
@@ -321,15 +343,12 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
             if (r.length === 0) {
                 return r;
             }
-
             r = resolveSplice(state, r);
-
             const sym = isSymbol(r[0]);
             if (sym) {
-                const m = resolveMacro(state, sym);
-
+                const m = resolveMacro(state, sym, r);
                 if (m) {
-                    r = m(r);
+                    r = m.fn(m.actualArgs as SxToken[]);
                 } else {
                     break;
                 }
@@ -339,7 +358,6 @@ export function evaluate(state: SxParserState, x: SxToken): SxToken {
         } else {
             break;
         }
-
         setEvaluationCount(state);
     }
 

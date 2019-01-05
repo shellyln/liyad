@@ -24,9 +24,9 @@ export function applyMacros(state: SxParserState, tok: SxToken) {
             r = resolveSplice(state, r);
             const sym = isSymbol(r[0]);
             if (sym) {
-                const m = resolveMacro(state, sym);
+                const m = resolveMacro(state, sym, r);
                 if (m) {
-                    r = m(r);
+                    r = m.fn(m.actualArgs as SxToken[]);
                 } else {
                     break;
                 }

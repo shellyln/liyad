@@ -7,7 +7,8 @@ import { SxParserState,
          SxSymbol,
          SxToken,
          FatalError,
-         CapturedScopes }     from '../../types';
+         CapturedScopes,
+         SxMacroInfo}         from '../../types';
 import { isSymbol,
          quote }              from '../../ast';
 import { evaluate,
@@ -466,7 +467,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     checkParamsLength('$__defmacro', args, 3);
 
     const car: SxSymbol = $$first(...args);
-    let formalArgs: SxSymbol[] = args[1];
+    const formalArgs: SxSymbol[] = args[1];
     if (! Array.isArray(formalArgs)) {
         throw new Error(`[SX] $__defmacro: Invalid argument(s): args[1] is not array.`);
     }
@@ -489,34 +490,51 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
     const fnBody = args.slice(2);
     const capturedScopes = getCapturedScopes(state);
 
-    const fn = (...aArgs: any[]) => {
-        const matchResult = matchMacroArgs(state, car.symbol, formalArgs, lastIsSpread, aArgs.slice(0));
-        if (matchResult.error) {
-            throw new Error(matchResult.error);
-        }
-        formalArgs = matchResult.formalArgs as SxSymbol[];
-        const actualArgs = matchResult.actualArgs as any[];
-
+    const fn = (fArgs: SxSymbol[]) => (...aArgs: any[]) => {
         return $__scope(state, name, capturedScopes)(false, false, [
             [state.config.reservedNames.self, fn],
-            ...(formalArgs.map((x: SxSymbol, index) => [
+            ...(fArgs.map((x: SxSymbol, index) => [
                 x.symbol,
                 quote(state,
-                    (lastIsSpread && index === formalArgs.length - 1) ?
-                        actualArgs.slice(index) : actualArgs[index]
+                    (lastIsSpread && index === fArgs.length - 1) ?
+                        aArgs.slice(index) : aArgs[index]
                 )
             ])),
         ], ...fnBody);
     };
 
-    // TODO: overloading
-    state.macroMap.set(car.symbol, {
+    const m: SxMacroInfo = {
         name: car.symbol,
-        fn: (st, nm) => (list) => fn(...(list.slice(1))),
-        // formalArgs: ,
-        // lastIsSpread: ,
-        // next: ,
-    });
+        fn: (st: SxParserState, nm: string, fArgs: SxSymbol[]) => (list: SxToken[]) => fn(fArgs)(...(list.slice(1))),
+        formalArgs,
+        lastIsSpread,
+    };
+    if (state.macroMap.has(car.symbol)) {
+        let curr = state.macroMap.get(car.symbol);
+        (curr as SxMacroInfo).next = m;
+        if (curr && curr.formalArgs) {
+            if (curr.formalArgs.length < formalArgs.length) {
+                state.macroMap.set(car.symbol, m);
+                m.next = curr;
+            } else {
+                let prev = curr;
+                curr = curr.next;
+                while (curr) {
+                    if (curr.formalArgs) {
+                        if (curr.formalArgs.length < formalArgs.length) {
+                            prev.next = m;
+                            m.next = curr;
+                            break;
+                        }
+                    }
+                    prev = curr;
+                    curr = curr.next;
+                }
+            }
+        }
+    } else {
+        state.macroMap.set(car.symbol, m);
+    }
     return fn;
 };
 

@@ -23,7 +23,7 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
     if (max && max < args.length) {
         throw new Error(`[SX] ${name}: Invalid argument length: expected: ${max} / args: ${args.length}.`);
     }
-    return true;
+    return args;
 }
 
 
@@ -31,5 +31,5 @@ export function checkUnsafeVarNames(name: string, varName: string) {
     if (name === '__proto__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
-    return true;
+    return varName;
 }

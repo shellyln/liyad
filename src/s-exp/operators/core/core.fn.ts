@@ -769,6 +769,8 @@ export const $__repeat = (state: SxParserState, name: string) => (...args: any[]
     if (! sym) {
         throw new Error(`[SX] $__repeat: Invalid argument(s): item(s) of args[0] is not symbol.`);
     }
+
+    checkUnsafeVarNames('$__repeat', sym.symbol);
     const scope = resolveValueSymbolScope(state, sym, false);
 
     const n = toNumber($$second(...args));
@@ -795,6 +797,7 @@ export const $__for = (state: SxParserState, name: string) => (...args: any[]) =
     if (! sym) {
         throw new Error(`[SX] $__for: Invalid argument(s): item(s) of args[0] is not symbol.`);
     }
+
     checkUnsafeVarNames('$__for', sym.symbol);
     const scope = resolveValueSymbolScope(state, sym, false);
 

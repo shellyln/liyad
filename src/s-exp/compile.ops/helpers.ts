@@ -4,13 +4,14 @@
 
 
 import { SxParserState,
-         SxToken }            from '../types';
-import { isSymbol }           from '../ast';
+         SxToken }             from '../types';
+import { isSymbol }            from '../ast';
 import { resolveSplice,
          resolveMacro,
          resolveValueSymbol,
-         getScope }           from '../evaluate';
-import { setEvaluationCount } from '../errors';
+         getScope }            from '../evaluate';
+import { setEvaluationCount,
+         checkUnsafeVarNames } from '../errors';
 
 
 
@@ -65,5 +66,10 @@ export function getScope_stateApplied(state: SxParserState) {
 
 
 export function resolveValueSymbol_dynamic(state: SxParserState, name: string) {
+    checkUnsafeVarNames('(compiler)resolveValueSymbol_dynamic', name);
     return (function(){ return resolveValueSymbol(state, {symbol: name}); });
+}
+
+export function checkUnsafeVarNames_dynamic(name: string) {
+    return (function(varName: string){ return checkUnsafeVarNames('(compiler)checkUnsafeVarNames_dynamic', varName); });
 }

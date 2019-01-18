@@ -6,13 +6,15 @@
 import { SxParserState,
          SxSymbol,
          SxToken,
-         CompilerContext }            from '../types';
-import { isSymbol }                   from '../ast';
-import { checkParamsLength }          from '../errors';
+         CompilerContext }             from '../types';
+import { isSymbol }                    from '../ast';
+import { checkParamsLength,
+         checkUnsafeVarNames }         from '../errors';
 import { stripQuote,
          stripQuoteOrPass,
          getScope_stateApplied,
-         resolveValueSymbol_dynamic } from './helpers';
+         resolveValueSymbol_dynamic,
+         checkUnsafeVarNames_dynamic } from './helpers';
 
 
 
@@ -212,7 +214,7 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
                     name = x.symbol;
                 }
                 ctx.varDefs += `var v${ctx.varNamesCount}=void 0;`;
-                ctx.varNames.set(x.symbol, 'v' + ctx.varNamesCount++);
+                ctx.varNames.set(name, 'v' + ctx.varNamesCount++);
             }
             const s = `${r.slice(4).map((x) => compileToken([stripQuote(state, x)], 0)).join(',')}`;
             compFnBody += r[2] ? `[${s}]` : `(${s})`;
@@ -339,13 +341,23 @@ export function registerOperators(state: SxParserState, ctx: CompilerContext) {
             vName = `_$_vars[${String(ctx.varsCount++)}]`;
         }
         const regToVars = (symName: string) => {
-            _$_vars[ctx.varsCount] = symName;
+            _$_vars[ctx.varsCount] = checkUnsafeVarNames('compileToken:$__set', symName);
             return `_$_vars[${String(ctx.varsCount++)}]`;
+        };
+        let checkNameCalled = false;
+        let checkNamePos = '';
+        const checkName = (str: string) => {
+            if (! checkNameCalled) {
+                _$_vars[ctx.varsCount] = checkUnsafeVarNames_dynamic('compileToken:$__set');
+                checkNamePos = String(ctx.varsCount++);
+                checkNameCalled = true;
+            }
+            return `(_$_vars[${checkNamePos}](${str}))`;
         };
         compFnBody += `((${vName})${(Array.isArray(quoted) ? quoted.slice(1) : []).map((x, idx, arr) => `[${
             isSymbol(arr[idx]) ?
                 regToVars((arr as any)[idx].symbol) :
-                compileToken(arr, idx)}]`).join('')}=${compileToken(r, 2)})`;
+                checkName(compileToken(arr, idx))}]`).join('')}=${compileToken(r, 2)})`;
         return compFnBody;
     });
 

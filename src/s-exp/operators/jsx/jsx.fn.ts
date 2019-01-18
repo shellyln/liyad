@@ -4,16 +4,17 @@
 
 
 import { SxParserState,
-         SxToken }           from '../../types';
+         SxToken }             from '../../types';
 import { isSymbol,
-         quote }             from '../../ast';
+         quote }               from '../../ast';
 import { evaluate,
-         getScope }          from '../../evaluate';
-import { checkParamsLength } from '../../errors';
+         getScope }            from '../../evaluate';
+import { checkParamsLength,
+         checkUnsafeVarNames } from '../../errors';
 import { $$first,
          $$firstAndSecond,
          $__scope,
-         $$boolean }         from '../core/core.fn';
+         $$boolean }           from '../core/core.fn';
 
 
 
@@ -200,6 +201,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                 break;
             default:
                 {
+                    checkUnsafeVarNames('$jsxProps', keyName);
                     if (x.length === 1) {
                         // S expression: (@ ... (keyName) ...)
                         //  -> JSON    : {..., keyName: true, ...}

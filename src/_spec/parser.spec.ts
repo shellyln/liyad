@@ -1032,3 +1032,189 @@ describe("prototype pollution", function() {
         expect((Object.prototype as any).foo).toBeUndefined();
     });
 });
+
+
+describe("(compile) prototype pollution", function() {
+    it("(compile) prototype pollution 0", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            __proto__
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 1", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x (#))
+            ($set (x "__proto__" "foo") 1234)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 2", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x (# (bar (#))))
+            ($set (x "bar" "__proto__" "foo") 1234)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 3", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let __proto__ (# (foo 1234)))
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 4", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x (#))
+            ($let y ($get x __proto__))
+            ($set (y foo) 1234)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 5", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            (# (__proto__ (# (foo 1234))))
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 6", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x 0)
+            ($for __proto__ of '((# (foo 1234)))
+                ($set x 1)
+            )
+            ($get x)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 7", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x 0)
+            ($repeat __proto__ of 10
+                ($set x 1)
+            )
+            ($get x)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 8", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($local ((__proto__ (# (foo 1234))))
+                1
+            )
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 9", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($defun __proto__ () 1234)
+            (__proto__)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 9b", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($$defun __proto__ () 1234)
+            (__proto__)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 10", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($defmacro __proto__ () 1234)
+            (__proto__)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 11", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x (#))
+            ($call x __proto__)
+            ($get x)
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 12", function() {
+        expect(() => lisp`
+        ($$defun fn ()
+            ($let x (<- __proto__))
+        )
+        (fn)
+        `).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution 13", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(() => render(lsx`
+        ($$defun fn ()
+            (let class "clazz")
+            (let color "coloooor")
+            ($=if (== "qwerty" ${'qwerty'})
+                (div (@ (class ("aaa" "bbb" "ccc" ($if false "ggg" null) ($if true "hhh" null) ($concat "cls-" 8) ))
+                        (__proto__ (# (foo 1234)))
+                        (style (color "red")
+                                ("width" "100%")
+                                (($concat "style-" 1) ($concat "style-value-" 1)) ))
+                    "Hello, asdfgh!" )
+                (Hello (@ (name ($concat "abc" "def"))) "foo" "bar" (div "qqq") "baz")
+            )
+        )
+        (fn)
+        `)).toThrow();
+        expect((Object.prototype as any).foo).toBeUndefined();
+    });
+});

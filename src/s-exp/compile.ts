@@ -12,6 +12,7 @@ import { SxParserState,
 import { isSymbol }                   from './ast';
 import { getCapturedScopes,
          optimizeTailCall }           from './evaluate';
+import { checkUnsafeVarNames }        from './errors';
 import { applyMacros,
          stripQuoteOrPass,
          resolveValueSymbol_dynamic } from './compile.ops/helpers';
@@ -45,6 +46,7 @@ function compileCore(state: SxParserState, formalArgs: SxSymbol[], lastIsSpread:
         case 'object':
             if (isSymbol(b)) {
                 const sym = b as SxSymbol;
+                checkUnsafeVarNames('(compiler)compileValue', sym.symbol);
                 if (ctx.varNames.has(sym.symbol)) {
                     compFnBody += `(${ctx.varNames.get(sym.symbol)})`;
                 } else {
@@ -74,6 +76,7 @@ function compileCore(state: SxParserState, formalArgs: SxSymbol[], lastIsSpread:
                         if (isSymbol(r[0])) {
                             const sym = r[0] as SxSymbol;
                             const args = r.slice(1);
+                            checkUnsafeVarNames('(compiler)compileToken', sym.symbol);
                             if (ops.has(sym.symbol)) {
                                 compFnBody += (ops.get(sym.symbol) as CompilerOperator)(r, args);
                             } else {

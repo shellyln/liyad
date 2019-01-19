@@ -65,11 +65,11 @@ export function getScope_stateApplied(state: SxParserState) {
 }
 
 
-export function resolveValueSymbol_dynamic(state: SxParserState, name: string) {
-    checkUnsafeVarNames('(compiler)resolveValueSymbol_dynamic', name);
-    return (function(){ return resolveValueSymbol(state, {symbol: name}); });
+export function resolveValueSymbol_dynamic(state: SxParserState, varName: string) {
+    checkUnsafeVarNames('(compiler)resolveValueSymbol_dynamic', varName);
+    return (function(){ return resolveValueSymbol(state, {symbol: varName}); });
 }
 
 export function checkUnsafeVarNames_dynamic(name: string) {
-    return (function(varName: string){ return checkUnsafeVarNames('(compiler)checkUnsafeVarNames_dynamic', varName); });
+    return (function(varName: string){ return checkUnsafeVarNames(name, varName); });
 }

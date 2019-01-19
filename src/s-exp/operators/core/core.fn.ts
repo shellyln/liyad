@@ -913,12 +913,13 @@ export const $__let = (state: SxParserState, name: string) => (...args: any[]) =
 
     if (! sym) {
         if (typeof args[0] === 'string') {
-            checkUnsafeVarNames('$__let', args[0]);
             sym = {symbol: args[0]};
         } else {
             throw new Error(`[SX] $__let: Invalid argument(s): invalid name.`);
         }
     }
+
+    checkUnsafeVarNames('$__let', sym.symbol);
 
     const scope = resolveValueSymbolScope(state, sym, false);
     scope[sym.symbol] = args[1];

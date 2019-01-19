@@ -28,7 +28,7 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
 
 
 export function checkUnsafeVarNames(name: string, varName: string) {
-    if (name === '__proto__') {
+    if (varName === '__proto__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     return varName;

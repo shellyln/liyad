@@ -77,7 +77,7 @@ export const macros: SxMacroInfo[] = [{
 }, {
     name: '+=',
     fn: (state: SxParserState, name: string) => (list) => {
-        // S expression: (++ name)
+        // S expression: (++ name v)
         //  -> S expr  : ($set name ($add name v))
         checkParamsLength('+=', list, 3, 3);
         if (typeof list[2] !== 'number') {

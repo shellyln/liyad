@@ -125,7 +125,7 @@ is written in LSX.
 import { S } from 'liyad';
 
 console.log(
-    JSON.stringify( S`
+    JSON.stringify(S`
         ($list
             1 2 3 "a" "b" "C"
             ($list 4 5 6) ${"X"} ${["Y", "Z"]}
@@ -149,7 +149,7 @@ Output:
 import { lisp } from 'liyad';
 
 console.log(
-    JSON.stringify( lisp`
+    JSON.stringify(lisp`
         ($defun fac (n)
             ($if (== n 0)
                 1

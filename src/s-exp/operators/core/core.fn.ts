@@ -217,7 +217,7 @@ export const $__scope = (state: SxParserState, name: string, capturedScopes?: Ca
     const {car, cdr} = $$firstAndSecond(...args.slice(2));
     let r: SxToken = null;
 
-    const scope: any = {};
+    const scope: any = Object.create(null);
     if (Array.isArray(car)) {
         for (const x of car) {
             if (Array.isArray(x)) {
@@ -308,7 +308,7 @@ export const $__capture = (state: SxParserState, name: string) => (...args: any[
     let r: SxToken = null;
 
     const capturedScopes = collectCapturedVariables(state, formalArgs);
-    installScope(state, {}, true, capturedScopes);
+    installScope(state, Object.create(null), true, capturedScopes);
     try {
         for (const x of args.slice(1)) {
             r = evaluate(state, x);
@@ -1286,7 +1286,7 @@ export const $$toNumber = $toNumber(null as any, null as any);
 export const $__toObject = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($__# '(name value...)...)
     //  -> JSON    : {name: value, ...}
-    const r: any = {};
+    const r: any = Object.create(null);
     for (const x of args) {
         if (Array.isArray(x) && 0 < x.length) {
             const sym = isSymbol(x[0]);
@@ -1323,7 +1323,7 @@ export const $objectAssign = (state: SxParserState, name: string) => (...args: a
     //  -> S expr  : string
     checkParamsLength('$objectAssign', args, 1);
 
-    return Object.assign(args[0], ...(args.slice(1)));
+    return Object.assign(Object.create(null), args[0], ...(args.slice(1)));
 };
 export const $$objectAssign = $objectAssign(null as any, null as any);
 

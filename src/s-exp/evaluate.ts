@@ -154,7 +154,7 @@ export function resolveValueSymbol(state: SxParserState, x: SxSymbol) {
 
 
 export function collectCapturedVariables(state: SxParserState, names: SxSymbol[]): CapturedScopes {
-    const capturedScopes: CapturedScopes = {};
+    const capturedScopes: CapturedScopes = Object.create(null);
     for (const n of names) {
         const scope = resolveValueSymbolScope(state, n, true);
         if (scope === null) {
@@ -178,7 +178,7 @@ export function getCapturedScopes(state: SxParserState): CapturedScopes | undefi
             break;
         }
     }
-    return a.length > 0 ? Object.assign({}, ...a) : void 0;
+    return a.length > 0 ? Object.assign(Object.create(null), ...a) : void 0;
 }
 
 

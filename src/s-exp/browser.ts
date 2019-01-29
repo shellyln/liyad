@@ -14,6 +14,6 @@ export function runScriptTags(lisp: SExpressionTemplateFn | SExpressionAsyncTemp
     for (let i = 0; i < codes.length; i++) {
         cs.push(codes[i].innerHTML);
     }
-    lisp = lisp.appendGlobals(globals || {});
+    lisp = lisp.appendGlobals(globals || Object.create(null));
     return lisp(cs.join('\n'));
 }

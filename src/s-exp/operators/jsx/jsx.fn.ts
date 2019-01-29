@@ -76,7 +76,7 @@ export const $__outputForOf = (state: SxParserState, name: string) => (...args: 
 export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: (@ (name value...)...)
     //  -> JSON    : {name: value, ...}
-    const r: any = {};
+    const r: any = Object.create(null);
     for (const x of args) {
         if (Array.isArray(x) && 0 < x.length) {
             const sym = isSymbol(x[0]);
@@ -94,7 +94,13 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                         // S expression: (@ ... (style "styleName1: styleValue1; ..." ...) ...)
                         // S expression: (@ ... (style (styleName1 styleValue1) ...) ...)
                         //  -> JSON    : {..., style: {styleName1: styleValue1}, ...}
-                        const styles: object = {};
+
+
+                        // TODO: To enhance security, use "Object.create(null)" instead of "{}".
+                        // TODO: "React.createMarkupForStyles(styles)"
+                        //       requires "hasOwnProperty()" to be present in the prototype of object.
+                        const styles: object = {}; // Object.create(null);
+
                         for (const s of x.slice(1)) {
                             if (Array.isArray(s) && 1 < s.length) {
                                 styles[String(evaluate(state, s[0]))] = String(evaluate(state, s[1]));
@@ -230,7 +236,7 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
 
 function getJsxTagsParams(state: SxParserState, ...args: any[]) {
     let children = args;
-    let props: any = {};
+    let props: any = Object.create(null);
     if (0 < args.length && Array.isArray(args[0])) {
         const sym = isSymbol(args[0][0], '@');
 

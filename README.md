@@ -291,7 +291,7 @@ const mySymbols: SxSymbolInfo[] = [
 ];
 
 export const MyDSL = (() => {
-    let config: SxParserConfig = Object.assign({}, defaultConfig);
+    let config: SxParserConfig = Object.assign(Object.create(null), defaultConfig);
 
     config = installCore(config);
     config = installArithmetic(config);

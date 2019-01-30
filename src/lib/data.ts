@@ -62,7 +62,7 @@ export class Query<T> {
                 return true;
             });
         } else {
-            const w = Object.assign(Object.create(null), {first: n.intermediate, last: n.intermediate}, n);
+            const w = Object.assign({first: n.intermediate, last: n.intermediate}, n);
             const r = this.groupBy((a, b, index, array) => {
                 if (w.single >= array.length) {
                     if ((index % w.single) === 0) return false;

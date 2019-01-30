@@ -144,7 +144,7 @@ function compileCore(state: SxParserState, formalArgs: SxSymbol[], lastIsSpread:
     const capturedScopes = getCapturedScopes(state);
     if (capturedScopes) {
         for (const x in capturedScopes) {
-            if (Object.prototype.hasOwnProperty.call(capturedScopes, x)) {
+            if (Object.hasOwnProperty.call(capturedScopes, x)) {
                 _$_vars[ctx.varsCount++] = x;
                 _$_vars[ctx.varsCount] = capturedScopes[x];
                 ctx.varNames.set(x, `(_$_vars[${String(ctx.varsCount)}][_$_vars[${String(ctx.varsCount - 1)}]])`);

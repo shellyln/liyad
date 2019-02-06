@@ -27,6 +27,10 @@ import { checkParamsLength,
 
 
 
+// tslint:disable-next-line:function-constructor
+const globalObj = Function('return this')();
+
+
 export const $car = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($car '(first second ... last))
     //  -> S expr  : first
@@ -354,15 +358,15 @@ export const $__lambda = (state: SxParserState, name: string) => (...args: any[]
 
     const capturedScopes = getCapturedScopes(state);
 
-    const fn = (...actualArgs: any[]) => {
+    const fn = function(this: any, ...actualArgs: any[]) {
         if ((actualArgs.length + (lastIsSpread ? 1 : 0)) < formalArgs.length) {
             throw new Error(`[SX] func call: Actual args too short: actual ${
                 actualArgs.length} / formal ${formalArgs.length}.`);
         }
         // TODO: add type checking
-        // TODO: pass "this" to the $__scope variable.
         return $__scope(state, name, capturedScopes)(false, false, [
             [state.config.reservedNames.self, fn],
+            [state.config.reservedNames.thiz, this === globalObj || this === void 0 ? null : quote(state, this)],
             ...(formalArgs.map((x: SxSymbol, index) => [
                 x.symbol,
                 quote(state,

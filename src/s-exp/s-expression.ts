@@ -42,6 +42,7 @@ export const defaultReservedNames: SxReservedNames = {
     lambda: '$lambda',
     self: '$self',
     defun: '$defun',
+    thiz: '$this',
 
     if: '$if',
     cond: '$cond',

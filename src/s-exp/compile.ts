@@ -141,6 +141,9 @@ function compileCore(state: SxParserState, formalArgs: SxSymbol[], lastIsSpread:
         fnBody = optimizeTailCall(state, formalArgs, fnBody);
     }
 
+    // set 'this' object
+    ctx.varNames.set(state.config.reservedNames.thiz, `(this===(Function('return this')())?null:(this===void 0?null:this))`);
+
     const capturedScopes = getCapturedScopes(state);
     if (capturedScopes) {
         for (const x in capturedScopes) {

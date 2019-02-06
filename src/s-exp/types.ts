@@ -65,6 +65,7 @@ export interface SxReservedNames {
     lambda: string;
     self: string;
     defun: string;
+    thiz: string;
 
     if: string;
     cond: string;

@@ -5698,3 +5698,174 @@ describe("operator.core.$console-time", function() {
         `).toEqual(null);
     });
 });
+
+
+describe("'$this' object", function() {
+    it("'$this' object 1", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 2", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 3", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+
+    it("'$this' object 4", function() {
+        expect(lisp`
+            ($$defun fn () $this)
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 5", function() {
+        expect(lisp`
+            ($$defun fn () $this)
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 6", function() {
+        expect(lisp`
+            ($$defun fn () $this)
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+
+    it("'$this' object 7", function() {
+        expect(lisp`
+            ($let fn (-> () $this))
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 8", function() {
+        expect(lisp`
+            ($let fn (-> () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 9", function() {
+        expect(lisp`
+            ($let fn (-> () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+
+    it("'$this' object 10", function() {
+        expect(lisp`
+            ($let fn (=> () $this))
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 11", function() {
+        expect(lisp`
+            ($let fn (=> () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 12", function() {
+        expect(lisp`
+            ($let fn (=> () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+
+    it("'$this' object 13", function() {
+        expect(lisp`
+            ($let fn (|-> () use () $this))
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 14", function() {
+        expect(lisp`
+            ($let fn (|-> () use () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 15", function() {
+        expect(lisp`
+            ($let fn (|-> () use () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+
+    it("'$this' object 16", function() {
+        expect(lisp`
+            ($let fn (|=> () use () $this))
+            (fn)
+        `).toEqual(null);
+    });
+    it("'$this' object 17", function() {
+        expect(lisp`
+            ($let fn (|=> () use () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("'$this' object 18", function() {
+        expect(lisp`
+            ($let fn (|=> () use () $this))
+            ($let xx (#
+                (a 3)
+                (b 5)
+                (f fn) ))
+            ($json-stringify (::xx@f))
+            (fn)
+        `).toEqual(null);
+    });
+});

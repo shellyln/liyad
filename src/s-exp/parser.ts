@@ -263,9 +263,9 @@ function parseSymbol(state: SxParserState, virtualEof?: string[]): SxSymbol | nu
     if (state.config.enableShorthands) {
         let m: RegExpMatchArray | null = null;
         // tslint:disable-next-line:no-conditional-assignment
-        if (m = s.match(/^::([^=:][^=]+)=$/)) {
+        if (m = s.match(/^:((?:\:[^=:]+?)+?)=$/)) {
             // ::foo:bar:baz= -> ($splice ($set (foo bar baz)))
-            const ws = m[1].split(':');
+            const ws = m[1].slice(1).split(':');
             const z =
                 [{symbol: state.config.reservedNames.splice},
                     [{symbol: state.config.reservedNames.set},
@@ -275,9 +275,9 @@ function parseSymbol(state: SxParserState, virtualEof?: string[]): SxSymbol | nu
             return z as any;
         }
         // tslint:disable-next-line:no-conditional-assignment
-        else if (m = s.match(/^::([^@:][^@]+)@([^@:]+)$/)) {
+        else if (m = s.match(/^:((?:\:[^@:]+?)+?)@([^@:]+?)$/)) {
             // ::foo:bar@baz -> ($splice ($call ($get foo bar) baz))
-            const ws = m[1].split(':');
+            const ws = m[1].slice(1).split(':');
             const z =
                 [{symbol: state.config.reservedNames.splice},
                     [{symbol: state.config.reservedNames.call},
@@ -288,9 +288,9 @@ function parseSymbol(state: SxParserState, virtualEof?: string[]): SxSymbol | nu
             return z as any;
         }
         // tslint:disable-next-line:no-conditional-assignment
-        else if (m = s.match(/^::([^:].+)$/)) {
+        else if (m = s.match(/^:((?:\:[^:]+?)+?)$/)) {
             // ::foo:bar:baz -> ($get foo bar baz)
-            const ws = m[1].split(':');
+            const ws = m[1].slice(1).split(':');
             const z = [{symbol: state.config.reservedNames.get}, ...ws];
             return z as any;
         }

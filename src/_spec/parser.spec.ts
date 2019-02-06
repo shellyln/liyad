@@ -1218,3 +1218,96 @@ describe("(compile) prototype pollution", function() {
         expect((Object.prototype as any).foo).toBeUndefined();
     });
 });
+
+
+describe("shorthands 2", function() {
+    it("shorthands 2a", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            ($let q (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::q@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("shorthands 2b", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            ($let qq (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::qq@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+    it("shorthands 2c", function() {
+        expect(lisp`
+            ($defun fn () $this)
+            ($let qqq (#
+                (a 3)
+                (b 5)
+                (f (<- fn)) ))
+            ($json-stringify (::qqq@f))
+        `).toEqual('{"a":3,"b":5}');
+    });
+});
+
+
+describe("shorthands 3", function() {
+    it("shorthands 3a", function() {
+        expect(lisp`
+            ($let q (#
+                (a 3)
+                (b 5) ))
+            ($eval ::q:b)
+        `).toEqual(5);
+    });
+    it("shorthands 3b", function() {
+        expect(lisp`
+            ($let qq (#
+                (a 3)
+                (b 5) ))
+            ($eval ::qq:b)
+        `).toEqual(5);
+    });
+    it("shorthands 3c", function() {
+        expect(lisp`
+            ($let qqq (#
+                (a 3)
+                (b 5) ))
+            ($eval ::qqq:b)
+        `).toEqual(5);
+    });
+});
+
+
+describe("shorthands 4", function() {
+    it("shorthands 4a", function() {
+        expect(lisp`
+            ($let q (#
+                (a 3)
+                (b 5) ))
+            (::q:b= 7)
+            ($eval ::q:b)
+        `).toEqual(7);
+    });
+    it("shorthands 4b", function() {
+        expect(lisp`
+            ($let qq (#
+                (a 3)
+                (b 5) ))
+            (::qq:b= 7)
+            ($eval ::qq:b)
+        `).toEqual(7);
+    });
+    it("shorthands 4c", function() {
+        expect(lisp`
+            ($let qqq (#
+                (a 3)
+                (b 5) ))
+            (::qqq:b= 7)
+            ($eval ::qqq:b)
+        `).toEqual(7);
+    });
+});

@@ -1,7 +1,7 @@
 {
   "name": "liyad",
   "private": false,
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "Liyad (Lisp yet another DSL interpreter) is very small Lisp interpreter written in JavaScript.",
   "keywords": [
     "LISP",
@@ -24,11 +24,11 @@
   "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.4",
-    "@babel/preset-env": "^7.3.4",
-    "@types/jasmine": "^3.3.9",
-    "@types/node": "^11.10.4",
-    "@types/react": "^16.8.6",
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.1",
+    "@types/jasmine": "^3.3.12",
+    "@types/node": "^11.11.4",
+    "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.2",
     "babel-loader": "^8.0.5",
     "cpx": "^1.5.0",
@@ -45,10 +45,10 @@
     "shx": "^0.3.2",
     "source-map-loader": "^0.2.4",
     "ts-loader": "^5.3.3",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.4000",
     "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.3.0"
   },
   "scripts": {
     "clean": "run-s clean:cjs clean:esm clean:spec clean:dist",

@@ -1,4 +1,4 @@
-image: node:12
+image: node:11
 
 before_script:
   - npm ci
@@ -10,15 +10,6 @@ before_script:
 test:lint:
   script:
     - npm run lint
-
-# LTS
-test:node:12:
-  script:
-    - npm run clean
-    - npm run build
-    - npm run build:dist:dev
-    - npm run build:dist:prod
-    - npm test
 
 test:node:11:
   script:

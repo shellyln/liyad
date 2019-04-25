@@ -49,6 +49,14 @@ $ liyad
 * Builtin minimal Lisp interpreter
 * Reference implementation of LSX (alternative JSX notation using Lisp)
 
+----
+
+## Real world examples
+
+* [Ménneu](https://www.npmjs.com/package/menneu)  
+    Component-based extensible document processor
+* [mdne - Markdown Neo Edit](https://www.npmjs.com/package/mdne)  
+    A simple markdown and code editor powered by Markdown-it, Ace and Carlo.
 
 ----
 

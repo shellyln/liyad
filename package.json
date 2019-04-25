@@ -11,7 +11,9 @@
     "LSX",
     "interpreter",
     "parser",
-    "TypeScript"
+    "REPL",
+    "TypeScript",
+    "Liyad"
   ],
   "main": "./bin/index.js",
   "module": "./modules/index.js",

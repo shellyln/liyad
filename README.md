@@ -100,14 +100,9 @@ lsx`
                (onChange ${(e) => this.handleExampleSelected(e.target.value)}) )
         ($=for ${exampleCodes}
             ($=if (== (% $index 2) 1)
-                (option (@ (value $index)) ($concat "odd: " ($get $data "name")) )
-            )
+                (option (@ (value $index)) ($concat "odd: " ($get $data "name"))) )
             ($=if (== (% $index 2) 0)
-                (option (@ (value $index)) ($concat "even: " ($get $data "name")) )
-            )
-        )
-    )
-)`;
+                (option (@ (value $index)) ($concat "even: " ($get $data "name"))) ))))`;
 ```
 
 ### See also:
@@ -128,8 +123,7 @@ console.log(
     JSON.stringify(S`
         ($list
             1 2 3 "a" "b" "C"
-            ($list 4 5 6) ${"X"} ${["Y", "Z"]}
-        )`
+            ($list 4 5 6) ${"X"} ${["Y", "Z"]} )`
 
         // You can also parse by calling w/o template literal syntax as following:
         // S(' ... ')
@@ -156,8 +150,7 @@ console.log(
                 (* n ($self (- n 1))) ))
         ($list
             1 2 (fac 3) "a" "b" "c"
-            ($list 4 5 (fac 6) ${"X"} ${["Y", "Z"]})
-        )`
+            ($list 4 5 (fac 6) ${"X"} ${["Y", "Z"]}) )`
 
         // You can also evaluate by calling w/o template literal syntax as following:
         // lisp(' ... ')
@@ -205,10 +198,7 @@ class ExampleLoader extends React.Component {
                               (width "300px") )
                        (onChange ${(e) => this.handleExampleSelected(e.target.value)}) )
                 ($=for ${exampleCodes}
-                    (option (@ (value $index)) ($get $data "name") )
-                )
-            )
-        )`);
+                    (option (@ (value $index)) ($get $data "name")) )))`);
     }
 }
 
@@ -226,9 +216,7 @@ class App extends React.Component {
         return (lsx`
         (Template
             (div (@ (style (margin "4px")))
-                (ExampleLoader  (@ (loadExample ${(i) => this.loadExample(i)}) ))
-            )
-        )`);
+                (ExampleLoader  (@ (loadExample ${(i) => this.loadExample(i)}))) ))`);
     }
 }
 
@@ -698,6 +686,89 @@ function LSX_async<R = SxToken>(lsxConf: LsxConfig): (strings: TemplateStringsAr
 * `lsxConf` : LSX config.
 
 
+### (`lisp` | `lisp_async` | `LM` | `LM_async` : SExpressionTemplateFn) methods
+
+#### evaluateAST
+
+```ts
+evaluateAST(ast: SxToken[]): SxToken;
+```
+
+* returns : evaluation result value.
+* `ast` : AST to evaluate.
+
+#### repl
+
+```ts
+repl(): SExpressionTemplateFn;
+```
+
+* returns : Template literal function that will keep variables and states for each evaluation.
+
+#### setGlobals
+
+```ts
+setGlobals(globals: object): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `globals` : Global variables to preset.
+
+#### appendGlobals
+
+```ts
+appendGlobals(globals: object): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `globals` : Global variables to preset.
+
+#### setStartup
+
+```ts
+setStartup(strings: TemplateStringsArray | string, ...values: any[]): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `strings` : Startup code that evaluate before each evaluation of user code.
+
+#### setStartupAST
+
+```ts
+setStartupAST(ast: SxToken[]): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `ast` : Startup code AST that evaluate before each evaluation of user code.
+
+#### appendStartup
+
+```ts
+appendStartup(strings: TemplateStringsArray | string, ...values: any[]): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `strings` : Startup code that evaluate before each evaluation of user code.
+
+#### appendStartupAST
+
+```ts
+appendStartupAST(ast: SxToken[]): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `ast` : Startup code AST that evaluate before each evaluation of user code.
+
+#### install
+
+```ts
+install(installer: (config: SxParserConfig) => SxParserConfig): SExpressionTemplateFn;
+```
+
+* returns : myself (template literal function).
+* `installer` : Installer function that register the operators, macros, constants to the `config` object.
+
+
 ### `runScriptTags`
 Run script tags.
 
@@ -764,4 +835,4 @@ See
 
 ## License
 [ISC](https://github.com/shellyln/liyad/blob/master/LICENSE.md)  
-Copyright (c) 2018, Shellyl_N and Authors.
+Copyright (c) 2018, 2019 Shellyl_N and Authors.

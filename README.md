@@ -674,9 +674,11 @@ is equivalent to:
 |_token_`:list`    |parameter should be list
 |_token_`:symbol`  |parameter should be symbol
 
+> Don't put spaces between `!` `<` `>` `:type` and _token_.
+
 > Type checking checks formal parameter types before evaluation.
 
-> Macro can overloading by same macro name different formal parameters.
+> Macro can be overloaded with the same macro name and different formal parameters.
 
 ----
 

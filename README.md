@@ -678,7 +678,7 @@ is equivalent to:
 
 > Type checking checks formal parameter types before evaluation.
 
-> Macro can be overloaded with the same macro name and different formal parameters.
+> Macro can be overloaded with the same macro name but different numbers of formal parameters.
 
 ----
 

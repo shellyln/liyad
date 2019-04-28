@@ -317,6 +317,22 @@ console.log(
 
 ----
 
+### Comments
+
+```lisp
+# This is a line comment
+
+(# ; <-- This is a object literal, not a line comment
+)
+
+; This is a line comment
+
+#|
+This is a block comment
+ |#
+```
+
+----
 
 ### Here document:
 

@@ -664,15 +664,15 @@ is equivalent to:
 
 #### Parameter type checking
 
-|formal parameter   |constraint|
-|-------------------|----------|
-|`!`_token_         |parameter should be symbol
-|`<`_token_`>`      |parameter should be symbol named `token`
-|_token__`:number`  |parameter should be number
-|_token__`:string`  |parameter should be string
-|_token__`:function`|parameter should be function
-|_token__`:list`    |parameter should be list
-|_token__`:symbol`  |parameter should be symbol
+|formal parameter  |constraint|
+|------------------|----------|
+|`!`_token_        |parameter should be symbol
+|`<`_token_`>`     |parameter should be symbol named `token`
+|_token_`:number`  |parameter should be number
+|_token_`:string`  |parameter should be string
+|_token_`:function`|parameter should be function
+|_token_`:list`    |parameter should be list
+|_token_`:symbol`  |parameter should be symbol
 
 > Type checking checks formal parameter types before evaluation.
 

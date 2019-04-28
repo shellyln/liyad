@@ -556,7 +556,7 @@ is to be:
 ```
 
 is to be:
-```json
+```js
 [[], null, undefined]
 ```
 
@@ -657,6 +657,8 @@ is equivalent to:
 |_token__`:function`|parameter should be function
 |_token__`:list`    |parameter should be list
 |_token__`:symbol`  |parameter should be symbol
+
+> Type checking checks formal parameter types before evaluation.
 
 > Macro can overloading by same macro name different formal parameters.
 

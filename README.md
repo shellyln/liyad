@@ -564,6 +564,17 @@ See [this](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/cor
 
 ----
 
+### Refer the function
+
+```lisp
+(#defun fn(x) (+ x 1))
+($let x (<- fn))
+(x 3) ;; 4
+```
+> Liyad is `Lisp-2` language.
+
+----
+
 ### Lambda and closure
 
 Lambda
@@ -572,6 +583,7 @@ Lambda
 
 (fn 1 2 3) ;; 12
 ```
+> `$lambda` is synonym of `->`.
 
 Closure
 ```lisp
@@ -585,6 +597,7 @@ Closure
 (fn 1 2 3) ;; 12
 (fn 1 2 3) ;; 18
 ```
+> `$closure` is synonym of `|->`.
 
 is equivalent to:
 ```lisp
@@ -616,15 +629,60 @@ is equivalent to:
 
 ----
 
+### Macro
+
+```lisp
+($defmacro FOR (!i <[> <FROM> s <TO> e <]> ...body)
+    `($last
+        ($local ((,i ,s))
+            ($while (<= ,i ,e)
+                ,@body
+                ($set ,i (+ ,i 1)) ))))
+
+($let c1   0)
+($let c2 100)
+(FOR p [ FROM (+ 1) TO (+ 6 -3) ]
+    ($set c1 (+ c1 p))
+    ($set c2 (+ c2 p)) )
+```
+
+#### Parameter type checking
+
+|formal parameter   |constraint|
+|-------------------|----------|
+|`!`_token_         |parameter should be symbol
+|`<`_token_`>`      |parameter should be symbol named `token`
+|_token__`:number`  |parameter should be number
+|_token__`:string`  |parameter should be string
+|_token__`:function`|parameter should be function
+|_token__`:list`    |parameter should be list
+|_token__`:symbol`  |parameter should be symbol
+
+> Macro can overloading by same macro name different formal parameters.
+
+----
+
 ### This object
 
 ```lisp
-($let fn (=> () $this))
+($let fn (-> () $this))
 ($let xx (# (a 3)
             (b 5)
             (f fn) ))
 ($json-stringify (::xx@f)) ;; {"a":3,"b":5}
 ```
+
+----
+
+### Compiling functions and lambdas (experimental)
+
+|interpreting|compiling| |
+|------------|---------|-|
+|$defun      |$$defun  |define the function
+|$lambda     |$$lambda |define the lambda
+|->          |=>       |define the lambda
+|$closure    |$$closure|define the closure
+|\|->        |\|=>     |define the closure
 
 ----
 

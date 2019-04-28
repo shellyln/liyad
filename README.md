@@ -531,7 +531,7 @@ is to be:
 
 ----
 
-#### Object literal
+### Object literal
 
 ```lisp
 (# (foo "a")

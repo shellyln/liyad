@@ -583,7 +583,7 @@ See [this](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/cor
 ### Refer the function
 
 ```lisp
-(#defun fn(x) (+ x 1))
+($defun fn(x) (+ x 1))
 ($let x (<- fn))
 (x 3) ;; 4
 ```
@@ -597,7 +597,7 @@ Lambda
 ```lisp
 ($let fn (-> (x y z) (+ x y z)))
 
-(fn 1 2 3) ;; 12
+(fn 1 2 3) ;; 6
 ```
 > `$lambda` is synonym of `->`.
 

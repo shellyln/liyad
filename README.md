@@ -23,7 +23,7 @@ from NPM:
 $ npm install liyad --save
 ```
 
-or download from [release](https://github.com/shellyln/liyad/releases) page.
+or download UMD from [release](https://github.com/shellyln/liyad/releases) page.
 
 
 ## Install CLI
@@ -527,6 +527,103 @@ Normal string literal
 is to be:
 ```json
 "c:documents\filesf.txt"
+```
+
+----
+
+#### Object literal
+
+```lisp
+(# (foo "a")
+   (bar 10)
+   (baz) )
+```
+
+is to be:
+```json
+{
+    "foo": "a",
+    "bar": 10,
+    "baz": true
+}
+```
+
+----
+
+### nil, null, undefined
+```lisp
+($list nil null undefined)
+```
+
+is to be:
+```json
+[[], null, undefined]
+```
+
+See [this](https://github.com/shellyln/liyad/blob/master/src/s-exp/operators/core/core.symbol.ts).
+
+----
+
+### Lambda and closure
+
+Lambda
+```lisp
+($let fn (-> (x y z) (+ x y z)))
+
+(fn 1 2 3) ;; 12
+```
+
+Closure
+```lisp
+($let fn ($local ((a 1)(b 2)(c 3))
+    (|-> (x y z) use (a b c)
+        ($set a (+ a x))
+        ($set b (+ b y))
+        ($set c (+ c z))
+        (+ a b c) )))
+
+(fn 1 2 3) ;; 12
+(fn 1 2 3) ;; 18
+```
+
+is equivalent to:
+```lisp
+($let fn ($local ((a 1)(b 2)(c 3))
+    ($capture (a b c) (-> (x y z)
+        ($set a (+ a x))
+        ($set b (+ b y))
+        ($set c (+ c z))
+        (+ a b c) ))))
+
+(fn 1 2 3) ;; 12
+(fn 1 2 3) ;; 18
+```
+> `$capture` can also be used with `$defun`.
+
+----
+
+### Recursive call
+
+```lisp
+($defun tarai(x y z)
+    ($if (<= x y)
+        y
+        ($self ($self (- x 1) y z)
+               ($self (- y 1) z x)
+               ($self (- z 1) x y) )))
+```
+> `$self` refers to the function currently defined by `$defun` or `->`.
+
+----
+
+### This object
+
+```lisp
+($let fn (=> () $this))
+($let xx (# (a 3)
+            (b 5)
+            (f fn) ))
+($json-stringify (::xx@f)) ;; {"a":3,"b":5}
 ```
 
 ----

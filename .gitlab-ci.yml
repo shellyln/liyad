@@ -21,6 +21,7 @@ test:node:12:
     - npm test
 
 test:node:11:
+  image: node:11
   script:
     - npm run clean
     - npm run build

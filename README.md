@@ -878,7 +878,10 @@ evaluateAST(ast: SxToken[]): SxToken;
 ```
 
 * returns : evaluation result value.
-* `ast` : AST to evaluate.
+* `ast` : AST to evaluate. it should be enclosed in `[]`.
+    ```ts
+    lisp.evaluateAST([[{symbol: '+'}, 1, 2 ,3]]);  // 6
+    ```
 
 #### repl
 

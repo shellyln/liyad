@@ -983,7 +983,7 @@ Usage:
                     ($self ($self (- x 1) y z)
                         ($self (- y 1) z x)
                         ($self (- z 1) x y))))
-        ($list ($datetime-to-iso-string ($now)) (tarai 13 6 0) c) ))
+            ($list ($datetime-to-iso-string ($now)) (tarai 13 6 0) c) ))
     </script>
     <script src="liyad.min.js"></script>
     <script>

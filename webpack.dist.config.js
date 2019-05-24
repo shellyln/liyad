@@ -40,6 +40,7 @@ module.exports = function (env) {
             library: 'liyad',
 
             libraryTarget: 'umd',
+            globalObject: 'this',
             filename: process.env.NODE_ENV === 'production' ? '[name].min.js' : '[name].js',
             path: path.resolve(__dirname, 'dist'),
             devtoolModuleFilenameTemplate: void 0

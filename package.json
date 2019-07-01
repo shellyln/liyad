@@ -31,8 +31,8 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "@types/jasmine": "^3.3.13",
-    "@types/node": "^12.0.4",
-    "@types/react": "^16.8.19",
+    "@types/node": "^12.0.10",
+    "@types/react": "^16.8.22",
     "@types/react-dom": "^16.8.4",
     "babel-loader": "^8.0.6",
     "cpx": "^1.5.0",
@@ -48,11 +48,11 @@
     "rimraf": "^2.6.3",
     "shx": "^0.3.2",
     "source-map-loader": "^0.2.4",
-    "ts-loader": "^6.0.2",
-    "tslint": "^5.17.0",
-    "typescript": "^3.5.1",
-    "webpack": "^4.32.2",
-    "webpack-cli": "^3.3.2"
+    "ts-loader": "^6.0.4",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.2",
+    "webpack": "^4.35.2",
+    "webpack-cli": "^3.3.5"
   },
   "scripts": {
     "clean": "run-s clean:cjs clean:esm clean:spec clean:dist",

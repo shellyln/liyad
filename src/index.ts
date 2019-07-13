@@ -3,6 +3,8 @@
 // https://github.com/shellyln
 
 
+export * from './s-exp/types';
+export * from './s-exp/ast';
 export * from './s-exp/s-expression';
 export * from './s-exp/browser';
 

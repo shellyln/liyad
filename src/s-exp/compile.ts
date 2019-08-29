@@ -12,7 +12,8 @@ import { SxParserState,
 import { isSymbol }                   from './ast';
 import { getCapturedScopes,
          optimizeTailCall }           from './evaluate';
-import { checkUnsafeVarNames }        from './errors';
+import { checkUnsafeVarNamesEx,
+         checkUnsafeVarNames }        from './errors';
 import { applyMacros,
          stripQuoteOrPass,
          resolveValueSymbol_dynamic } from './compile.ops/helpers';

@@ -9,6 +9,7 @@ import { SxParserState,
          CompilerContext }             from '../types';
 import { isSymbol }                    from '../ast';
 import { checkParamsLength,
+         checkUnsafeVarNamesEx,
          checkUnsafeVarNames }         from '../errors';
 import { stripQuote,
          stripQuoteOrPass,

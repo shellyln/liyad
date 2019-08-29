@@ -11,10 +11,10 @@ import { SxParserState,
          SxToken,
          SxScope,
          CapturedScopes,
-         SxMacroInfo }         from './types';
-import { isSymbol }            from './ast';
+         SxMacroInfo }           from './types';
+import { isSymbol }              from './ast';
 import { setEvaluationCount,
-         checkUnsafeVarNames } from './errors';
+         checkUnsafeVarNamesEx } from './errors';
 
 
 
@@ -160,7 +160,7 @@ export function collectCapturedVariables(state: SxParserState, names: SxSymbol[]
         if (scope === null) {
             throw new Error(`[SX] collectCapturedVariables: Unresolved symbols ${n}`);
         }
-        checkUnsafeVarNames('collectCapturedVariables', n.symbol);
+        checkUnsafeVarNamesEx('collectCapturedVariables', capturedScopes, n.symbol);
         capturedScopes[n.symbol] = scope;
     }
     return capturedScopes;

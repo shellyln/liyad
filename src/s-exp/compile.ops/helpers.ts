@@ -11,6 +11,7 @@ import { resolveSplice,
          resolveValueSymbol,
          getScope }            from '../evaluate';
 import { setEvaluationCount,
+         checkUnsafeVarNamesEx,
          checkUnsafeVarNames } from '../errors';
 
 

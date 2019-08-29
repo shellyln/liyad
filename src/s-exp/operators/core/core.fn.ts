@@ -8,9 +8,9 @@ import { SxParserState,
          SxToken,
          FatalError,
          CapturedScopes,
-         SxMacroInfo }         from '../../types';
+         SxMacroInfo }           from '../../types';
 import { isSymbol,
-         quote }               from '../../ast';
+         quote }                 from '../../ast';
 import { evaluate,
          resolveValueSymbolScope,
          collectCapturedVariables,
@@ -20,10 +20,10 @@ import { evaluate,
          installScope,
          uninstallScope,
          optimizeTailCall,
-         toNumber }            from '../../evaluate';
-import { compileLambda }       from '../../compile';
+         toNumber }              from '../../evaluate';
+import { compileLambda }         from '../../compile';
 import { checkParamsLength,
-         checkUnsafeVarNames } from '../../errors';
+         checkUnsafeVarNamesEx } from '../../errors';
 
 
 
@@ -228,12 +228,12 @@ export const $__scope = (state: SxParserState, name: string, capturedScopes?: Ca
                 const kv = $$firstAndSecond(...x);
                 const kvSym = isSymbol(kv.car);
                 const kvName = kvSym ? kvSym.symbol : String(kv.car);
-                checkUnsafeVarNames('$__scope', kvName);
+                checkUnsafeVarNamesEx('$__scope', scope, kvName);
                 scope[kvName] = evaluate(state, kv.cdr);
             } else {
                 const xSym = isSymbol(x);
                 const xName = xSym ? xSym.symbol : String(x);
-                checkUnsafeVarNames('$__scope', xName);
+                checkUnsafeVarNamesEx('$__scope', scope, xName);
                 scope[xName] = null;
             }
         }
@@ -420,7 +420,7 @@ export const $__defun = (state: SxParserState, name: string) => (...args: any[])
     const car: SxSymbol = $$first(...args);
     const fn = $__lambda(state, name)(...args.slice(1));
 
-    checkUnsafeVarNames('$__defun', car.symbol);
+    checkUnsafeVarNamesEx('$__defun', state.funcMap, car.symbol);
     // TODO: overloading
     state.funcMap.set(car.symbol, {
         name: car.symbol,
@@ -442,7 +442,7 @@ export const $comp$__defun = (state: SxParserState, name: string) => (...args: a
     const car: SxSymbol = $$first(...args);
     const fn = $comp$__lambda(state, name)(...args.slice(1));
 
-    checkUnsafeVarNames('$$__defun', car.symbol);
+    checkUnsafeVarNamesEx('$$__defun', state.funcMap, car.symbol);
     // TODO: overloading
     state.funcMap.set(car.symbol, {
         name: car.symbol,
@@ -463,7 +463,7 @@ export const $__refun = (state: SxParserState, name: string) => (...args: any[])
 
     const car: SxSymbol = $$first(...args);
 
-    checkUnsafeVarNames('$__refun', car.symbol);
+    checkUnsafeVarNamesEx('$__refun', state.funcMap, car.symbol);
     const info = state.funcMap.get(car.symbol);
     if (!info) {
         throw new Error(`[SX] $__refun: function ${car.symbol} is not defined.`);
@@ -522,7 +522,7 @@ export const $__defmacro = (state: SxParserState, name: string) => (...args: any
         lastIsSpread,
     };
 
-    checkUnsafeVarNames('$__defmacro', car.symbol);
+    checkUnsafeVarNamesEx('$__defmacro', state.macroMap, car.symbol);
 
     if (state.macroMap.has(car.symbol)) {
         let curr = state.macroMap.get(car.symbol);
@@ -581,7 +581,7 @@ export const $__call = (state: SxParserState, name: string) => (...args: any[]) 
     const sym = isSymbol(cdr);
     const xName = sym ? sym.symbol : evaluate(state, cdr) as any;
 
-    checkUnsafeVarNames('$__call', xName);
+    checkUnsafeVarNamesEx('$__call', car, xName);
 
     return Function.prototype.apply.call(
         car[xName],
@@ -774,7 +774,7 @@ export const $__repeat = (state: SxParserState, name: string) => (...args: any[]
         throw new Error(`[SX] $__repeat: Invalid argument(s): item(s) of args[0] is not symbol.`);
     }
 
-    checkUnsafeVarNames('$__repeat', sym.symbol);
+    checkUnsafeVarNamesEx('$__repeat', {}, sym.symbol); // NOTE: pass dummy target object.
     const scope = resolveValueSymbolScope(state, sym, false);
 
     const n = toNumber($$second(...args));
@@ -802,7 +802,7 @@ export const $__for = (state: SxParserState, name: string) => (...args: any[]) =
         throw new Error(`[SX] $__for: Invalid argument(s): item(s) of args[0] is not symbol.`);
     }
 
-    checkUnsafeVarNames('$__for', sym.symbol);
+    checkUnsafeVarNamesEx('$__for', {}, sym.symbol); // NOTE: pass dummy target object.
     const scope = resolveValueSymbolScope(state, sym, false);
 
     const list = $$second(...args);
@@ -894,7 +894,7 @@ export const $__get = (state: SxParserState, name: string) => (...args: any[]) =
                 }
                 // FALL_THRU
             case 'string':
-                checkUnsafeVarNames('$__get', q);
+                checkUnsafeVarNamesEx('$__get', v, q);
                 v = v[q];
                 inprog = false;
                 break;
@@ -923,7 +923,7 @@ export const $__let = (state: SxParserState, name: string) => (...args: any[]) =
         }
     }
 
-    checkUnsafeVarNames('$__let', sym.symbol);
+    checkUnsafeVarNamesEx('$__let', {}, sym.symbol); // NOTE: pass dummy target object.
 
     const scope = resolveValueSymbolScope(state, sym, false);
     scope[sym.symbol] = args[1];
@@ -950,7 +950,7 @@ export const $__set = (state: SxParserState, name: string) => (...args: any[]) =
 
     if (! sym) {
         if (typeof path[0] === 'string') {
-            checkUnsafeVarNames('$__set', path[0]);
+            checkUnsafeVarNamesEx('$__set', {}, path[0]); // NOTE: pass dummy target object.
             sym = {symbol: path[0]};
         } else {
             throw new Error(`[SX] $__set: Invalid argument(s): invalid name.`);
@@ -994,7 +994,7 @@ export const $__set = (state: SxParserState, name: string) => (...args: any[]) =
                 }
                 // FALL_THRU
             case 'string':
-                checkUnsafeVarNames('$__set', q);
+                checkUnsafeVarNamesEx('$__set', scope, q);
                 if (last) {
                     scope[q] = args[1];
                     subst = true;
@@ -1298,7 +1298,7 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
                 sym ? sym.symbol :
                 String(evaluate(state, x[0]));
 
-            checkUnsafeVarNames('$__#', keyName);
+            checkUnsafeVarNamesEx('$__#', r, keyName);
             if (x.length === 1) {
                 // S expression: (# ... (keyName) ...)
                 //  -> JSON    : {..., keyName: true, ...}

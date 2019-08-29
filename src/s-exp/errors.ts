@@ -31,5 +31,21 @@ export function checkUnsafeVarNames(name: string, varName: string) {
     if (varName === '__proto__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
+    if (varName === 'prototype') {
+        throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+    }
+    return varName;
+}
+
+
+export function checkUnsafeVarNamesEx(name: string, target: any, varName: string) {
+    if (varName === '__proto__') {
+        throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+    }
+    if (varName === 'prototype') {
+        if (target === null || target === void 0 || typeof target === 'function') {
+            throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+        }
+    }
     return varName;
 }

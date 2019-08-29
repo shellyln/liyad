@@ -1247,6 +1247,68 @@ describe("prototype pollution from .constructor.prototype", function() {
         expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
     });
+    it("prototype pollution from .constructor.prototype 3", function() {
+        // NOTE: "constructor", "prototype" are acceptable names if they appear independently.
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn1: any = parse(`( -> (match)
+            ($let constructor 11)
+            ($let prototype 13)
+            ($list constructor prototype)
+        )`);
+        expect(fn1({})).toEqual([11, 13]);
+        expect(obj.foo).toBeUndefined();
+    });
+    it("prototype pollution from .constructor.prototype 4", function() {
+        // NOTE: "prototype" are acceptable names if they appear the next to non-function value.
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn1: any = parse(`( -> (match)
+            (::match:constructor= (#))
+            (::match:constructor:prototype= (#))
+            (::match:constructor:prototype:foo= 1)
+        )`);
+        expect(fn1({})).toEqual(1);
+        expect(obj.foo).toBeUndefined();
+    });
+});
+
+
+describe("(compile) prototype pollution from .constructor.prototype", function() {
+    // NOTE: test vulnerability (issue #1)
+    it("prototype pollution from .constructor.prototype 1", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn1: any = parse(`( => (match)
+                (::match:constructor:prototype:foo= 1)
+            )`);
+        expect(() => fn1({})).toThrow();
+        expect(obj.foo).toBeUndefined();
+    });
+    it("(compile) prototype pollution from .constructor.prototype 2", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        // BUG: compiler bug occurs!
+        //       Error: [SX] compileToken: First item of list is not a function: "bar".
+        //
+        // const fn2: any = parse(`( => (match)
+        //         (::match:constructor@assign ::match:constructor:prototype (# ("bar" 2)) )
+        //     )`);
+        // expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
 });
 
 

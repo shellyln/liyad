@@ -1300,7 +1300,7 @@ describe("prototype pollution from .constructor.prototype", function() {
         // expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
     });
-    it("prototype pollution from .constructor.prototype 6", function() {
+    it("prototype pollution from .constructor.prototype 6a", function() {
         // NOTE: ({}).constructor === Object
 
         let config = Object.assign({}, defaultConfig);
@@ -1310,6 +1310,22 @@ describe("prototype pollution from .constructor.prototype", function() {
 
         const fn2: any = parse(`( -> (match)
                 (::match:constructor@assign
+                    (::match:constructor@getPrototypeOf (#) )
+                    (# ("bar" 2)) )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
+    it("prototype pollution from .constructor.prototype 6b", function() {
+        // NOTE: ({}).constructor === Object
+
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn2: any = parse(`( -> (match)
+                ($object-assign
                     (::match:constructor@getPrototypeOf (#) )
                     (# ("bar" 2)) )
             )`);
@@ -1364,7 +1380,7 @@ describe("prototype pollution from .constructor.prototype", function() {
 
 describe("(compile) prototype pollution from .constructor.prototype", function() {
     // NOTE: test vulnerability (issue #1)
-    it("prototype pollution from .constructor.prototype 1", function() {
+    it("(compile) prototype pollution from .constructor.prototype 1", function() {
         let config = Object.assign({}, defaultConfig);
         config = installCore(config);
         const parse = SExpression(config);
@@ -1388,10 +1404,15 @@ describe("(compile) prototype pollution from .constructor.prototype", function()
         // const fn2: any = parse(`( => (match)
         //         (::match:constructor@assign ::match:constructor:prototype (# ("bar" 2)) )
         //     )`);
-        // expect(() => fn2({})).toThrow();
+        const fn2: any = parse(`
+            ($let z (# ("bar" 2)))
+            (|=> (match) use (z)
+                (::match:constructor@assign ::match:constructor:prototype z)
+            )`);
+        expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
     });
-    it("(compile) prototype pollution from .constructor.prototype 6", function() {
+    it("(compile) prototype pollution from .constructor.prototype 6a", function() {
         // NOTE: ({}).constructor === Object
 
         let config = Object.assign({}, defaultConfig);
@@ -1407,7 +1428,40 @@ describe("(compile) prototype pollution from .constructor.prototype", function()
         //             (::match:constructor@getPrototypeOf (#) )
         //             (# ("bar" 2)) )
         //     )`);
-        // expect(() => fn2({})).toThrow();
+        const fn2: any = parse(`
+            ($let z (# ("bar" 2)))
+            (|=> (match) use (z)
+                (::match:constructor@assign
+                    (::match:constructor@getPrototypeOf (#) )
+                    z )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
+    it("(compile) prototype pollution from .constructor.prototype 6b", function() {
+        // NOTE: ({}).constructor === Object
+
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        // BUG: compiler bug occurs!
+        //       Error: [SX] compileToken: First item of list is not a function: "bar".
+        //
+        // const fn2: any = parse(`( => (match)
+        //         ($object-assign
+        //             (::match:constructor@getPrototypeOf (#) )
+        //             (# ("bar" 2)) )
+        //     )`);
+        const fn2: any = parse(`
+            ($let z (# ("bar" 2)))
+            (|=> (match) use (z)
+                ($object-assign
+                    (::match:constructor@getPrototypeOf (#) )
+                    z )
+            )`);
+        expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
     });
 });

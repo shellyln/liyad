@@ -1277,6 +1277,45 @@ describe("prototype pollution from .constructor.prototype", function() {
         expect(fn1({})).toEqual(1);
         expect(obj.foo).toBeUndefined();
     });
+    it("prototype pollution from .constructor.prototype 5", function() {
+        // NOTE: ({}).constructor === Object
+
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        // TypeError: Immutable prototype object '#<Object>' cannot have their prototype set
+        //
+        // http://www.ecma-international.org/ecma-262/7.0/#sec-immutable-prototype-exotic-objects
+        //   > An immutable prototype exotic object is an exotic object that has an immutable [[Prototype]] internal slot.
+        // https://stackoverflow.com/questions/41076421/uncaught-typeerror-immutable-prototype-object-object-cannot-have-their-pro
+        //   > This is new in ES7 (aka ES2016). The builtin prototype object Object.prototype
+        //   > is now an Immutable Prototype Exotic Objects which has its [[prototype]] internal slot locked down.
+        const fn2: any = parse(`( -> (match)
+                (::match:constructor@setPrototypeOf
+                    (::match:constructor@getPrototypeOf (#) )
+                    (# ("bar" 2)) )
+            )`);
+        // expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
+    it("prototype pollution from .constructor.prototype 6", function() {
+        // NOTE: ({}).constructor === Object
+
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn2: any = parse(`( -> (match)
+                (::match:constructor@assign
+                    (::match:constructor@getPrototypeOf (#) )
+                    (# ("bar" 2)) )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
 });
 
 

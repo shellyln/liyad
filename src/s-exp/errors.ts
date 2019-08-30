@@ -27,11 +27,19 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
 }
 
 
+const objConstructor = ({}).constructor; // NOTE: objConstructor === Object
+const objConstructorProto = objConstructor.prototype;
+
 export function checkUnsafeVarNames(name: string, varName: string) {
-    if (varName === '__proto__') {
+    if (varName === '__proto__' ||
+        varName === '__defineGetter__' || varName === '__defineSetter__' ||
+        varName === '__lookupGetter__' || varName === '__lookupSetter__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     if (varName === 'prototype') {
+        throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+    }
+    if (objConstructor.hasOwnProperty(varName)) {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     return varName;
@@ -39,11 +47,18 @@ export function checkUnsafeVarNames(name: string, varName: string) {
 
 
 export function checkUnsafeVarNamesEx(name: string, target: any, varName: string) {
-    if (varName === '__proto__') {
+    if (varName === '__proto__' ||
+        varName === '__defineGetter__' || varName === '__defineSetter__' ||
+        varName === '__lookupGetter__' || varName === '__lookupSetter__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     if (varName === 'prototype') {
         if (target === null || target === void 0 || typeof target === 'function') {
+            throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+        }
+    }
+    if (target === null || target === void 0 || target === objConstructor) {
+        if (objConstructor.hasOwnProperty(varName)) {
             throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
         }
     }

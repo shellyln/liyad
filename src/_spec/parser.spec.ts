@@ -1316,6 +1316,49 @@ describe("prototype pollution from .constructor.prototype", function() {
         expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
     });
+    it("prototype pollution from .constructor.prototype 7a", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn2: any = parse(`( -> (match)
+                (::match:constructor:prototype@__defineGetter__
+                    "bar"
+                    (-> () 2) )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
+    it("prototype pollution from .constructor.prototype 7b", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn2: any = parse(`( -> (match)
+                (::match:constructor@__defineGetter__
+                    "bar"
+                    (-> () 2) )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
+    it("prototype pollution from .constructor.prototype 8", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+        const obj: any = {};
+
+        const fn2: any = parse(`( -> (match)
+                (::match:constructor@defineProperty
+                    ::match:constructor:prototype
+                    "bar"
+                    (# (get (-> () 2))) )
+            )`);
+        expect(() => fn2({})).toThrow();
+        expect(obj.bar).toBeUndefined();
+    });
 });
 
 

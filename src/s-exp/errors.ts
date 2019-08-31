@@ -27,8 +27,8 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
 }
 
 
-const objConstructor = ({}).constructor; // NOTE: objConstructor === Object
-const funConstructor = Function;
+const objConstructor = ({}).constructor; // NOTE: objConstructor            === Object
+const funConstructor = Function;         // NOTE: ({}).toString.constructor === Function
 
 export function checkUnsafeVarNames(name: string, varName: string) {
     if (varName === '__proto__' ||

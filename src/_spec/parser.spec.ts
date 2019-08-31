@@ -1384,6 +1384,7 @@ describe("leaking dangerous things", function() {
         // NOTE: ({}).toString.constructor === Function
         //       Function.prototype === Function.__proto__
         //       Function.__proto__.__proto__.__proto__ === null
+        //       Function.__proto__.__proto__ === ({}).__proto__
         //
         //       dangerous things:
         //           (some_function).constructor
@@ -1396,7 +1397,6 @@ describe("leaking dangerous things", function() {
         let config = Object.assign({}, defaultConfig);
         config = installCore(config);
         const parse = SExpression(config);
-        const obj: any = {};
 
         // returns the global object
         const rule: any = parse(`( -> (match)
@@ -1499,22 +1499,9 @@ describe("(compile) prototype pollution from .constructor.prototype", function()
 describe("(compile) leaking dangerous things", function() {
     // NOTE: test vulnerability (issue #1)
     it('(compile) Can\'t Function.call(untrusted code)', () => {
-        // NOTE: ({}).toString.constructor === Function
-        //       Function.prototype === Function.__proto__
-        //       Function.__proto__.__proto__.__proto__ === null
-        //
-        //       dangerous things:
-        //           (some_function).constructor
-        //           Function.__proto__.arguments
-        //           Function.__proto__.caller
-        //           Function.__proto__.__proto__.call
-        //
-        // NOTE: arguments, caller are not accessible in strict mode
-
         let config = Object.assign({}, defaultConfig);
         config = installCore(config);
         const parse = SExpression(config);
-        const obj: any = {};
 
         // returns the global object
 

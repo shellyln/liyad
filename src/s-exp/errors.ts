@@ -42,9 +42,6 @@ export function checkUnsafeVarNames(name: string, varName: string) {
     if (objConstructor.hasOwnProperty(varName)) {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
-    if (funConstructor.hasOwnProperty(varName)) {
-        throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
-    }
     if (varName === 'call' || varName === 'arguments' || varName === 'caller') {
         // NOTE: arguments, caller are not accessible in strict mode
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
@@ -70,6 +67,7 @@ export function checkUnsafeVarNamesEx(name: string, target: any, varName: string
         }
     }
     if (target === null || target === void 0 || target === funConstructor) {
+        // checking 'call', 'arguments', 'caller', ...
         let con: any = funConstructor;
         while (con) {
             if (con.hasOwnProperty(varName)) {

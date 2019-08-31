@@ -5176,6 +5176,15 @@ describe("operator.core.$object-assign", function() {
             d: 11,
         } as any);
     });
+    it("$object-assign -> throw", function() {
+        expect(() => lisp`($object-assign ${(Object as any).__proto__} (# (a 13)) )`).toThrow();
+    });
+    it("$object-assign -> throw", function() {
+        expect(() => lisp`($object-assign ${({} as any).__proto__} (# (a 13)) )`).toThrow();
+    });
+    it("$object-assign -> throw", function() {
+        expect(() => lisp`($object-assign ${(Function as any).__proto__} (# (a 13)) )`).toThrow();
+    });
 });
 
 

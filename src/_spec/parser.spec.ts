@@ -1690,3 +1690,33 @@ describe("ReDoS protections", function() {
         ` as string[]).slice(0)).toEqual(['abc1234def', '1234']);
     });
 });
+
+
+describe("DoS protections (compilation)", function() {
+    it("DoS protections (compilation) 1", function() {
+        let config = Object.assign({}, defaultConfig, {enableCompilationOperators: false});
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(() => parse`
+            ($let foo 17)
+            ($let la (=> () 3))
+            ($let lb (|=> () use (foo) 5))
+            ($$defun lc () 7)
+            ($list (la) (lb) (lc))
+        `).toThrow('a');
+    });
+    it("DoS protections (compilation) 2", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(parse`
+            ($let foo 17)
+            ($let la (=> () 3))
+            ($let lb (|=> () use (foo) 5))
+            ($$defun lc () 7)
+            ($list (la) (lb) (lc))
+        `).toEqual([3, 5, 7]);
+    });
+});

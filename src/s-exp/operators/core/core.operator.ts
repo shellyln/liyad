@@ -8,7 +8,7 @@ import * as ops       from './core.fn';
 
 
 
-export const funcs: SxFuncInfo[] = [{
+export const operators: SxFuncInfo[] = [{
     name: '$car',
     fn: ops.$car,
 }, {
@@ -66,14 +66,8 @@ export const funcs: SxFuncInfo[] = [{
     name: '$__lambda',
     fn: ops.$__lambda,
 }, {
-    name: '$$__lambda',
-    fn: ops.$comp$__lambda,
-}, {
     name: '$__defun',
     fn: ops.$__defun,
-}, {
-    name: '$$__defun',
-    fn: ops.$comp$__defun,
 }, {
     name: '$__refun',
     fn: ops.$__refun,
@@ -251,4 +245,14 @@ export const funcs: SxFuncInfo[] = [{
 }];
 
 
-export default funcs;
+export const compilationOperators: SxFuncInfo[] = [{
+    name: '$$__lambda',
+    fn: ops.$comp$__lambda,
+}, {
+    name: '$$__defun',
+    fn: ops.$comp$__defun,
+}];
+
+
+// for backword compatibility
+export default ([] as SxFuncInfo[]).concat(operators, compilationOperators);

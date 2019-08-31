@@ -80,6 +80,7 @@ export const defaultConfig: SxParserConfig = {
     enableVerbatimStringLiteral: true,
     enableTailCallOptimization: true,
     enableRegExpMatchOperators: true,
+    enableCompilationOperators: true,
     stripComments: false,
     wrapExternalValue: true,
     returnMultipleRoot: false,

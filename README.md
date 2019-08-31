@@ -723,12 +723,13 @@ interface SxParserConfig {
     enableShorthands: boolean;
     enableVerbatimStringLiteral: boolean;
     enableTailCallOptimization: boolean;
-    enableRegExpMatchOperator: true, // IMPORTANT: Turn off to prevent ReDoS when executing untrusted code!
+    enableRegExpMatchOperator: true,     // IMPORTANT: Turn off to prevent ReDoS when executing untrusted code
+    enableCompilationOperators: boolean; // IMPORTANT: Turn off to prevent DoS when executing untrusted code
     stripComments: boolean;
     wrapExternalValue: boolean;
     reservedNames: SxReservedNames;
     returnMultipleRoot: boolean;
-    maxEvalCount: number; // IMPORTANT: Set positive value to prevent DoS when executing untrusted code!
+    maxEvalCount: number;                // IMPORTANT: Set positive value to prevent DoS when executing untrusted code
 
     jsx?: (comp: any, props: any, ...children: any[]) => any;
     JsxFragment?: any;

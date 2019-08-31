@@ -1404,6 +1404,17 @@ describe("leaking dangerous things", function() {
         )`);
         expect(() => rule({})).toThrow();
     });
+    it('function\'s prototypes members', () => {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        // returns "[object Null]"
+        const rule: any = parse(`( -> (match)
+            (::match:toString@call null "return this" )
+        )`);
+        expect(() => rule({})).toThrow();
+    });
 });
 
 
@@ -1516,6 +1527,17 @@ describe("(compile) leaking dangerous things", function() {
         const rule: any = parse(`( => (match)
             ($let z (::match:toString:constructor@call null "return this" ))
             (z ())
+        )`);
+        expect(() => rule({})).toThrow();
+    });
+    it('(compile) function\'s prototypes members', () => {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        // returns "[object Null]"
+        const rule: any = parse(`( => (match)
+            (::match:toString@call null "return this" )
         )`);
         expect(() => rule({})).toThrow();
     });

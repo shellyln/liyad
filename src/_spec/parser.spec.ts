@@ -3,7 +3,7 @@
 // tslint:disable-next-line:no-implicit-dependencies
 import * as RedAgate from 'red-agate';
 import { S, lisp, lisp_async, LM, LM_async, LSX, LSX_async,
-    SExpression, defaultConfig, installCore } from '../';
+    SExpression, defaultConfig, installCore, installSequence, installArithmetic } from '../';
 
 
 
@@ -1378,6 +1378,35 @@ describe("prototype pollution from .constructor.prototype", function() {
 });
 
 
+describe("leaking dangerous things", function() {
+    // NOTE: test vulnerability (issue #1)
+    it('Can\'t Function.call(untrusted code)', () => {
+        // NOTE: ({}).toString.constructor === Function
+        //       Function.prototype === Function.__proto__
+        //       Function.__proto__.__proto__.__proto__ === null
+        //       Function.__proto__.__proto__ === ({}).__proto__
+        //
+        //       dangerous things:
+        //           (some_function).constructor
+        //           Function.__proto__.arguments
+        //           Function.__proto__.caller
+        //           Function.__proto__.__proto__.call
+        //
+        // NOTE: arguments, caller are not accessible in strict mode
+
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        // returns the global object
+        const rule: any = parse(`( -> (match)
+            ((::match:toString:constructor@call null "return this" ) ())
+        )`);
+        expect(() => rule({})).toThrow();
+    });
+});
+
+
 describe("(compile) prototype pollution from .constructor.prototype", function() {
     // NOTE: test vulnerability (issue #1)
     it("(compile) prototype pollution from .constructor.prototype 1", function() {
@@ -1463,6 +1492,32 @@ describe("(compile) prototype pollution from .constructor.prototype", function()
             )`);
         expect(() => fn2({})).toThrow();
         expect(obj.bar).toBeUndefined();
+    });
+});
+
+
+describe("(compile) leaking dangerous things", function() {
+    // NOTE: test vulnerability (issue #1)
+    it('(compile) Can\'t Function.call(untrusted code)', () => {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        // returns the global object
+
+        // BUG: compiler bug occurs!
+        //       Error: [SX] compileToken: First item of list is not a function:
+        //              [[{"symbol":"$splice"},[{"symbol":"$call"},[{"symbol":"$get"},
+        //               "match","toString","constructor"],{"symbol":"call"}]],{"symbol":"null"},"return this"].
+        //
+        // const rule: any = parse(`( => (match)
+        //     ((::match:toString:constructor@call null "return this" ) ())
+        // )`);
+        const rule: any = parse(`( => (match)
+            ($let z (::match:toString:constructor@call null "return this" ))
+            (z ())
+        )`);
+        expect(() => rule({})).toThrow();
     });
 });
 
@@ -1556,5 +1611,112 @@ describe("shorthands 4", function() {
             (::qqq:b= 7)
             ($eval ::qqq:b)
         `).toEqual(7);
+    });
+});
+
+
+describe("maxEvalCount", function() {
+    it('maxEvalCount 0', () => {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 1000)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+    it('maxEvalCount 1', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 1000)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).toThrow();
+    });
+    it('maxEvalCount 2', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 195)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+    it('maxEvalCount 3', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        config = installArithmetic(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($let n 105)
+            ($let i 0)
+            ($while (< i n)
+                ($let i (+ i 1)) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+});
+
+
+describe("ReDoS protections", function() {
+    it("ReDoS protections 1", function() {
+        let config = Object.assign({}, defaultConfig, {enableRegExpMatchOperators: false});
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(() => parse`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abc1234def")
+        `).toThrow();
+    });
+    it("ReDoS protections 2", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect((parse`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abc1234def")
+        ` as string[]).slice(0)).toEqual(['abc1234def', '1234']);
+    });
+});
+
+
+describe("DoS protections (compilation)", function() {
+    it("DoS protections (compilation) 1", function() {
+        let config = Object.assign({}, defaultConfig, {enableCompilationOperators: false});
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(() => parse`
+            ($let foo 17)
+            ($let la (=> () 3))
+            ($let lb (|=> () use (foo) 5))
+            ($$defun lc () 7)
+            ($list (la) (lb) (lc))
+        `).toThrow('a');
+    });
+    it("DoS protections (compilation) 2", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(parse`
+            ($let foo 17)
+            ($let la (=> () 3))
+            ($let lb (|=> () use (foo) 5))
+            ($$defun lc () 7)
+            ($list (la) (lb) (lc))
+        `).toEqual([3, 5, 7]);
     });
 });

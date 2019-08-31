@@ -1322,11 +1322,20 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
 };
 
 
+const assignBlacklists = [
+    (Object as any).__proto__,
+    ({} as any).__proto__,
+    (Function as any).__proto__,
+];
+
 export const $objectAssign = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($object-assign x)
     //  -> S expr  : string
     checkParamsLength('$objectAssign', args, 1);
 
+    if (assignBlacklists.includes(args[0])) {
+        throw new Error(`[SX] $objectAssign: Invalid argument: args[0] is blacklisted object.`);
+    }
     return Object.assign(args[0], ...(args.slice(1)));
 };
 export const $$objectAssign = $objectAssign(null as any, null as any);
@@ -1562,6 +1571,10 @@ export const $match = (state: SxParserState, name: string) => (...args: any[]) =
     // S expression: ($match pattern-str options-str string)
     //  -> S expr  : array
     checkParamsLength('$match', args, 2, 3);
+
+    if (! state.config.enableRegExpMatchOperators) {
+        throw new Error(`[SX] $match: Operator is disabled by configuration.`);
+    }
 
     if (args.length === 2) {
         const m = new RegExp(args[0]);

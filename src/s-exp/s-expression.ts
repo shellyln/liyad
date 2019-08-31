@@ -79,6 +79,8 @@ export const defaultConfig: SxParserConfig = {
     enableShorthands: true,
     enableVerbatimStringLiteral: true,
     enableTailCallOptimization: true,
+    enableRegExpMatchOperators: true,
+    enableCompilationOperators: true,
     stripComments: false,
     wrapExternalValue: true,
     returnMultipleRoot: false,

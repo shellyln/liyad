@@ -27,8 +27,8 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
 }
 
 
-const objConstructor = ({}).constructor; // NOTE: objConstructor === Object
-const objConstructorProto = objConstructor.prototype;
+const objConstructor = ({}).constructor; // NOTE: objConstructor            === Object
+const funConstructor = Function;         // NOTE: ({}).toString.constructor === Function
 
 export function checkUnsafeVarNames(name: string, varName: string) {
     if (varName === '__proto__' ||
@@ -36,10 +36,14 @@ export function checkUnsafeVarNames(name: string, varName: string) {
         varName === '__lookupGetter__' || varName === '__lookupSetter__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
-    if (varName === 'prototype') {
+    if (varName === 'prototype' || varName === 'constructor') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     if (objConstructor.hasOwnProperty(varName)) {
+        throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+    }
+    if (varName === 'call' || varName === 'arguments' || varName === 'caller') {
+        // NOTE: arguments, caller are not accessible in strict mode
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
     return varName;
@@ -52,7 +56,7 @@ export function checkUnsafeVarNamesEx(name: string, target: any, varName: string
         varName === '__lookupGetter__' || varName === '__lookupSetter__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
     }
-    if (varName === 'prototype') {
+    if (varName === 'prototype' || varName === 'constructor') {
         if (target === null || target === void 0 || typeof target === 'function') {
             throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
         }
@@ -60,6 +64,16 @@ export function checkUnsafeVarNamesEx(name: string, target: any, varName: string
     if (target === null || target === void 0 || target === objConstructor) {
         if (objConstructor.hasOwnProperty(varName)) {
             throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+        }
+    }
+    if (target === null || target === void 0 || target === funConstructor) {
+        // checking 'call', 'arguments', 'caller', ...
+        let con: any = funConstructor;
+        while (con) {
+            if (con.hasOwnProperty(varName)) {
+                throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+            }
+            con = con.__proto__;
         }
     }
     return varName;

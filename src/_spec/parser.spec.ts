@@ -3,7 +3,7 @@
 // tslint:disable-next-line:no-implicit-dependencies
 import * as RedAgate from 'red-agate';
 import { S, lisp, lisp_async, LM, LM_async, LSX, LSX_async,
-    SExpression, defaultConfig, installCore } from '../';
+    SExpression, defaultConfig, installCore, installSequence, installArithmetic } from '../';
 
 
 
@@ -1611,5 +1611,82 @@ describe("shorthands 4", function() {
             (::qqq:b= 7)
             ($eval ::qqq:b)
         `).toEqual(7);
+    });
+});
+
+
+describe("maxEvalCount", function() {
+    it('maxEvalCount 0', () => {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 1000)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+    it('maxEvalCount 1', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 1000)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).toThrow();
+    });
+    it('maxEvalCount 2', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($for i of ($range 1 195)
+                ($let foo i) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+    it('maxEvalCount 3', () => {
+        let config = Object.assign({}, defaultConfig, {maxEvalCount: 1000});
+        config = installCore(config);
+        config = installSequence(config);
+        config = installArithmetic(config);
+        const parse = SExpression(config);
+
+        const rule: any = parse(`( -> (match)
+            ($let n 105)
+            ($let i 0)
+            ($while (< i n)
+                ($let i (+ i 1)) )
+        )`);
+        expect(() => rule({})).not.toThrow();
+    });
+});
+
+
+describe("ReDoS protections", function() {
+    it("ReDoS protections 1", function() {
+        let config = Object.assign({}, defaultConfig, {enableRegExpMatchOperators: false});
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect(() => parse`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abc1234def")
+        `).toThrow();
+    });
+    it("ReDoS protections 2", function() {
+        let config = Object.assign({}, defaultConfig);
+        config = installCore(config);
+        const parse = SExpression(config);
+
+        expect((parse`
+            ($match @"[a-z]+(\\d+)[a-z]+" "abc1234def")
+        ` as string[]).slice(0)).toEqual(['abc1234def', '1234']);
     });
 });

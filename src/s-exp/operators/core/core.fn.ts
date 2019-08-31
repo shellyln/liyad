@@ -1572,6 +1572,10 @@ export const $match = (state: SxParserState, name: string) => (...args: any[]) =
     //  -> S expr  : array
     checkParamsLength('$match', args, 2, 3);
 
+    if (! state.config.enableRegExpMatchOperators) {
+        throw new Error(`[SX] $match: Operator is disabled by configuration.`);
+    }
+
     if (args.length === 2) {
         const m = new RegExp(args[0]);
         return m.exec(args[1]);

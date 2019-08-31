@@ -1704,7 +1704,7 @@ describe("DoS protections (compilation)", function() {
             ($let lb (|=> () use (foo) 5))
             ($$defun lc () 7)
             ($list (la) (lb) (lc))
-        `).toThrow('a');
+        `).toThrow();
     });
     it("DoS protections (compilation) 2", function() {
         let config = Object.assign({}, defaultConfig);

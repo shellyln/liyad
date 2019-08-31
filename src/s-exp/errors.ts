@@ -76,5 +76,11 @@ export function checkUnsafeVarNamesEx(name: string, target: any, varName: string
             con = con.__proto__;
         }
     }
+    if (typeof target === 'function') {
+        if (!target.hasOwnProperty(varName)) {
+            // function's prototypes' members
+            throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);
+        }
+    }
     return varName;
 }

@@ -9,6 +9,7 @@ import { SxParserState,
          FatalError,
          CapturedScopes,
          SxMacroInfo }           from '../../types';
+import { globalObj }             from '../../consts';
 import { isSymbol,
          quote }                 from '../../ast';
 import { evaluate,
@@ -25,10 +26,6 @@ import { compileLambda }         from '../../compile';
 import { checkParamsLength,
          checkUnsafeVarNamesEx } from '../../errors';
 
-
-
-// tslint:disable-next-line:function-constructor
-const globalObj = Function('return this')();
 
 
 export const $car = (state: SxParserState, name: string) => (...args: any[]) => {
@@ -1323,6 +1320,7 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
 
 
 const assignBlacklists = [
+    globalObj,
     (Object as any).__proto__,
     ({} as any).__proto__,
     (Function as any).__proto__,

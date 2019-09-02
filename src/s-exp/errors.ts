@@ -5,6 +5,7 @@
 
 import { SxParserState,
          MaxEvaluationCountError } from './types';
+import { globalObj }               from './consts';
 
 
 
@@ -51,7 +52,8 @@ export function checkUnsafeVarNames(name: string, varName: string) {
 
 
 export function checkUnsafeVarNamesEx(name: string, target: any, varName: string) {
-    if (varName === '__proto__' ||
+    if (target === globalObj ||
+        varName === '__proto__' ||
         varName === '__defineGetter__' || varName === '__defineSetter__' ||
         varName === '__lookupGetter__' || varName === '__lookupSetter__') {
         throw new Error(`[SX] ${name}: Invalid var name ${varName}.`);

@@ -469,6 +469,56 @@ describe("operator.core.$=for", function() {
 });
 
 
+describe("jsx prototype pollution", function() {
+    it("jsx prototype pollution 1", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(() => lsx`
+            (Hello (@ (style (__proto__ "foo") ) ))
+        `).toThrow();
+    });
+    it("jsx prototype pollution 2", function() {
+        const dom = RedAgate.createElement;
+        const fragment = RedAgate.Template;
+        const render = RedAgate.renderAsHtml_noDefer;
+        const Hello = (props: any) =>
+            dom('div', {},
+                `Hello, ${props.name}, Lisp!`,
+                ...(Array.isArray(props.children) ? props.children : [props.children])
+            );
+        const lsx = LSX({
+            jsx: dom,
+            jsxFlagment: fragment,
+            components: {
+                Html5: RedAgate.Html5,
+                Svg: RedAgate.Svg,
+                Rect: RedAgate.Rect,
+                Hello,
+            },
+        });
+        expect(() => lsx`
+            (Hello (@ (style ("__proto__" "foo") ) ))
+        `).toThrow();
+    });
+});
+
+
 // describe("operator.core.@", function() {
 //     it("foo", function() {
 //         expect(1).toEqual(1);

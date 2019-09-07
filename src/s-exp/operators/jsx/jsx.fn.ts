@@ -97,11 +97,14 @@ export const $jsxProps = (state: SxParserState, name: string) => (...args: any[]
                         const styles: object = {};
                         for (const s of x.slice(1)) {
                             if (Array.isArray(s) && 1 < s.length) {
-                                styles[String(evaluate(state, s[0]))] = String(evaluate(state, s[1]));
+                                const styleName = String(evaluate(state, s[0]));
+                                checkUnsafeVarNamesEx('$jsxProps', styles, styleName);
+                                styles[styleName] = String(evaluate(state, s[1]));
                             } else if (typeof s === 'string') {
                                 for (const v of s.split(';')) {
                                     const matched = /^\s*(\S+)\s*:\s*(.*?)\s*$/.exec(v);
                                     if (matched) {
+                                        checkUnsafeVarNamesEx('$jsxProps', styles, matched[1]);
                                         styles[matched[1]] = matched[2];
                                     }
                                 }

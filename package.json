@@ -27,16 +27,16 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@babel/cli": "^7.5.5",
-    "@babel/core": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
     "@types/jasmine": "^3.4.0",
-    "@types/node": "^12.7.2",
+    "@types/node": "^12.7.4",
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
     "babel-loader": "^8.0.6",
     "cpx": "^1.5.0",
-    "cross-env": "^5.2.0",
+    "cross-env": "^5.2.1",
     "jasmine": "^3.4.0",
     "jasmine-spec-reporter": "^4.2.1",
     "mkdirp": "^0.5.1",
@@ -52,7 +52,7 @@
     "tslint": "^5.19.0",
     "typescript": "^3.6.2",
     "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7"
+    "webpack-cli": "^3.3.8"
   },
   "scripts": {
     "clean": "run-s clean:cjs clean:esm clean:spec clean:dist",

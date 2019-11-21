@@ -10,10 +10,10 @@ import { SxMacroInfo,
          SxParserState,
          SxToken,
          SExpressionTemplateFn,
-         SExpressionAsyncTemplateFn } from './types';
-import { parse }                      from './parser';
-import { evaluate }                   from './evaluate';
-import { defaultConfig }              from './defaults';
+         SExpressionAsyncTemplateFn } from '../types';
+import { parse }                      from '../parser';
+import { evaluate }                   from '../evaluate';
+import { defaultConfig }              from '../defaults';
 
 
 

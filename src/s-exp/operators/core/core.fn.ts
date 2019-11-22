@@ -1319,7 +1319,7 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
 };
 
 
-const assignBlacklists = [
+const assignBlacklist = [
     globalObj,
     (Object as any).__proto__,
     ({} as any).__proto__,
@@ -1331,7 +1331,7 @@ export const $objectAssign = (state: SxParserState, name: string) => (...args: a
     //  -> S expr  : string
     checkParamsLength('$objectAssign', args, 1);
 
-    if (assignBlacklists.includes(args[0])) {
+    if (assignBlacklist.includes(args[0])) {
         throw new Error(`[SX] $objectAssign: Invalid argument: args[0] is blacklisted object.`);
     }
     return Object.assign(args[0], ...(args.slice(1)));

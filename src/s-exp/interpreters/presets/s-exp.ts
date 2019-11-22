@@ -4,7 +4,7 @@
 
 
 import { SxParserConfig } from '../../types';
-import { SExpression }    from '../../interpreters/interpreter';
+import { SExpression }    from '../../interpreters';
 import { defaultConfig }  from '../../defaults';
 
 

@@ -14,7 +14,7 @@ import installSequence      from '../../operators/sequence';
 import installJsx           from '../../operators/jsx';
 import installConcurrent    from '../../operators/concurrent';
 import { SExpression,
-         SExpressionAsync } from '../../interpreters/interpreter';
+         SExpressionAsync } from '../../interpreters';
 import { defaultConfig }    from '../../defaults';
 
 

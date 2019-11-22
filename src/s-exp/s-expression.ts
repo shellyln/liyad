@@ -5,7 +5,7 @@
 
 
 export * from './defaults';
-export * from './interpreters/interpreter';
+export * from './interpreters';
 export * from './interpreters/presets/s-exp';
 export * from './interpreters/presets/lisp';
 export * from './interpreters/presets/lsx';

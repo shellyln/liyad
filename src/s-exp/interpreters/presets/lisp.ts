@@ -9,7 +9,7 @@ import installArithmetic    from '../../operators/arithmetic';
 import installSequence      from '../../operators/sequence';
 import installConcurrent    from '../../operators/concurrent';
 import { SExpression,
-         SExpressionAsync } from '../../interpreters/interpreter';
+         SExpressionAsync } from '../../interpreters';
 import { defaultConfig }    from '../../defaults';
 
 

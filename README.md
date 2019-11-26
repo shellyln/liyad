@@ -709,7 +709,7 @@ is equivalent to:
 
 ## APIs
 
-### `SExpression`
+### `SExpression` / `SExpressionAsync`
 
 Create a new DSL.
 
@@ -1004,6 +1004,27 @@ Usage:
 </head>
 <body></body>
 ```
+
+----
+
+
+## Tree shaking (webpack)
+
+You can benefit from tree shaking by importing ES module separated files.
+
+| Import path                                     | Description    |
+|-------------------------------------------------|----------------|
+| `liyad/modules`                                 | Entire library |
+| `liyad/modules/s-exp/types`                     | Type definitions |
+| `liyad/modules/s-exp/interpreter`               | Interpreter DIY APIs `SExpression`, `SExpressionAsync` |
+| `liyad/modules/s-exp/interpreter/presets/s-exp` | Preset s-expression parser `S` |
+| `liyad/modules/s-exp/interpreter/presets/lisp`  | Preset interpreters `lisp`, `lisp_async`, `LM`, `LM_async` |
+| `liyad/modules/s-exp/interpreter/presets/lsx`   | Preset interpreters `LSX`, `LSX_async` |
+| `liyad/modules/s-exp/operators/core`            | Core operators |
+| `liyad/modules/s-exp/operators/arithmetic`      | Arithmetic operators |
+| `liyad/modules/s-exp/operators/sequence`        | Sequence operators |
+| `liyad/modules/s-exp/operators/concurrent`      | Concurrent operators |
+| `liyad/modules/s-exp/operators/jsx`             | JSX (LSX) operators |
 
 ----
 

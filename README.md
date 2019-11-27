@@ -1026,6 +1026,8 @@ You can benefit from tree shaking by importing ES module separated files.
 | `liyad/modules/s-exp/operators/concurrent`      | Concurrent operators |
 | `liyad/modules/s-exp/operators/jsx`             | JSX (LSX) operators |
 
+> NOTICE: `liyad/modules/*` are not babelized. These are output as `ES2015` by tsc.
+
 ----
 
 

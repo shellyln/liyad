@@ -535,6 +535,17 @@
 
 ----
 
+## $typeof
+
+#### Returns
+
+#### Description
+
+#### Errors
+
+
+----
+
 ## $symbol
 
 #### Returns
@@ -558,6 +569,39 @@
 ----
 
 ## $is-symbol
+
+#### Returns
+
+#### Description
+
+#### Errors
+
+
+----
+
+## $is-null
+
+#### Returns
+
+#### Description
+
+#### Errors
+
+
+----
+
+## $is-nil
+
+#### Returns
+
+#### Description
+
+#### Errors
+
+
+----
+
+## $is-undefined
 
 #### Returns
 

@@ -4326,6 +4326,73 @@ describe("operator.core.>=", function() {
 });
 
 
+describe("operator.core.$typeof", function() {
+    it("$typeof -> throw", function() {
+        expect(() => lisp`($typeof)`).toThrow();
+    });
+    it("$typeof undefined -> 'undefined'", function() {
+        expect(lisp`($typeof undefined)`).toEqual('undefined');
+    });
+    it("$typeof null -> 'null'", function() {
+        expect(lisp`($typeof null)`).toEqual('null');
+    });
+    it("$typeof nil -> 'list'", function() {
+        expect(lisp`($typeof nil)`).toEqual('list');
+    });
+    it("$typeof () -> 'list'", function() {
+        expect(lisp`($typeof ())`).toEqual('list');
+    });
+    it("$typeof (a) -> 'list'", function() {
+        expect(lisp`($typeof ($list 1))`).toEqual('list');
+    });
+    it("$typeof true -> 'boolean'", function() {
+        expect(lisp`($typeof true)`).toEqual('boolean');
+    });
+    it("$typeof false -> 'boolean'", function() {
+        expect(lisp`($typeof false)`).toEqual('boolean');
+    });
+    it("$typeof number -> 'number'", function() {
+        expect(lisp`($typeof 0)`).toEqual('number');
+    });
+    it("$typeof number -> 'number'", function() {
+        expect(lisp`($typeof 1)`).toEqual('number');
+    });
+    it("$typeof number -> 'number'", function() {
+        expect(lisp`($typeof -1)`).toEqual('number');
+    });
+    it("$typeof NaN -> 'number'", function() {
+        expect(lisp`($typeof NaN)`).toEqual('number');
+    });
+    it("$typeof +Infinity -> 'number'", function() {
+        expect(lisp`($typeof +Infinity)`).toEqual('number');
+    });
+    it("$typeof -Infinity -> 'number'", function() {
+        expect(lisp`($typeof -Infinity)`).toEqual('number');
+    });
+    it("$typeof string -> 'string'", function() {
+        expect(lisp`($typeof "")`).toEqual('string');
+    });
+    it("$typeof string -> 'string'", function() {
+        expect(lisp`($typeof "0")`).toEqual('string');
+    });
+    it("$typeof string -> 'string'", function() {
+        expect(lisp`($typeof "1")`).toEqual('string');
+    });
+    it("$typeof string -> 'string'", function() {
+        expect(lisp`($typeof "-1")`).toEqual('string');
+    });
+    it("$typeof (#) -> 'object'", function() {
+        expect(lisp`($typeof (#))`).toEqual('object');
+    });
+    it("$typeof ($gensym) -> 'object'", function() {
+        expect(lisp`($typeof ($gensym))`).toEqual('object');
+    });
+    it("$typeof Symbol -> 'js-symbol'", function() {
+        expect(lisp`($typeof ${Symbol()})`).toEqual('js-symbol');
+    });
+});
+
+
 describe("operator.core.$symbol", function() {
     it("$symbol -> throw", function() {
         expect(() => lisp`($symbol)`).toThrow();
@@ -4485,12 +4552,213 @@ describe("operator.core.$is-symbol", function() {
 });
 
 
+describe("operator.core.$is-null", function() {
+    it("$is-null -> throw", function() {
+        expect(() => lisp`($is-null)`).toThrow();
+    });
+    it("$is-null undefined -> false", function() {
+        expect(lisp`($is-null undefined)`).toEqual(false);
+    });
+    it("$is-null null -> true", function() {
+        expect(lisp`($is-null null)`).toEqual(true);
+    });
+    it("$is-null nil -> false", function() {
+        expect(lisp`($is-null nil)`).toEqual(false);
+    });
+    it("$is-null () -> false", function() {
+        expect(lisp`($is-null ())`).toEqual(false);
+    });
+    it("$is-null (a) -> false", function() {
+        expect(lisp`($is-null ($list 1))`).toEqual(false);
+    });
+    it("$is-null true -> false", function() {
+        expect(lisp`($is-null true)`).toEqual(false);
+    });
+    it("$is-null false -> false", function() {
+        expect(lisp`($is-null false)`).toEqual(false);
+    });
+    it("$is-null number -> false", function() {
+        expect(lisp`($is-null 0)`).toEqual(false);
+    });
+    it("$is-null number -> false", function() {
+        expect(lisp`($is-null 1)`).toEqual(false);
+    });
+    it("$is-null number -> false", function() {
+        expect(lisp`($is-null -1)`).toEqual(false);
+    });
+    it("$is-null NaN -> false", function() {
+        expect(lisp`($is-null NaN)`).toEqual(false);
+    });
+    it("$is-null +Infinity -> false", function() {
+        expect(lisp`($is-null +Infinity)`).toEqual(false);
+    });
+    it("$is-null -Infinity -> false", function() {
+        expect(lisp`($is-null -Infinity)`).toEqual(false);
+    });
+    it("$is-null string -> false", function() {
+        expect(lisp`($is-null "")`).toEqual(false);
+    });
+    it("$is-null string -> false", function() {
+        expect(lisp`($is-null "0")`).toEqual(false);
+    });
+    it("$is-null string -> false", function() {
+        expect(lisp`($is-null "1")`).toEqual(false);
+    });
+    it("$is-null string -> false", function() {
+        expect(lisp`($is-null "-1")`).toEqual(false);
+    });
+    it("$is-null (#) -> false", function() {
+        expect(lisp`($is-null (#))`).toEqual(false);
+    });
+    it("$is-null ($gensym) -> false", function() {
+        expect(lisp`($is-null ($gensym))`).toEqual(false);
+    });
+    it("$is-null Symbol -> false", function() {
+        expect(lisp`($is-null ${Symbol()})`).toEqual(false);
+    });
+});
+
+
+describe("operator.core.$is-nil", function() {
+    it("$is-nil -> throw", function() {
+        expect(() => lisp`($is-nil)`).toThrow();
+    });
+    it("$is-nil undefined -> false", function() {
+        expect(lisp`($is-nil undefined)`).toEqual(false);
+    });
+    it("$is-nil null -> false", function() {
+        expect(lisp`($is-nil null)`).toEqual(false);
+    });
+    it("$is-nil nil -> true", function() {
+        expect(lisp`($is-nil nil)`).toEqual(true);
+    });
+    it("$is-nil () -> true", function() {
+        expect(lisp`($is-nil ())`).toEqual(true);
+    });
+    it("$is-nil (a) -> false", function() {
+        expect(lisp`($is-nil ($list 1))`).toEqual(false);
+    });
+    it("$is-nil true -> false", function() {
+        expect(lisp`($is-nil true)`).toEqual(false);
+    });
+    it("$is-nil false -> false", function() {
+        expect(lisp`($is-nil false)`).toEqual(false);
+    });
+    it("$is-nil number -> false", function() {
+        expect(lisp`($is-nil 0)`).toEqual(false);
+    });
+    it("$is-nil number -> false", function() {
+        expect(lisp`($is-nil 1)`).toEqual(false);
+    });
+    it("$is-nil number -> false", function() {
+        expect(lisp`($is-nil -1)`).toEqual(false);
+    });
+    it("$is-nil NaN -> false", function() {
+        expect(lisp`($is-nil NaN)`).toEqual(false);
+    });
+    it("$is-nil +Infinity -> false", function() {
+        expect(lisp`($is-nil +Infinity)`).toEqual(false);
+    });
+    it("$is-nil -Infinity -> false", function() {
+        expect(lisp`($is-nil -Infinity)`).toEqual(false);
+    });
+    it("$is-nil string -> false", function() {
+        expect(lisp`($is-nil "")`).toEqual(false);
+    });
+    it("$is-nil string -> false", function() {
+        expect(lisp`($is-nil "0")`).toEqual(false);
+    });
+    it("$is-nil string -> false", function() {
+        expect(lisp`($is-nil "1")`).toEqual(false);
+    });
+    it("$is-nil string -> false", function() {
+        expect(lisp`($is-nil "-1")`).toEqual(false);
+    });
+    it("$is-nil (#) -> false", function() {
+        expect(lisp`($is-nil (#))`).toEqual(false);
+    });
+    it("$is-nil ($gensym) -> false", function() {
+        expect(lisp`($is-nil ($gensym))`).toEqual(false);
+    });
+    it("$is-nil Symbol -> false", function() {
+        expect(lisp`($is-nil ${Symbol()})`).toEqual(false);
+    });
+});
+
+
+describe("operator.core.$is-undefined", function() {
+    it("$is-undefined -> throw", function() {
+        expect(() => lisp`($is-undefined)`).toThrow();
+    });
+    it("$is-undefined undefined -> true", function() {
+        expect(lisp`($is-undefined undefined)`).toEqual(true);
+    });
+    it("$is-undefined null -> false", function() {
+        expect(lisp`($is-undefined null)`).toEqual(false);
+    });
+    it("$is-undefined nil -> false", function() {
+        expect(lisp`($is-undefined nil)`).toEqual(false);
+    });
+    it("$is-undefined () -> false", function() {
+        expect(lisp`($is-undefined ())`).toEqual(false);
+    });
+    it("$is-undefined (a) -> false", function() {
+        expect(lisp`($is-undefined ($list 1))`).toEqual(false);
+    });
+    it("$is-undefined true -> false", function() {
+        expect(lisp`($is-undefined true)`).toEqual(false);
+    });
+    it("$is-undefined false -> false", function() {
+        expect(lisp`($is-undefined false)`).toEqual(false);
+    });
+    it("$is-undefined number -> false", function() {
+        expect(lisp`($is-undefined 0)`).toEqual(false);
+    });
+    it("$is-undefined number -> false", function() {
+        expect(lisp`($is-undefined 1)`).toEqual(false);
+    });
+    it("$is-undefined number -> false", function() {
+        expect(lisp`($is-undefined -1)`).toEqual(false);
+    });
+    it("$is-undefined NaN -> false", function() {
+        expect(lisp`($is-undefined NaN)`).toEqual(false);
+    });
+    it("$is-undefined +Infinity -> false", function() {
+        expect(lisp`($is-undefined +Infinity)`).toEqual(false);
+    });
+    it("$is-undefined -Infinity -> false", function() {
+        expect(lisp`($is-undefined -Infinity)`).toEqual(false);
+    });
+    it("$is-undefined string -> false", function() {
+        expect(lisp`($is-undefined "")`).toEqual(false);
+    });
+    it("$is-undefined string -> false", function() {
+        expect(lisp`($is-undefined "0")`).toEqual(false);
+    });
+    it("$is-undefined string -> false", function() {
+        expect(lisp`($is-undefined "1")`).toEqual(false);
+    });
+    it("$is-undefined string -> false", function() {
+        expect(lisp`($is-undefined "-1")`).toEqual(false);
+    });
+    it("$is-undefined (#) -> false", function() {
+        expect(lisp`($is-undefined (#))`).toEqual(false);
+    });
+    it("$is-undefined ($gensym) -> false", function() {
+        expect(lisp`($is-undefined ($gensym))`).toEqual(false);
+    });
+    it("$is-undefined Symbol -> false", function() {
+        expect(lisp`($is-undefined ${Symbol()})`).toEqual(false);
+    });
+});
+
+
 describe("operator.core.$is-list", function() {
     it("$is-list -> throw", function() {
         expect(() => lisp`($is-list)`).toThrow();
     });
     it("$is-list undefined -> false", function() {
-        expect(lisp`($is-number undefined)`).toEqual(false);
+        expect(lisp`($is-list undefined)`).toEqual(false);
     });
     it("$is-list null -> false", function() {
         expect(lisp`($is-list null)`).toEqual(false);
@@ -4551,7 +4819,7 @@ describe("operator.core.$is-string", function() {
         expect(() => lisp`($is-string)`).toThrow();
     });
     it("$is-string undefined -> false", function() {
-        expect(lisp`($is-number undefined)`).toEqual(false);
+        expect(lisp`($is-string undefined)`).toEqual(false);
     });
     it("$is-string null -> false", function() {
         expect(lisp`($is-string null)`).toEqual(false);

@@ -302,9 +302,10 @@ function parseSymbol(state: SxParserState, virtualEof?: string[]): SxSymbol | nu
 
 function parseStringOrComment(
         state: SxParserState, eof: string[],
-        valuesStartSeq: string | null ,
+        valuesStartSeq: string | null,
         valuesStopChar: string,
-        disableEscape: boolean
+        disableEscape: boolean,
+        allowPhysicalEof: boolean,
     ): { strings: string[], values: any[] } {
 
     const eofSeqs = valuesStartSeq ? [...eof, valuesStartSeq] : eof;
@@ -335,7 +336,9 @@ function parseStringOrComment(
         getChar(state, eofSeqs, disableEscape);
 
         if ((ch as SxEof).eof === true) {
-            throw new ScriptTerminationError('parseStringOrComment');
+            if (! allowPhysicalEof) {
+                throw new ScriptTerminationError('parseStringOrComment');
+            }
         }
 
         strings.push(s);
@@ -352,7 +355,7 @@ function parseStringOrComment(
 
 
 function parseString(state: SxParserState, disableEscape: boolean): string {
-    return parseStringOrComment(state, ['"'], null, ')', disableEscape).strings[0];
+    return parseStringOrComment(state, ['"'], null, ')', disableEscape, false).strings[0];
 }
 
 
@@ -363,7 +366,7 @@ function parseHereDoc(state: SxParserState, symbol: SxSymbol, attrs: SxToken[] |
         q.push(attrs);
     }
 
-    const inner = parseStringOrComment(state, ['"""'], '%%%(', ')', false);
+    const inner = parseStringOrComment(state, ['"""'], '%%%(', ')', false, false);
     for (let i = 0; i < inner.strings.length; i++) {
         q.push(inner.strings[i]);
         if (i < inner.values.length) {
@@ -377,14 +380,14 @@ function parseHereDoc(state: SxParserState, symbol: SxSymbol, attrs: SxToken[] |
 
 function parseSingleLineComment(state: SxParserState): SxComment | ' ' {
     return {
-        comment: parseStringOrComment(state, ['\r', '\n'], null, ')', false).strings[0]
+        comment: parseStringOrComment(state, ['\r', '\n'], null, ')', false, true).strings[0]
     };
 }
 
 
 function parseMultiLineComment(state: SxParserState): SxComment | ' ' {
     return {
-        comment: parseStringOrComment(state, ['|#'], null, ')', false).strings[0]
+        comment: parseStringOrComment(state, ['|#'], null, ')', false, false).strings[0]
     };
 }
 

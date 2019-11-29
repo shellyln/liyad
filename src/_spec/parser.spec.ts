@@ -1742,3 +1742,83 @@ describe("DoS protections (compilation)", function() {
         `).toEqual([3, 5, 7]);
     });
 });
+
+
+describe("Termination of script", function() {
+    it("Termination of script 1a", function() {
+        expect(() => lisp`
+            ($last "aaa`).toThrow();
+    });
+    it("Termination of script 1b", function() {
+        expect(() => lisp`
+            ($last "aaa
+        "`).toThrow();
+    });
+    it("Termination of script 1c", function() {
+        expect((lisp`
+            ($last "aaa
+        ")` as any).trim()).toEqual('aaa');
+    });
+    it("Termination of script 2a", function() {
+        expect(() => lisp`
+            """ aaa`).toThrow();
+    });
+    it("Termination of script 2b", function() {
+        expect(() => lisp`
+            """ aaa
+        `).toThrow();
+    });
+    it("Termination of script 2c", function() {
+        expect((lisp`
+            """ aaa
+        """` as any).trim()).toEqual('aaa');
+    });
+    it("Termination of script 3a", function() {
+        expect(() => lisp`
+            (+ 13)
+            #|aaa`).toThrow();
+    });
+    it("Termination of script 3b", function() {
+        expect(() => lisp`
+            (+ 13)
+            #|aaa
+        `).toThrow();
+    });
+    it("Termination of script 3c", function() {
+        expect(lisp`
+            (+ 13)
+            #|aaa
+        |#`).toEqual(13);
+    });
+    it("Termination of script 4a", function() {
+        expect(lisp`
+            (+ 13)
+            #aaa`).toEqual(13);
+    });
+    it("Termination of script 4b", function() {
+        expect(lisp`
+            (+ 13)
+            #aaa
+        `).toEqual(13);
+    });
+    it("Termination of script 5a", function() {
+        expect(lisp`
+            (+ 13)
+            ;aaa`).toEqual(13);
+    });
+    it("Termination of script 5b", function() {
+        expect(lisp`
+            (+ 13)
+            ;aaa
+        `).toEqual(13);
+    });
+    it("Termination of script 6a", function() {
+        expect(S`
+            ;aaa`).toEqual({comment: 'aaa'});
+    });
+    it("Termination of script 6b", function() {
+        expect(S`
+            ;aaa
+        `).toEqual({comment: 'aaa'});
+    });
+});

@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.0.0
+## v0.3.0
 
 * Separate file to benefit from tree shaking.
 * Add operators.

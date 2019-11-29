@@ -156,6 +156,9 @@ export const operators: SxFuncInfo[] = [{
     name: '>=',
     fn: ops.$ge,
 }, {
+    name: '$typeof',
+    fn: ops.$typeof,
+}, {
     name: '$symbol',
     fn: ops.$symbol,
 }, {
@@ -164,6 +167,15 @@ export const operators: SxFuncInfo[] = [{
 }, {
     name: '$is-symbol',
     fn: ops.$isSymbol,
+}, {
+    name: '$is-null',
+    fn: ops.$isNull,
+}, {
+    name: '$is-nil',
+    fn: ops.$isNil,
+}, {
+    name: '$is-undefined',
+    fn: ops.$isUndefined,
 }, {
     name: '$is-list',
     fn: ops.$isList,

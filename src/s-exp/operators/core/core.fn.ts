@@ -1146,6 +1146,33 @@ export const $ge = (state: SxParserState, name: string) => (...args: any[]) => {
 export const $$ge = $ge(null as any, null as any);
 
 
+export const $typeof = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($typeof x)
+    //  -> S expr  : 'null' | 'bigint' | 'boolean' | 'function' | 'number' | 'string' | 'undefined' |
+    //               'js-symbol' | 'list' | 'object'
+    checkParamsLength('$typeof', args, 1, 1);
+
+    const car = $$first(...args);
+    if (car === null) {
+        return 'null';
+    }
+    const tyName = typeof car;
+    switch (tyName) {
+    case 'object':
+        if (Array.isArray(car)) {
+            return 'list';
+        } else {
+            return 'object';
+        }
+    case 'symbol':
+        return 'js-symbol';
+    default:
+        return tyName;
+    }
+};
+export const $$typeof = $typeof(null as any, null as any);
+
+
 export const $symbol = (state: SxParserState, name: string) => (...args: any[]) => {
     // S expression: ($symbol)
     // S expression: ($symbol name)
@@ -1201,6 +1228,37 @@ export const $isSymbol = (state: SxParserState, name: string) => (...args: any[]
     }
 };
 export const $$isSymbol = $isSymbol(null as any, null as any);
+
+
+export const $isNull = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-null x)
+    //  -> S expr  : boolean
+    checkParamsLength('$isNull', args, 1, 1);
+
+    return $$first(...args) === null;
+};
+export const $$isNull = $isNull(null as any, null as any);
+
+
+export const $isNil = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-nil x)
+    //  -> S expr  : boolean
+    checkParamsLength('$isNil', args, 1, 1);
+
+    const car = $$first(...args);
+    return Array.isArray(car) && car.length === 0;
+};
+export const $$isNil = $isNil(null as any, null as any);
+
+
+export const $isUndefined = (state: SxParserState, name: string) => (...args: any[]) => {
+    // S expression: ($is-undefined x)
+    //  -> S expr  : boolean
+    checkParamsLength('$isUndefined', args, 1, 1);
+
+    return $$first(...args) === void 0;
+};
+export const $$isUndefined = $isUndefined(null as any, null as any);
 
 
 export const $isList = (state: SxParserState, name: string) => (...args: any[]) => {
@@ -1319,7 +1377,7 @@ export const $__toObject = (state: SxParserState, name: string) => (...args: any
 };
 
 
-const assignBlacklists = [
+const assignBlacklist = [
     globalObj,
     (Object as any).__proto__,
     ({} as any).__proto__,
@@ -1331,7 +1389,7 @@ export const $objectAssign = (state: SxParserState, name: string) => (...args: a
     //  -> S expr  : string
     checkParamsLength('$objectAssign', args, 1);
 
-    if (assignBlacklists.includes(args[0])) {
+    if (assignBlacklist.includes(args[0])) {
         throw new Error(`[SX] $objectAssign: Invalid argument: args[0] is blacklisted object.`);
     }
     return Object.assign(args[0], ...(args.slice(1)));

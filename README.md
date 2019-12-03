@@ -336,6 +336,25 @@ This is a block comment
 
 ### Here document:
 
+#### `lisp` preset interpreter:
+
+```lisp
+"""
+Hello, Liyad!
+"""
+```
+
+is equivalent to:
+```lisp
+($concat
+"
+Hello, Liyad!
+"
+)
+```
+
+#### `LSX` preset interpreter:
+
 ```lisp
 """
 Hello, Liyad!
@@ -351,6 +370,8 @@ Hello, Liyad!
 )
 ```
 
+> `Template` on the `LSX` preset interpreter, it is mapped to the function passed by `LsxConfig.JsxFragment`.  
+> See also: [Fragments (React)](https://reactjs.org/docs/fragments.html), [Template (RedAgate)](https://github.com/shellyln/red-agate/tree/master/packages/red-agate#standard-tag-libs).
 
 ----
 

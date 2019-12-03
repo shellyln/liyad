@@ -74,7 +74,7 @@
     "build:dist:2": "cpx -C \"./src.dist/**/!(liyad.js|liyad.js.map|liyad.min.js|liyad.min.js.map)\" ./dist",
     "lint": "tslint ./src/**/*.ts -t verbose",
     "test": "jasmine",
-    "prepublishOnly": "run-s clean build test"
+    "prepublishOnly": "run-s clean build test lint"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,15 @@
 # Changelog
 
 
+## v0.4.0
+
+* Add package.json to module sub directory; for ES Modules.
+    * See also: https://nodejs.org/api/esm.html#esm_package_json_type_field
+
+## v0.3.2
+
+* Update build scripts and CI configurations.
+
 ## v0.3.1
 
 * Fix an unexpected syntax error when a line comment exists at the end of the file.

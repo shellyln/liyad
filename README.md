@@ -57,6 +57,8 @@ $ liyad
     Component-based extensible document processor
 * [mdne - Markdown Neo Edit](https://www.npmjs.com/package/mdne)  
     A simple markdown and code editor powered by Markdown-it, Ace and Carlo.
+* [Tynder](https://github.com/shellyln/tynder)  
+    TypeScript friendly Data validator for JavaScript.
 
 ----
 

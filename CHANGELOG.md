@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.4.2
+
+* Update dependencies.
+* Update CI configurations.
+* Update lint configurations.
+
+
 ## v0.4.1
 
 * Update dependencies.

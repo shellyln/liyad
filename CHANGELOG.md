@@ -1,6 +1,11 @@
 # Changelog
 
 
+## v0.4.3
+
+* Update dependencies.
+
+
 ## v0.4.2
 
 * Update dependencies.

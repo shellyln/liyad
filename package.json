@@ -76,8 +76,9 @@
     "build:dist:dev:1": "webpack-cli --mode=development --config webpack.dist.config.js",
     "build:dist:2": "shx cp -R ./src.dist/* ./dist",
     "lint": "tslint ./src/**/*.ts -t verbose",
-    "lint:es": "eslint ./src/** -c ./.eslintrc.build.json --ext .js,.ts --ignore-pattern src/_spec/**",
-    "lint:es:spec": "eslint ./src/_spec/** -c ./.eslintrc.spec.json --ext .js,.ts",
+    "lint:es": "run-s lint:es:main lint:es:spec",
+    "lint:es:main": "eslint -c ./.eslintrc.build.json --ext .js,.ts --ignore-pattern src/_spec/ ./src/",
+    "lint:es:spec": "eslint -c ./.eslintrc.spec.json --ext .js,.ts ./src/_spec/",
     "test": "jasmine",
     "prepublishOnly": "run-s clean build test lint"
   },

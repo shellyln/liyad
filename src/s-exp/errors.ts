@@ -5,7 +5,9 @@
 
 import { SxParserState,
          MaxEvaluationCountError } from './types';
-import { globalObj }               from './consts';
+import { globalObj,
+         objConstructor,
+         funConstructor }          from './global-this';
 
 
 
@@ -27,9 +29,6 @@ export function checkParamsLength(name: string, args: ArrayLike<any>, min: numbe
     return args;
 }
 
-
-const objConstructor = ({}).constructor; // NOTE: objConstructor            === Object
-const funConstructor = Function;         // NOTE: ({}).toString.constructor === Function
 
 export function checkUnsafeVarNames(name: string, varName: string) {
     if (varName === '__proto__' ||

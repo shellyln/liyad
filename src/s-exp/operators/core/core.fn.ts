@@ -9,7 +9,7 @@ import { SxParserState,
          FatalError,
          CapturedScopes,
          SxMacroInfo }           from '../../types';
-import { globalObj }             from '../../consts';
+import { globalObj }             from '../../global-this';
 import { isSymbol,
          quote }                 from '../../ast';
 import { evaluate,

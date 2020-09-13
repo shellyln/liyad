@@ -1,10 +1,14 @@
 # Changelog
 
 
-## v0.4.3
+## v0.5.0
 
 * Add fall back processing to get `globalThis`, `Object`, and `Function`. (to check for unsafe keywords)
+* Fix lint npm scripts.
 * Update dependencies.
+
+
+---
 
 
 ## v0.4.2

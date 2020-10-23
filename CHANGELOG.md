@@ -1,6 +1,13 @@
 # Changelog
 
 
+## v0.5.1
+
+* Update dependencies.
+* Update CI configurations.
+* Migrate to webpack 5.
+
+
 ## v0.5.0
 
 * Add fall back processing to get `globalThis`, `Object`, and `Function`. (to check for unsafe keywords)

@@ -26,6 +26,31 @@ $ npm install liyad --save
 or download UMD from [release](https://github.com/shellyln/liyad/releases) page.
 
 
+### Use with `webpack >= 5`
+
+If you get the error:
+
+```
+Module not found: Error: Can't resolve '(importing/path/to/filename)'
+in '(path/to/node_modules/path/to/dirname)'
+Did you mean '(filename).js'?`
+
+```
+Add following setting to your `webpack.config.js`.
+
+```js
+{
+    test: /\.m?js/,
+    resolve: {
+        fullySpecified: false,
+    },
+},
+```
+
+In `webpack >= 5`, the extension in the request is mandatory for it to be fully specified
+if the origin is a '*.mjs' file or a '*.js' file where the package.json contains '"type": "module"'.
+
+
 ## Install CLI
 
 See [liyad-cli](https://github.com/shellyln/liyad-cli) .

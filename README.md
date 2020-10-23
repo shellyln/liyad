@@ -34,8 +34,8 @@ If you get the error:
 Module not found: Error: Can't resolve '(importing/path/to/filename)'
 in '(path/to/node_modules/path/to/dirname)'
 Did you mean '(filename).js'?`
-
 ```
+
 Add following setting to your `webpack.config.js`.
 
 ```js

@@ -47,7 +47,7 @@ Add following setting to your `webpack.config.js`.
 },
 ```
 
-In `webpack >= 5`, the extension in the request is mandatory for it to be fully specified
+On `webpack >= 5`, the extension in the request is mandatory for it to be fully specified
 if the origin is a '*.mjs' file or a '*.js' file where the package.json contains '"type": "module"'.
 
 

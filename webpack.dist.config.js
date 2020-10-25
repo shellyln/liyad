@@ -27,14 +27,14 @@ module.exports = function (env) {
             ]
         },
         node: {
-            fs: false,
-            console: false,
-            process: false,
+            // fs: false,
+            // console: false,
+            // process: false,
             global: false,
             __filename: false,
             __dirname: false,
-            Buffer: false,
-            setImmediate: false,
+            // Buffer: false,
+            // setImmediate: false,
         },
         output: {
             library: 'liyad',
@@ -61,6 +61,11 @@ module.exports = function (env) {
                     babelOptions,
                 ],
                 exclude: /node_modules[\/\\](?!liyad).*$/
+            }, {
+                test: /\.m?js/,
+                resolve: {
+                    fullySpecified: false,
+                },
             }, {
                 enforce: 'pre',
                 test: /\.[tj]sx?$/,

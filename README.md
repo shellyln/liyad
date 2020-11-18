@@ -10,7 +10,7 @@ You can easily start making your new DSL using Lisp and S-expression.
 
 [![npm](https://img.shields.io/npm/v/liyad.svg)](https://www.npmjs.com/package/liyad)
 [![GitHub release](https://img.shields.io/github/release/shellyln/liyad.svg)](https://github.com/shellyln/liyad/releases)
-[![Travis](https://img.shields.io/travis/shellyln/liyad/master.svg)](https://travis-ci.org/shellyln/liyad)
+[![.github/workflows/test.yml](https://github.com/shellyln/liyad/workflows/.github/workflows/test.yml/badge.svg)](https://github.com/shellyln/liyad/actions)
 [![GitHub forks](https://img.shields.io/github/forks/shellyln/liyad.svg?style=social&label=Fork)](https://github.com/shellyln/liyad/fork)
 [![GitHub stars](https://img.shields.io/github/stars/shellyln/liyad.svg?style=social&label=Star)](https://github.com/shellyln/liyad)
 

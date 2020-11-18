@@ -1,5 +1,9 @@
 on: [push, pull_request]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   test:
     name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
